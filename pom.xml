@@ -66,7 +66,7 @@
                         <id>default-cli</id>
                         <configuration>
                             <mainClass>
-                                org.example.wordageddongruppo_16/org.example.wordageddongruppo_16.HelloApplication
+                                org.example.wordageddongruppo_16/it.unisa.diem.wordageddon_g16.WordageddonApp
                             </mainClass>
                             <launcher>app</launcher>
                             <jlinkZipName>app</jlinkZipName>
