@@ -101,6 +101,7 @@ package db{
     }
 
     class StopWordDAO extends JdbcDAO<String> {
+        + selectById(id) <<Unsupported operation>> /'useless in this context'/
     }
 
     UserDAO ..> User

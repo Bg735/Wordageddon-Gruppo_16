@@ -7,8 +7,8 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
-public interface DAO<T>{
-    Optional<T> selectById(Object id);
+public interface DAO<T,ID>{
+    Optional<T> selectById(ID id);
     List<T> selectAll();
     void insert(T t);
     void update(T t);

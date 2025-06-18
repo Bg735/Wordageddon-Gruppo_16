@@ -6,7 +6,7 @@ CREATE TABLE User(
 
 CREATE TABLE GameReport(
                            id INTEGER PRIMARY KEY AUTOINCREMENT,
-                           user TEXT REFERENCES User(name) NOT NULL ,
+                           user TEXT REFERENCES User(name) ON DELETE CASCADE NOT NULL ,
                            timestamp DATETIME DEFAULT  CURRENT_TIMESTAMP NOT NULL ,
                            difficulty TEXT NOT NULL CHECK (difficulty IN ('EASY', 'MEDIUM', 'HARD')),
                            max_time TIME NOT NULL,
@@ -15,16 +15,14 @@ CREATE TABLE GameReport(
                            score INTEGER NOT NULL CHECK (score >= 0),
 
                            CHECK (
-                               max_time LIKE '::' AND
-                               substr(max_time, 1, 2) BETWEEN '00' AND '23' AND
-                               substr(max_time, 4, 2) BETWEEN '00' AND '59' AND
-                               substr(max_time, 7, 2) BETWEEN '00' AND '59'
+                               max_time LIKE '__:__' AND
+                               substr(max_time, 1, 2) BETWEEN '00' AND '60' AND
+                               substr(max_time, 4, 2) BETWEEN '00' AND '59'
                                ),
                            CHECK (
-                               used_time LIKE '::' AND
-                               substr(used_time, 1, 2) BETWEEN '00' AND '23' AND
-                               substr(used_time, 4, 2) BETWEEN '00' AND '59' AND
-                               substr(used_time, 7, 2) BETWEEN '00' AND '59'
+                               used_time LIKE '__:__' AND
+                               substr(used_time, 1, 2) BETWEEN '00' AND '60' AND
+                               substr(used_time, 4, 2) BETWEEN '00' AND '59'
                                )
 );
 
@@ -36,13 +34,13 @@ CREATE TABLE Document(
 );
 
 CREATE TABLE Content(
-    document INTEGER REFERENCES Document(id) NOT NULL,
-    report INTEGER REFERENCES GameReport(id) NOT NULL,
-    PRIMARY KEY (document, report)
+                        document INTEGER REFERENCES Document(id) ON DELETE CASCADE NOT NULL,
+                        report INTEGER REFERENCES GameReport(id) ON DELETE CASCADE NOT NULL,
+                        PRIMARY KEY (document, report)
 );
 
 CREATE TABLE WDM(
-                        document INTEGER REFERENCES Document(id),
+                        document INTEGER REFERENCES Document(id) ON DELETE CASCADE,
                         word TEXT NOT NULL CHECK (LENGTH(word) > 0),
                         occurrences INTEGER NOT NULL CHECK (occurrences >= 0),
                         PRIMARY KEY (document, word)

@@ -1,86 +1,130 @@
 package it.unisa.diem.wordageddon_g16.db;
 
-import it.unisa.diem.wordageddon_g16.models.Difficulty;
-import it.unisa.diem.wordageddon_g16.models.GameReport;
-import it.unisa.diem.wordageddon_g16.models.JdbcRepository;
-import it.unisa.diem.wordageddon_g16.models.User;
+import it.unisa.diem.wordageddon_g16.models.*;
 import it.unisa.diem.wordageddon_g16.services.SystemLogger;
+import javafx.util.Callback;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class GameReportDAO extends JdbcDAO<GameReport> {
+public class GameReportDAO extends JdbcDAO<GameReport,Long> {
+
+    private final UserDAO userDAO;
+    private final DocumentDAO documentDAO;
+
     public GameReportDAO(Connection conn) {
         super(conn);
+        userDAO = (UserDAO) JdbcRepository.getInstance().<User, String>getDAO("user");
+        documentDAO = (DocumentDAO) JdbcRepository.getInstance().<Document, Long>getDAO("document");
     }
 
     @Override
-    public Optional<GameReport> selectById(Object id) {
-        if (id instanceof Long reportId) {
-            String query = "SELECT * FROM GameReport WHERE id = ?";
-            try(var res = executeQuery(query, reportId)){
+    public Optional<GameReport> selectById(Long id) {
+        String query = "SELECT * FROM GameReport WHERE id = ?";
+        Callback<ResultSet,Optional<GameReport>> callback = res -> {
+            try {
                 if (res != null && res.next()) {
-                    var userDAO=JdbcRepository.getInstance().getDAO("user");
                     var user = userDAO.selectById(res.getString("user"));
-                    if (user.isPresent())
+                    var docList = executeQuery(
+                            "SELECT document FROM Content WHERE report = ?",
+                            docs -> {
+                                List<Document> documents = new ArrayList<>();
+                                try {
+                                    while (docs.next()) {
+                                        documentDAO.selectById(docs.getLong("document")).ifPresent(documents::add);
+                                    }
+                                } catch (SQLException e) {
+                                    SystemLogger.log("Error trying to get documents for report with id: " + id, e);
+                                    throw new QueryFailedException(e.getMessage());
+                                }
+                                return documents;
+                            },
+                            id
+                    );
+                    if (user.isPresent()) //The user being present is guaranteed by the foreign key constraint in the database
                         return Optional.of(new GameReport(
-                            res.getLong("id"),
-                            (User) user.get(),
-                            res.getTimestamp("timestamp").toLocalDateTime(),
-                            Difficulty.valueOf(res.getString("difficulty")),
-                            Duration.parse(res.getString("max_time")),
-                            Duration.parse(res.getString("used_time")),
-                            res.getInt("question_count"),
-                            res.getInt("score")
+                                res.getLong("id"),
+                                user.get(),
+                                docList,
+                                res.getTimestamp("timestamp").toLocalDateTime(),
+                                Difficulty.valueOf(res.getString("difficulty")),
+                                Duration.parse(res.getString("max_time")),
+                                Duration.parse(res.getString("used_time")),
+                                res.getInt("question_count"),
+                                res.getInt("score")
                         ));
+                    return Optional.empty();
                 }
             } catch (SQLException e) {
-                SystemLogger.log("Error trying to get report with id: "+reportId, e);
+                SystemLogger.log("Error trying to get report with id: " + id, e);
                 throw new QueryFailedException(e.getMessage());
             }
-        }
-        return Optional.empty();
+            return Optional.empty();
+        };
+        return executeQuery(query, callback, id);
     }
 
     @Override
     public List<GameReport> selectAll() {
-        var result = new java.util.ArrayList<GameReport>();
-        var userDAO = JdbcRepository.getInstance().getDAO("user");
+        var result = new ArrayList<GameReport>();
         String query = "SELECT * FROM GameReport";
-        try(var res = executeQuery(query)){
-            if (res == null) {
-                return result;
-            }
-            while (res.next()) {
-                var user = userDAO.selectById(res.getString("user"));
-                if (user.isPresent()) {
-                    result.add(new GameReport(
-                        res.getLong("id"),
-                        (User) user.get(),
-                        res.getTimestamp("timestamp").toLocalDateTime(),
-                        Difficulty.valueOf(res.getString("difficulty")),
-                        Duration.parse(res.getString("max_time")),
-                        Duration.parse(res.getString("used_time")),
-                        res.getInt("question_count"),
-                        res.getInt("score")
-                    ));
+        Callback<ResultSet,List<GameReport>> callback = res -> {
+            try {
+                if (res == null) {
+                    return result;
                 }
+                while (res.next()) {
+                    var user = userDAO.selectById(res.getString("user"));
+                    var docList = executeQuery(
+                            "SELECT document FROM Content WHERE report = ?",
+                            docs -> {
+                                List<Document> documents = new ArrayList<>();
+                                try {
+                                    while (docs.next()) {
+                                        documentDAO.selectById(docs.getLong("document")).ifPresent(documents::add);
+                                    }
+                                } catch (SQLException e) {
+                                    SystemLogger.log("Error trying to get documents", e);
+                                    throw new QueryFailedException(e.getMessage());
+                                }
+                                return documents;
+                            },
+                            res.getLong("id")
+                    );
+                    if (user.isPresent()) { //The user being present is guaranteed by the foreign key constraint in the database
+                        result.add(new GameReport(
+                                res.getLong("id"),
+                                user.get(),
+                                docList,
+                                res.getTimestamp("timestamp").toLocalDateTime(),
+                                Difficulty.valueOf(res.getString("difficulty")),
+                                Duration.parse(res.getString("max_time")),
+                                Duration.parse(res.getString("used_time")),
+                                res.getInt("question_count"),
+                                res.getInt("score")
+                        ));
+                    }
+                }
+            } catch (SQLException e) {
+                SystemLogger.log("Error trying to get all game reports", e);
+                throw new QueryFailedException(e.getMessage());
             }
-        } catch (SQLException e) {
-            SystemLogger.log("Error trying to get all game reports", e);
-            throw new QueryFailedException(e.getMessage());
-        }
-        return result;
+            return result;
+        };
+        return executeQuery(query, callback);
     }
 
     @Override
     public void insert(GameReport gameReport) {
-        String query = "INSERT INTO GameReport (user, timestamp, difficulty, max_time, used_time, question_count, score) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String updateOnReport = "INSERT INTO GameReport (user, timestamp, difficulty, max_time, used_time, question_count, score) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String updateOnContent = "INSERT INTO Content (report, document) VALUES (?, ?)";
         try {
-            executeUpdate(query,
+            executeUpdate(updateOnReport,
                 gameReport.getUser().getName(),
                 gameReport.getTimestamp(),
                 gameReport.getDifficulty().name(),
@@ -88,7 +132,11 @@ public class GameReportDAO extends JdbcDAO<GameReport> {
                 gameReport.getUsedTime().toString(),
                 gameReport.getQuestionCount(),
                 gameReport.getScore()
-            );
+            );              // Insert on GameReport must be done first to ensure the foreign key constraint is satisfied
+            for (Document document : gameReport.getDocuments()) {
+                executeUpdate(updateOnContent, gameReport.getId(), document.getId());
+            }
+
         } catch (SQLException e) {
             SystemLogger.log("Error trying to insert game report", e);
             throw new QueryFailedException(e.getMessage());
@@ -97,9 +145,9 @@ public class GameReportDAO extends JdbcDAO<GameReport> {
 
     @Override
     public void update(GameReport gameReport) {
-        String query = "UPDATE GameReport SET user = ?, timestamp = ?, difficulty = ?, max_time = ?, used_time = ?, question_count = ?, score = ? WHERE id = ?";
+        String update = "UPDATE GameReport SET user = ?, timestamp = ?, difficulty = ?, max_time = ?, used_time = ?, question_count = ?, score = ? WHERE id = ?";
         try {
-            executeUpdate(query,
+            executeUpdate(update,
                 gameReport.getUser().getName(),
                 gameReport.getTimestamp(),
                 gameReport.getDifficulty().name(),
@@ -117,9 +165,9 @@ public class GameReportDAO extends JdbcDAO<GameReport> {
 
     @Override
     public void delete(GameReport gameReport) {
-        String query = "DELETE FROM GameReport WHERE id = ?";
+        String updateOnReport = "DELETE FROM GameReport WHERE id = ?";
         try {
-            executeUpdate(query, gameReport.getId());
+            executeUpdate(updateOnReport, gameReport.getId());              // Delete on GameReport also deletes the associated Content due to integrity constraints (ON DELETE CASCADE)
         } catch (SQLException e) {
             SystemLogger.log("Error trying to delete game report with id: " + gameReport.getId(), e);
             throw new UpdateFailedException(e.getMessage());

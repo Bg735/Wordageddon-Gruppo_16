@@ -14,7 +14,7 @@ import java.util.Map;
 public class JdbcRepository implements Repository {
 
     private static JdbcRepository instance;
-    private Map<String, DAO<?>> daos;
+    private Map<String, DAO<?,?>> daos;
     private Connection conn;
 
     private JdbcRepository() {}
@@ -34,9 +34,9 @@ public class JdbcRepository implements Repository {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> DAO<T> getDAO(String category) {
+    public <T,ID> DAO<T,ID> getDAO(String category) {
         if (daos.containsKey(category)) {
-            return (DAO<T>) daos.get(category);
+            return (DAO<T,ID>) daos.get(category);
         } else {
             throw new IllegalArgumentException("No DAO found for category: " + category);
         }

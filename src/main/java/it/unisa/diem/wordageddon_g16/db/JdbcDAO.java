@@ -1,12 +1,13 @@
 package it.unisa.diem.wordageddon_g16.db;
 
 import it.unisa.diem.wordageddon_g16.services.SystemLogger;
+import javafx.util.Callback;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public abstract class JdbcDAO<T> implements DAO<T>{
+public abstract class JdbcDAO<T,ID> implements DAO<T,ID>{
 
     protected final Connection connection;
 
@@ -14,25 +15,25 @@ public abstract class JdbcDAO<T> implements DAO<T>{
         this.connection = connection;
     }
 
-    protected ResultSet executeQuery(String sql, Object... params) {
+    protected <R> R executeQuery(String sql, Callback<ResultSet,R> cb, Object... params) {
         try(var stm=connection.prepareStatement(sql)) {
             if (params.length > 0)
                 for (int i = 0; i < params.length; i++)
                     stm.setObject(i + 1, params[i]);
-            return stm.executeQuery(sql);
+            return cb.call(stm.executeQuery(sql));
 
         } catch (SQLException e) {
             SystemLogger.log("Error trying to execute query: " + sql, e);
-            return null;
+            throw new QueryFailedException(e.getMessage());
         }
     }
 
-    protected ResultSet executeQuery(String sql) {
+    protected <R> R executeQuery(String sql, Callback<ResultSet,R> cb) {
         try (var stm = connection.createStatement()) {
-            return stm.executeQuery(sql);
+            return cb.call(stm.executeQuery(sql));
         } catch (SQLException e) {
             SystemLogger.log("Error trying to execute query: " + sql, e);
-            return null;
+            throw new QueryFailedException(e.getMessage());
         }
     }
 
