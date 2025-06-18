@@ -20,11 +20,6 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Set up Maven
-        uses: s4u/setup-maven-action@v1
-        with:
-          maven-version: '3.9.6'
-
       - name: Generate Javadoc with Maven
         run: mvn --batch-mode javadoc:javadoc
 
