@@ -1,0 +1,25 @@
+
+
+@font-face {
+    font-family: 'Alata';
+    src: url('../fonts/Alata-Regular.ttf');
+}
+
+.root {
+    -fx-background-color: linear-gradient(to bottom, #23217D, #6937B7);
+    -fx-font-family: "Alata";
+}
+
+.button {
+    -fx-background-color: linear-gradient(to bottom, #00E6FF, #0053BC);
+    -fx-font-family: "Alata";
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-background-radius: 12px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 4, 0, 0, 2);
+}
+
+#logOutBtn{
+    -fx-background-color: linear-gradient(to bottom, #ed706a, rgb(188, 0, 0));
+    -fx-font-family: "Alata";
+}

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="400.0" prefWidth="600.0" stylesheets="@../style/menu.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <VBox prefHeight="400.0" prefWidth="600.0">
+         <children>
+            <HBox alignment="CENTER_RIGHT" prefHeight="73.0" prefWidth="600.0" spacing="10.0">
+               <children>
+                  <Button fx:id="logOutBtn" mnemonicParsing="false" onAction="#handleLogOutBtn" prefHeight="26.0" prefWidth="68.0" style="-fx-font-size: 12; -fx-background-color: red;" text="Log Out">
+
+                  </Button>
+                  <Button fx:id="profileBtn" mnemonicParsing="false" onAction="#handleProfileBtn" prefHeight="0.0" prefWidth="58.0" style="-fx-font-size: 12;" text="icona statistiche">
+
+                  </Button>
+                  <Button fx:id="accessBtn1" mnemonicParsing="false" onAction="#handleAccessBtn" prefHeight="0.0" prefWidth="58.0" style="-fx-font-size: 12;" text="Sign in">
+
+                  </Button>
+               </children>
+               <padding>
+                  <Insets right="10.0" />
+               </padding>
+            </HBox>
+            <VBox alignment="CENTER" prefHeight="328.0" prefWidth="609.0" spacing="20.0">
+               <children>
+                  <ImageView fitHeight="130.0" fitWidth="215.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../asserts/logo.png" />
+                     </image>
+                  </ImageView>
+                  <Button fx:id="startBtn" mnemonicParsing="false" onAction="#handleStartBtn" prefHeight="26.0" prefWidth="123.0" text="Start">
+                     <font>
+                        <Font name="Alata Regular" size="12.0" />
+                     </font></Button>
+               </children>
+            </VBox>
+         </children>
+      </VBox>
+   </children>
+</AnchorPane>
