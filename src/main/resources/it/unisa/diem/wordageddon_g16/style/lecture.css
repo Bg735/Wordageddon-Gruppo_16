@@ -1,0 +1,27 @@
+@import url("menu.css");
+.scroll-pane {
+    -fx-background-radius: 20;
+    -fx-border-radius: 20;
+    -fx-border-color: #444;
+    -fx-border-width: 1;
+    -fx-background-color: white;
+    -fx-padding: 10;
+}
+.progress-bar {
+    -fx-background-radius: 20;
+    -fx-padding: 0;
+
+}
+
+.progress-bar > .bar {
+    -fx-background-color: linear-gradient(#5be179, #2cff5c); /* Verde brillante */
+    -fx-background-radius: 20;
+    -fx-padding: 0;
+    -fx-background-insets: 0;
+
+
+}
+.progress-bar > .track {
+    -fx-background-color: rgba(255, 255, 255, 0.2);
+}
+

@@ -9,6 +9,10 @@
     -fx-background-color: linear-gradient(to bottom, #23217D, #6937B7);
     -fx-font-family: "Alata";
 }
+#label_titolo {
+    -fx-text-fill: white;
+    -fx-font-size: 18px;
+}
 
 .button {
     -fx-background-color: linear-gradient(to bottom, #00E6FF, #0053BC);

@@ -9,13 +9,13 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" stylesheets="@../style/menu.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane fx:controller="it.unisa.diem.wordageddon_g16.controllers.MainMenuController" prefHeight="400.0" prefWidth="600.0" stylesheets="@../style/menu.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <VBox prefHeight="400.0" prefWidth="600.0">
          <children>
             <HBox alignment="CENTER_RIGHT" prefHeight="73.0" prefWidth="600.0" spacing="10.0">
                <children>
-                  <Button fx:id="logOutBtn" mnemonicParsing="false" onAction="#handleLogOutBtn" prefHeight="26.0" prefWidth="68.0" style="-fx-font-size: 12; -fx-background-color: red;" text="Log Out">
+                  <Button fx:id="logOutBtn" mnemonicParsing="false" onAction="#handleLogOutBtn" prefHeight="26.0" prefWidth="68.0" style="-fx-font-size: 12;" text="Log Out">
 
                   </Button>
                   <Button fx:id="profileBtn" mnemonicParsing="false" onAction="#handleProfileBtn" prefHeight="0.0" prefWidth="58.0" style="-fx-font-size: 12;" text="icona statistiche">
