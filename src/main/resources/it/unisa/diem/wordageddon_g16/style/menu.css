@@ -1,19 +1,4 @@
-
-
-@font-face {
-    font-family: 'Alata';
-    src: url('../fonts/Alata-Regular.ttf');
-}
-
-.root {
-    -fx-background-color: linear-gradient(to bottom, #23217D, #6937B7);
-    -fx-font-family: "Alata";
-}
-#label_titolo {
-    -fx-text-fill: white;
-    -fx-font-size: 18px;
-}
-
+@import url("theme.css");
 .button {
     -fx-background-color: linear-gradient(to bottom, #00E6FF, #0053BC);
     -fx-font-family: "Alata";
