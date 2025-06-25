@@ -1,0 +1,14 @@
+@import url("theme.css");
+.pane{
+    -fx-background-color: white;
+    -fx-background-radius: 10;
+    -fx-effect: dropshadow(gaussian, rgba(255,255,255,0.2), 15, 0, 4, 4);
+
+}
+
+.accediBtn{
+    -fx-background-color: black;
+}
+.registratiBtn{
+    -fx-background-color: rgba(20, 243, 189, 0.68);
+}
