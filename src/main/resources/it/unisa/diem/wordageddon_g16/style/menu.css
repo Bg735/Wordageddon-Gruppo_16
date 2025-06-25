@@ -27,3 +27,8 @@
     -fx-background-color: linear-gradient(to bottom, #ed706a, rgb(188, 0, 0));
     -fx-font-family: "Alata";
 }
+
+
+.paneUsername {
+    -fx-background-color: linear-gradient(from 0% 80% to 100% 80%, #BEFFE9, #C965E0);
+}
