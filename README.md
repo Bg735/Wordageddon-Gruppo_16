@@ -1,3 +1,3 @@
-- ![Bozze](https://docs.google.com/document/d/1LunsqAoUB_e9CqSOaaVKPyj52NWM3tMIiVN__OyIGKY/edit?usp=sharing)
-- ![Documentazione Latex](https://www.overleaf.com/read/rwwgkkkbzkdj#33f35f)
-- ![Mockup Figma](https://www.figma.com/design/bqGUZqN27MYtyQel39LUrE/Wordageddon?node-id=0-1&p=f&t=tQsawDH1bQAf32sZ-0)
+- 📝 [Bozze](https://docs.google.com/document/d/1LunsqAoUB_e9CqSOaaVKPyj52NWM3tMIiVN__OyIGKY/edit?usp=sharing)
+- 📄 [Documentazione LaTeX](https://www.overleaf.com/read/rwwgkkkbzkdj#33f35f)
+- 🎨 [Mockup Figma](https://www.figma.com/design/bqGUZqN27MYtyQel39LUrE/Wordageddon?node-id=0-1&p=f&t=tQsawDH1bQAf32sZ-0)
