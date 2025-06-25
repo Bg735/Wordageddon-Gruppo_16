@@ -1,7 +1,6 @@
 package it.unisa.diem.wordageddon_g16.db;
 
 import it.unisa.diem.wordageddon_g16.models.Document;
-import it.unisa.diem.wordageddon_g16.models.User;
 import it.unisa.diem.wordageddon_g16.services.SystemLogger;
 import javafx.util.Callback;
 
@@ -11,13 +10,14 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
-public class DocumentDAO extends JdbcDAO<Document,Long> {
+public class DocumentDAO extends JdbcDAO<Document> {
     public DocumentDAO(Connection conn) {
         super(conn);
     }
 
     @Override
-    public Optional<Document> selectById(Long id) {
+    public Optional<Document> selectById(Object oid) {
+        Long id = (long) oid;
         String query = "SELECT * FROM Document WHERE id = ?";
         Callback<ResultSet,Optional<Document>> callback = res -> {
             try {
@@ -98,4 +98,5 @@ public class DocumentDAO extends JdbcDAO<Document,Long> {
             throw new UpdateFailedException(e.getMessage());
         }
     }
+
 }

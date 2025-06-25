@@ -12,17 +12,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-public class WdmDAO extends JdbcDAO<WDM, Long> {
+public class WdmDAO extends JdbcDAO<WDM> {
 
-    private final DAO<Document,Long> documentDAO;
+    private final DAO<Document> documentDAO;
 
-    public WdmDAO(Connection conn) {
+    public WdmDAO(Connection conn, DAO<Document> documentDAO) {
         super(conn);
-        documentDAO = JdbcRepository.getInstance().<Document,Long>getDAO("document");
+        this.documentDAO = documentDAO;
     }
 
     @Override
-    public Optional<WDM> selectById(Long id) {
+    public Optional<WDM> selectById(Object oid) {
+        Long id = (Long) oid;
         String query = "SELECT * FROM WDM WHERE document_id = ?";
         Callback<ResultSet, Optional<WDM>> callback = res -> {
             try {

@@ -12,14 +12,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class UserDAO extends JdbcDAO<User, String> {
+public class UserDAO extends JdbcDAO<User> {
 
     public UserDAO(Connection connection) {
         super(connection);
     }
 
     @Override
-    public Optional<User> selectById(String name) {
+    public Optional<User> selectById(Object oid) {
+        String name = (String) oid;
         if (name instanceof String username) {
             String query = "SELECT * FROM User WHERE name = ?";
             Callback<ResultSet,Optional<User>> callback = res -> {
@@ -98,6 +99,17 @@ public class UserDAO extends JdbcDAO<User, String> {
         } catch (SQLException e) {
             SystemLogger.log("Error deleting user: " + user.getName(), e);
             throw new UpdateFailedException(e.getMessage());
+        }
+    }
+
+    public boolean isEmpty() {
+        String query = "SELECT 1 FROM User LIMIT 1";
+        try (var stm = connection.createStatement();
+             var res = stm.executeQuery(query)) {
+            return !res.next();
+        } catch (SQLException e) {
+            SystemLogger.log("Error checking if User table is empty", e);
+            return false;
         }
     }
 }

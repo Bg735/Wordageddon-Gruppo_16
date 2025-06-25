@@ -12,19 +12,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class GameReportDAO extends JdbcDAO<GameReport,Long> {
+public class GameReportDAO extends JdbcDAO<GameReport> {
 
     private final UserDAO userDAO;
     private final DocumentDAO documentDAO;
 
-    public GameReportDAO(Connection conn) {
+    public GameReportDAO(Connection conn, DAO<Document> documentDAO, DAO<User> userDAO) {
         super(conn);
-        userDAO = (UserDAO) JdbcRepository.getInstance().<User, String>getDAO("user");
-        documentDAO = (DocumentDAO) JdbcRepository.getInstance().<Document, Long>getDAO("document");
+        this.userDAO = (UserDAO) userDAO;
+        this.documentDAO = (DocumentDAO) documentDAO;
     }
 
     @Override
-    public Optional<GameReport> selectById(Long id) {
+    public Optional<GameReport> selectById(Object oid) {
+        Long id = (Long) oid;
         String query = "SELECT * FROM GameReport WHERE id = ?";
         Callback<ResultSet,Optional<GameReport>> callback = res -> {
             try {
@@ -173,4 +174,5 @@ public class GameReportDAO extends JdbcDAO<GameReport,Long> {
             throw new UpdateFailedException(e.getMessage());
         }
     }
+
 }

@@ -13,41 +13,32 @@ import java.util.Map;
 
 public class JdbcRepository implements Repository {
 
-    private static JdbcRepository instance;
-    private Map<String, DAO<?,?>> daos;
+    private final Map<String, JdbcDAO<?>> daos;
     private Connection conn;
 
-    private JdbcRepository() {}
-
-    public static void init() {
-        instance.daos = new HashMap<>();
+    public JdbcRepository() {
+        daos = new HashMap<>();
         try {
-            instance.conn = DriverManager.getConnection(Config.DB_URL);
-            instance.daos.put("user", new UserDAO(instance.conn));
-            instance.daos.put("gameReport", new GameReportDAO(instance.conn));
-            instance.daos.put("wdm", new WdmDAO(instance.conn));
-            instance.daos.put("document", new DocumentDAO(instance.conn));
-            instance.daos.put("stopWord", new StopWordDAO(instance.conn));
+            conn = DriverManager.getConnection(Config.DB_URL);
+            var userDAO = new UserDAO(conn);
+            var documentDAO = new DocumentDAO(conn);
+            daos.put("user", userDAO);
+            daos.put("document", documentDAO);
+            daos.put("stopWord", new StopWordDAO(conn));
+            daos.put("gameReport", new GameReportDAO(conn, documentDAO, userDAO));
+            daos.put("wdm", new WdmDAO(conn, documentDAO));
         } catch (SQLException e) {
             SystemLogger.log("Could not establish a connection to the database: ", e);
         }
     }
 
     @SuppressWarnings("unchecked")
-    public <T,ID> DAO<T,ID> getDAO(String category) {
+    public <T,TDAO extends DAO<T>> TDAO getDAO(String category) {
         if (daos.containsKey(category)) {
-            return (DAO<T,ID>) daos.get(category);
+            return (TDAO) daos.get(category);
         } else {
             throw new IllegalArgumentException("No DAO found for category: " + category);
         }
-    }
-
-    public static JdbcRepository getInstance() {
-        if (instance == null) {
-            instance = new JdbcRepository();
-            init();
-        }
-        return instance;
     }
 
     public void close(){

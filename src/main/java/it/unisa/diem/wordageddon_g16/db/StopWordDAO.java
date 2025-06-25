@@ -9,13 +9,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class StopWordDAO extends JdbcDAO<String, Void> {
+public class StopWordDAO extends JdbcDAO<String> {
     public StopWordDAO(Connection conn) {
         super(conn);
     }
 
     @Override
-    public Optional<String> selectById(Void id) {
+    public Optional<String> selectById(Object oid) {
         throw new UnsupportedOperationException("This operation is not implemented as it is not useful in this context.");
     }
 

@@ -47,7 +47,7 @@
                <children>
                   <ImageView fitHeight="130.0" fitWidth="215.0" pickOnBounds="true" preserveRatio="true">
                      <image>
-                        <Image url="@../asserts/logo.png" />
+                        <Image url="@../assets/logo.png" />
                      </image>
                   </ImageView>
                   <Button fx:id="startBtn" mnemonicParsing="false" onAction="#handleStartBtn" prefHeight="35.0" prefWidth="140.0" text="Start">
