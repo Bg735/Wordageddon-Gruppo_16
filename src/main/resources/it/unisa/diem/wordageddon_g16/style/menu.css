@@ -17,3 +17,8 @@
 .paneUsername {
     -fx-background-color: linear-gradient(from 0% 80% to 100% 80%, #BEFFE9, #C965E0);
 }
+.LeaderBoardBtn{
+    -fx-background-color: linear-gradient(from 0% 100% to 100% 100%, #35aa75 0%, #9144dd 100%);
+    -fx-font-size: 11px;
+    -fx-background-radius: 12px;
+}
