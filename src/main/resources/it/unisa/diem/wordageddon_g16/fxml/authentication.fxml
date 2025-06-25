@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" stylesheets="@../style/authentication.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unisa.diem.wordageddon_g16.fxml.Authentication">
+<AnchorPane prefHeight="400.0" prefWidth="600.0" stylesheets="@../style/authentication.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unisa.diem.wordageddon_g16.controllers.AuthController">
    <children>
       <VBox layoutX="-1.0" prefHeight="400.0" prefWidth="600.0">
          <children>
@@ -37,7 +37,7 @@
                                        <children>
                                           <Label text="Username">
                                              <font>
-                                                <Font name="Alata Regular" size="6.0" />
+                                                <Font name="Alata Regular" size="9.0" />
                                              </font>
                                           </Label>
                                           <TextField prefHeight="12.0" prefWidth="270.0" promptText="Username">
@@ -54,10 +54,10 @@
                                        <children>
                                           <Label text="Password">
                                              <font>
-                                                <Font size="6.0" />
+                                                <Font name="Alata Regular" size="9.0" />
                                              </font>
                                           </Label>
-                                          <TextField prefHeight="12.0" prefWidth="270.0" promptText="password">
+                                          <TextField prefHeight="12.0" prefWidth="260.0" promptText="password">
                                              <font>
                                                 <Font size="10.0" />
                                              </font>
@@ -69,17 +69,17 @@
                                     </VBox>
                                     <VBox alignment="TOP_CENTER" prefHeight="79.0" prefWidth="278.0" spacing="5.0">
                                        <children>
-                                          <Button fx:id="accediBtn" mnemonicParsing="false" onAction="#handleAccediBtn" prefHeight="12.0" prefWidth="53.0" text="Accedi">
+                                          <Button fx:id="accediBtn" mnemonicParsing="false" onAction="#handleAccediBtn" prefHeight="12.0" prefWidth="53.0" styleClass="accediBtn" text="Accedi" textFill="#fcfafa">
                                              <font>
                                                 <Font name="Alata Regular" size="12.0" />
                                              </font>
                                           </Button>
                                           <Label text="oppure">
                                              <font>
-                                                <Font name="Agency FB" size="6.0" />
+                                                <Font name="Alata Regular" size="9.0" />
                                              </font>
                                           </Label>
-                                          <Button fx:id="RegistrazioneBtn" mnemonicParsing="false" onAction="#handleRegistrazioneBtn" text="Registrati">
+                                          <Button fx:id="RegistrazioneBtn" mnemonicParsing="false" onAction="#handleRegistrazioneBtn" styleClass="registratiBtn" text="Registrati">
                                              <font>
                                                 <Font name="Alata Regular" size="12.0" />
                                              </font>
@@ -88,7 +88,7 @@
                                     </VBox>
                                  </children>
                                  <padding>
-                                    <Insets bottom="7.0" left="7.0" right="7.0" top="12.0" />
+                                    <Insets left="10.0" right="7.0" top="12.0" />
                                  </padding>
                               </VBox>
                            </children></Pane>
