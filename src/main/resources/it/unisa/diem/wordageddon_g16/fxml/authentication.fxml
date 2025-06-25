@@ -27,7 +27,7 @@
             </HBox>
             <HBox alignment="TOP_CENTER" prefHeight="248.0" prefWidth="593.0">
                <children>
-                  <VBox maxHeight="-Infinity" prefHeight="201.0" prefWidth="298.0">
+                  <VBox prefHeight="201.0" prefWidth="298.0">
                      <children>
                         <Pane prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: white;" styleClass="pane">
                            <children>
@@ -57,7 +57,7 @@
                                                 <Font name="Alata Regular" size="9.0" />
                                              </font>
                                           </Label>
-                                          <TextField fx:id="passwordTextfield" prefHeight="12.0" prefWidth="260.0" promptText="password">
+                                          <TextField fx:id="passwordTextField" prefHeight="12.0" prefWidth="260.0" promptText="password">
                                              <font>
                                                 <Font size="10.0" />
                                              </font>
@@ -69,7 +69,7 @@
                                     </VBox>
                                     <VBox alignment="TOP_CENTER" prefHeight="79.0" prefWidth="278.0" spacing="5.0">
                                        <children>
-                                          <Button fx:id="accediBtn" mnemonicParsing="false" onAction="#handleAccediBtn" prefHeight="15.0" prefWidth="66.0" styleClass="accediBtn" text="Accedi" textFill="#fcfafa">
+                                          <Button fx:id="accediBtn" mnemonicParsing="false" onAction="#handleAccediBtn" prefHeight="15.0" prefWidth="281.0" styleClass="accediBtn" text="Accedi" textFill="#fcfafa">
                                              <font>
                                                 <Font name="Alata Regular" size="12.0" />
                                              </font>
@@ -79,7 +79,7 @@
                                                 <Font name="Alata Regular" size="9.0" />
                                              </font>
                                           </Label>
-                                          <Button fx:id="RegistrazioneBtn" mnemonicParsing="false" onAction="#handleRegistrazioneBtn" prefHeight="26.0" prefWidth="84.0" styleClass="registratiBtn" text="Registrati">
+                                          <Button fx:id="RegistrazioneBtn" mnemonicParsing="false" onAction="#handleRegistrazioneBtn" prefHeight="9.0" prefWidth="281.0" styleClass="registratiBtn" text="Registrati">
                                              <font>
                                                 <Font name="Alata Regular" size="12.0" />
                                              </font>
