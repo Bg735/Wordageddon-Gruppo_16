@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.effect.ColorAdjust?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.paint.Color?>
+<?import javafx.scene.paint.LinearGradient?>
+<?import javafx.scene.paint.Stop?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.shape.Polygon?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane prefHeight="400.0" prefWidth="600.0" stylesheets="@../../style/menu.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
+   <top>
+      <Pane prefHeight="98.0" prefWidth="602.0" BorderPane.alignment="CENTER_LEFT">
+         <children>
+            <Pane layoutX="453.0" layoutY="38.0" maxHeight="-Infinity" prefHeight="26.0" prefWidth="147.0" styleClass="paneUsername">
+               <children>
+                  <Label fx:id="usernameLabel" alignment="CENTER" contentDisplay="CENTER" layoutY="-4.0" prefHeight="35.0" prefWidth="147.0" text="UserName" textFill="WHITE">
+                     <font>
+                        <Font size="11.0" />
+                     </font>
+                  </Label>
+                  <StackPane layoutX="-19.0" layoutY="-23.0" prefHeight="78.0" prefWidth="50.0">
+                     <children>
+                        <Circle id="cerchio1" fill="#7fcef5db" radius="25.0" strokeType="INSIDE" />
+                        <Circle id="cerchio1" fill="#91dafff8" radius="19.0" strokeType="INSIDE" />
+                        <ImageView fitHeight="30.0" fitWidth="28.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../../asserts/iconUser.png" />
+                           </image>
+                        </ImageView>
+                     </children>
+                  </StackPane>
+               </children>
+            </Pane>
+            <Polygon layoutX="471.0" layoutY="122.0" points="0.0, -35.40000534057617, 34.79998779296875, -35.40000915527344, 34.79998779296875, -57.80000305175781" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0">
+               <fill>
+                  <LinearGradient cycleMethod="REFLECT" endX="1.0" endY="1.0" startY="0.08333328998450078">
+                     <stops>
+                        <Stop>
+                           <color>
+                              <Color red="0.7450980544090271" green="1.0" blue="0.9137254953384399" />
+                           </color>
+                        </Stop>
+                        <Stop offset="1.0">
+                           <color>
+                              <Color red="0.7882353067398071" green="0.3960784375667572" blue="0.8784313797950745" />
+                           </color>
+                        </Stop>
+                     </stops>
+                  </LinearGradient>
+               </fill>
+            </Polygon>
+            <Polygon layoutX="470.0" layoutY="115.0" points="12.0, -51.00001525878906, 35.79998779296875, -51.00001525878906, 35.79998779296875, -28.400009155273438" strokeWidth="0.0">
+               <effect>
+                  <ColorAdjust />
+               </effect>
+               <stroke>
+                  <LinearGradient cycleMethod="REFLECT" endX="1.0" endY="1.0" startY="0.08333328998450078">
+                     <stops>
+                        <Stop>
+                           <color>
+                              <Color red="0.7450980544090271" green="1.0" blue="0.9137254953384399" />
+                           </color>
+                        </Stop>
+                        <Stop offset="1.0">
+                           <color>
+                              <Color red="0.7882353067398071" green="0.3960784375667572" blue="0.8784313797950745" />
+                           </color>
+                        </Stop>
+                     </stops>
+                  </LinearGradient>
+               </stroke>
+               <fill>
+                  <LinearGradient cycleMethod="REFLECT" endX="1.0" endY="1.0" startY="0.08333328998450078">
+                     <stops>
+                        <Stop>
+                           <color>
+                              <Color red="0.7450980544090271" green="1.0" blue="0.9137254953384399" />
+                           </color>
+                        </Stop>
+                        <Stop offset="1.0">
+                           <color>
+                              <Color red="0.7882353067398071" green="0.3960784375667572" blue="0.8784313797950745" />
+                           </color>
+                        </Stop>
+                     </stops>
+                  </LinearGradient>
+               </fill>
+            </Polygon>
+         </children>
+      </Pane>
+   </top>
+   <center>
+      <VBox alignment="TOP_CENTER" prefHeight="214.0" prefWidth="600.0" spacing="20.0" BorderPane.alignment="CENTER">
+         <children>
+            <ImageView fitHeight="130.0" fitWidth="215.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../../asserts/logo.png" />
+               </image>
+            </ImageView>
+            <Button fx:id="startBtn" mnemonicParsing="false" onAction="#handleStartBtn" prefHeight="35.0" prefWidth="178.0" text="GIOCA">
+               <font>
+                  <Font name="Alata Regular" size="12.0" />
+               </font>
+            </Button>
+         </children>
+      </VBox>
+   </center>
+   <bottom>
+      <HBox alignment="TOP_CENTER" prefHeight="77.0" prefWidth="604.0" BorderPane.alignment="TOP_CENTER">
+         <children>
+            <Button fx:id="leaderBoardBtn" mnemonicParsing="false" onAction="#handleleaderBoardBtn" prefHeight="18.0" prefWidth="134.0" styleClass="LeaderBoardBtn" text="LeaderBoard">
+               <font>
+                  <Font name="Alata Regular" size="7.0" />
+               </font>
+            </Button>
+         </children>
+      </HBox>
+   </bottom>
+</BorderPane>

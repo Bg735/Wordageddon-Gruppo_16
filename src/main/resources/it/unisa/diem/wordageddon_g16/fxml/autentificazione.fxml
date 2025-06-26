@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane prefHeight="800.0" prefWidth="1280.0" stylesheets="@../style/authentication.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unisa.diem.wordageddon_g16.controllers.AuthController">
+
+    <!-- LOGO -->
+    <top>
+        <HBox alignment="CENTER" prefHeight="431.0" prefWidth="1280.0" BorderPane.alignment="CENTER">
+            <children>
+                <ImageView pickOnBounds="true" preserveRatio="true">
+                    <image>
+                        <Image url="@../asserts/logo.png" />
+                    </image>
+                </ImageView>
+            </children>
+            <padding>
+                <Insets bottom="15" top="15" />
+            </padding>
+        </HBox>
+    </top>
+
+    <!-- FORM -->
+    <center>
+        <VBox alignment="TOP_CENTER" prefHeight="407.0" prefWidth="1280.0" spacing="20" BorderPane.alignment="TOP_CENTER">
+            <AnchorPane maxWidth="500" style="-fx-background-color: white;" styleClass="pane">
+                <children>
+                    <VBox spacing="10.0" AnchorPane.bottomAnchor="12.0" AnchorPane.leftAnchor="12.0" AnchorPane.rightAnchor="12.0" AnchorPane.topAnchor="12.0">
+
+                        <!-- USERNAME -->
+                        <VBox spacing="3">
+                            <Label text="Username">
+                                <font><Font name="Alata Regular" size="10.0" /></font>
+                            </Label>
+                            <TextField fx:id="userTextField1" maxWidth="Infinity" promptText="Username" />
+                        </VBox>
+
+                        <!-- PASSWORD -->
+                        <VBox spacing="3">
+                            <Label text="Password">
+                                <font><Font name="Alata Regular" size="10.0" /></font>
+                            </Label>
+                            <TextField fx:id="passwordTextField1" maxWidth="Infinity" promptText="Password" />
+                        </VBox>
+
+                        <!-- BOTTONI -->
+                        <VBox alignment="CENTER" spacing="5">
+                            <Button fx:id="accediBtn1" maxWidth="Infinity" onAction="#handleAccediBtn" styleClass="accediBtn" text="Accedi" textFill="#fcfafa">
+                                <font><Font name="Alata Regular" size="12.0" /></font>
+                                <cursor><Cursor fx:constant="HAND" /></cursor>
+                            </Button>
+
+                            <Label text="oppure">
+                                <font><Font name="Alata Regular" size="9.0" /></font>
+                            </Label>
+
+                            <Button fx:id="RegistrazioneBtn1" maxWidth="Infinity" onAction="#handleRegistrazioneBtn" styleClass="registratiBtn" text="Registrati">
+                                <font><Font name="Alata Regular" size="12.0" /></font>
+                                <cursor><Cursor fx:constant="HAND" /></cursor>
+                            </Button>
+                        </VBox>
+                    </VBox>
+                </children>
+            </AnchorPane>
+        </VBox>
+    </center>
+</BorderPane>

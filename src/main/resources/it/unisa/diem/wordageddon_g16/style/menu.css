@@ -8,10 +8,6 @@
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 4, 0, 0, 2);
     -fx-cursor: hand;
 }
-
-
-
-
 .paneUsername {
     -fx-background-color: linear-gradient(from 0% 80% to 100% 80%, #BEFFE9, #C965E0);
     -fx-cursor: hand;
