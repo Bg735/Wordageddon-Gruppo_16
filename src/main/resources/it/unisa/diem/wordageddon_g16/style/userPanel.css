@@ -12,7 +12,6 @@
     -fx-background-radius: 10;
 
 }
-
 .backBtn{
     -fx-background-color: transparent;
     -fx-background-insets: 0;
@@ -22,12 +21,36 @@
     -fx-cursor: hand;
     -fx-effect: null;
 }
-
 .privilegiBtn{
     -fx-background-color: linear-gradient(from 0% 100% to 100% 89%, #FFF345, #FF7700);
 }
-
 .semicerchio_sinistro{
     -fx-background-radius: 100 0 0 100;
     -fx-background-color: rgba(0, 0, 0, 0.24);
+}
+
+.table-view {
+    -fx-background-color: white;
+    -fx-table-cell-border-color: white;
+    -fx-padding: 10;
+    -fx-background-insets: 0;
+    -fx-control-inner-background: white;
+    -fx-border-width: 0;
+    -fx-background-radius: 20;
+    -fx-effect: dropshadow(one-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 2);
+}
+
+.table-view .column-header {
+    -fx-background-color: rgba(245, 245, 245, 1);
+   /* -fx-background-radius: 0 0 10 10;*/
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-alignment: center;
+}
+
+
+
+.table-view .cell {
+    -fx-font-size: 14px;
+    -fx-alignment: center;
 }

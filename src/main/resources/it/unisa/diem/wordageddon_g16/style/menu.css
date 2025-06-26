@@ -9,11 +9,7 @@
     -fx-cursor: hand;
 }
 
-#logOutBtn{
-    -fx-background-color: linear-gradient(to bottom, #ed706a, rgb(188, 0, 0));
-    -fx-font-family: "Alata";
-    -fx-cursor: hand;;
-}
+
 
 
 .paneUsername {

@@ -106,7 +106,7 @@
                               <Cursor fx:constant="OPEN_HAND" />
                            </cursor>
                            <font>
-                              <Font size="10.0" />
+                              <Font size="11.0" />
                            </font>
                         </MenuButton>
                      </children>
@@ -123,20 +123,23 @@
       </VBox>
    </top>
    <center>
-      <VBox prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
+      <VBox prefHeight="226.0" prefWidth="324.0" BorderPane.alignment="CENTER">
          <children>
-            <TableView prefHeight="200.0" prefWidth="332.0">
+            <TableView prefHeight="200.0" prefWidth="334.0">
               <columns>
                 <TableColumn prefWidth="105.5999755859375" text="LIVELLO" />
                 <TableColumn prefWidth="104.00006103515625" text="PUNTEGGIO" />
-                  <TableColumn prefWidth="119.20001220703125" text="TEMPO" />
+                  <TableColumn minWidth="0.0" prefWidth="112.79998779296875" text="TEMPO" />
               </columns>
             </TableView>
          </children>
+         <padding>
+            <Insets right="10.0" />
+         </padding>
       </VBox>
    </center>
    <left>
-      <Region prefHeight="257.0" prefWidth="84.0" BorderPane.alignment="CENTER" />
+      <Region prefHeight="257.0" prefWidth="84.0" snapToPixel="false" BorderPane.alignment="CENTER" />
    </left>
    <right>
       <Pane prefHeight="257.0" prefWidth="192.0" BorderPane.alignment="CENTER">
@@ -171,4 +174,17 @@
          </children>
       </Pane>
    </right>
+   <bottom>
+      <VBox prefHeight="52.0" prefWidth="600.0" BorderPane.alignment="CENTER">
+         <children>
+            <Button contentDisplay="CENTER" mnemonicParsing="false" prefHeight="18.0" prefWidth="58.0" styleClass="logOutBtn" text="Log out" textAlignment="CENTER" textFill="WHITE" />
+         </children>
+         <BorderPane.margin>
+            <Insets />
+         </BorderPane.margin>
+         <padding>
+            <Insets left="25.0" top="3.0" />
+         </padding>
+      </VBox>
+   </bottom>
 </BorderPane>
