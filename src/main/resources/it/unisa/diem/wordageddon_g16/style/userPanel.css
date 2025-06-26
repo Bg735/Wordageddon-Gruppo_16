@@ -1,0 +1,33 @@
+@import url("theme.css");
+.semicerchio {
+    -fx-background-color: rgba(126, 205, 247, 0.81);
+    -fx-background-radius: 0 40 40 0; /* semicerchio a sinistra */
+}
+.cerchio1{
+    -fx-background-color: rgba(143, 216, 255, 0.96);
+}
+
+.paneUsername {
+    -fx-background-color: linear-gradient(from 0% 80% to 100% 80%, #BEFFE9, #C965E0);
+    -fx-background-radius: 10;
+
+}
+
+.backBtn{
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+    -fx-cursor: hand;
+    -fx-effect: null;
+}
+
+.privilegiBtn{
+    -fx-background-color: linear-gradient(from 0% 100% to 100% 89%, #FFF345, #FF7700);
+}
+
+.semicerchio_sinistro{
+    -fx-background-radius: 100 0 0 100;
+    -fx-background-color: rgba(0, 0, 0, 0.24);
+}

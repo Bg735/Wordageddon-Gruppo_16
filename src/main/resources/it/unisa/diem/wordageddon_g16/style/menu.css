@@ -6,19 +6,23 @@
     -fx-font-size: 16px;
     -fx-background-radius: 12px;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 4, 0, 0, 2);
+    -fx-cursor: hand;
 }
 
 #logOutBtn{
     -fx-background-color: linear-gradient(to bottom, #ed706a, rgb(188, 0, 0));
     -fx-font-family: "Alata";
+    -fx-cursor: hand;;
 }
 
 
 .paneUsername {
     -fx-background-color: linear-gradient(from 0% 80% to 100% 80%, #BEFFE9, #C965E0);
+    -fx-cursor: hand;
 }
 .LeaderBoardBtn{
     -fx-background-color: linear-gradient(from 0% 100% to 100% 100%, #35aa75 0%, #9144dd 100%);
     -fx-font-size: 11px;
     -fx-background-radius: 12px;
+    -fx-cursor: hand;
 }
