@@ -14,8 +14,6 @@
 <?import javafx.scene.text.Font?>
 
 <BorderPane prefHeight="800.0" prefWidth="1280.0" stylesheets="@../style/authentication.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unisa.diem.wordageddon_g16.controllers.AuthController">
-
-    <!-- LOGO -->
     <top>
         <HBox alignment="CENTER" prefHeight="431.0" prefWidth="1280.0" BorderPane.alignment="CENTER">
             <children>
@@ -31,7 +29,6 @@
         </HBox>
     </top>
 
-    <!-- FORM -->
     <center>
         <VBox alignment="TOP_CENTER" prefHeight="407.0" prefWidth="1280.0" spacing="20" BorderPane.alignment="TOP_CENTER">
             <AnchorPane maxWidth="500" style="-fx-background-color: white;" styleClass="pane">
@@ -54,7 +51,6 @@
                             <TextField fx:id="passwordTextField1" maxWidth="Infinity" promptText="Password" />
                         </VBox>
 
-                        <!-- BOTTONI -->
                         <VBox alignment="CENTER" spacing="5">
                             <Button fx:id="accediBtn1" maxWidth="Infinity" onAction="#handleAccediBtn" styleClass="accediBtn" text="Accedi" textFill="#fcfafa">
                                 <font><Font name="Alata Regular" size="12.0" /></font>

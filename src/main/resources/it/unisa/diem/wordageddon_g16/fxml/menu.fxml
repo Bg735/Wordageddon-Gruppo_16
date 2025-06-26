@@ -19,8 +19,6 @@
 <?import javafx.scene.text.Font?>
 
 <BorderPane prefHeight="832.0" prefWidth="1280.0" stylesheets="@../style/menu.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
-
-    <!-- TOP: Username + Icon -->
     <top>
         <HBox alignment="TOP_RIGHT" prefHeight="151.0" prefWidth="1280.0" spacing="10" BorderPane.alignment="CENTER">
             <padding>
@@ -109,8 +107,6 @@
             </children>
         </HBox>
     </top>
-
-    <!-- CENTER: Logo + Start Button -->
     <center>
         <VBox alignment="CENTER" spacing="20" BorderPane.alignment="CENTER">
             <children>
@@ -128,7 +124,6 @@
         </VBox>
     </center>
 
-    <!-- BOTTOM: Leaderboard -->
     <bottom>
         <HBox alignment="CENTER" prefHeight="217.0" prefWidth="1280.0" BorderPane.alignment="BOTTOM_LEFT">
             <padding>
