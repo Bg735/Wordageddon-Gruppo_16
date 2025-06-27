@@ -1,1 +1,72 @@
 @import url("theme.css");
+/* TabPane generale */
+/* Sfondo generale */
+.tab-pane {
+    -fx-tab-min-height: 25;
+    -fx-background-color: transparent;
+}
+/* Area linguette tab */
+.tab-pane .tab-header-area {
+    -fx-background-color:transparent;
+    -fx-padding: 0;
+    -fx-text-fill: #9144dd;
+}
+
+/* Regione che contiene le linguette — si espande */
+.tab-pane .tab-header-area .headers-region {
+    -fx-background-color: linear-gradient(#E099F9 0%, #A23DC6 50%, #782B94 100%);
+    -fx-alignment: center;
+    -fx-spacing: 20;
+    -fx-max-width: Infinity;
+    -fx-background-radius: 20;
+}
+.tab-pane *.tab-header-background {
+    -fx-background-color: null;
+    -fx-effect: innershadow(two-pass-box , rgba(0,0,0,0.6) , 4, 0.0 , 0 , 0);
+
+}
+/* Ogni linguetta occupa lo stesso spazio */
+.tab-pane .tab {
+    -fx-background-color: rgba(128, 0, 128, 0);
+    -fx-border-color: transparent;
+    -fx-background-radius: 20;
+    -fx-padding: 6 20;
+    -fx-max-width: Infinity;
+    -fx-min-width: 40; /* oppure dinamico da codice */
+    -fx-cursor: hand;
+}
+
+/* Tab selezionato */
+.tab-pane .tab:selected {
+    -fx-background-color: linear-gradient(from 0% 100% to 100% 100%, #35aa75 0%, #9144dd 100%);
+
+}
+.tab-pane .tab:focused{
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+
+}
+
+/* Sfondo dei contenuti */
+.tab-pane .tab-content-area {
+    -fx-background-color: transparent;
+}
+
+
+.table-view {
+    -fx-background-color: white;
+    -fx-table-cell-border-color: white;
+    -fx-padding: 10;
+    -fx-background-insets: 0;
+    -fx-control-inner-background: white;
+    -fx-border-width: 0;
+    -fx-background-radius: 20;
+    -fx-effect: dropshadow(one-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 2);
+}
+
+.table-view .column-header {
+    -fx-background-color: rgba(245, 245, 245, 1);
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-alignment: center;
+}

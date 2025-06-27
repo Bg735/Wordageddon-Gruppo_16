@@ -12,15 +12,6 @@
     -fx-background-radius: 10;
 
 }
-.backBtn{
-    -fx-background-color: transparent;
-    -fx-background-insets: 0;
-    -fx-background-radius: 0;
-    -fx-border-color: transparent;
-    -fx-border-width: 0;
-    -fx-cursor: hand;
-    -fx-effect: null;
-}
 .privilegiBtn{
     -fx-background-color: linear-gradient(from 0% 100% to 100% 89%, #FFF345, #FF7700);
 }
