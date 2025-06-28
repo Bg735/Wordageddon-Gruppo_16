@@ -1,0 +1,41 @@
+.numberQuestion{
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-border-color: white;
+    -fx-border-radius: 20px;
+    -fx-padding: 5 10;
+    -fx-border-width: 1px;
+    -fx-background-radius: 20px;
+}
+
+.avantiBtn{ //DATOGLIERE
+    -fx-background-color: white;
+    -fx-text-fill: #5a00a5;
+    -fx-font-weight: bold;
+    -fx-background-radius: 12px;
+}
+.questionLabel{
+    -fx-background-color: white;
+    -fx-padding: 20px;
+    -fx-font-size: 15px;
+    -fx-background-radius: 20px;
+    -fx-text-fill: black;
+}
+.progress-bar {
+    -fx-background-radius: 20;
+    -fx-padding: 0;
+}
+.progress-bar > .bar {
+    -fx-background-color: linear-gradient(#5be179, #2cff5c); /* Verde brillante */
+    -fx-background-radius: 20;
+    -fx-padding: 0;
+    -fx-background-insets: 0;
+}
+.progress-bar > .track {
+    -fx-background-color: rgba(255, 255, 255, 0.2);
+}
+
+.buttonAnswer{
+    -fx-background-color: linear-gradient(to bottom, #ffffff, #94EFFF);
+}
