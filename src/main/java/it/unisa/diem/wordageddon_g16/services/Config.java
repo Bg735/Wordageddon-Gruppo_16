@@ -9,12 +9,16 @@ public class Config {
     public static String DB_URL;
 
     static {
-        try (InputStream input = Config.class.getResourceAsStream("/config.properties")) {
+        try (InputStream input = Config.class.getResourceAsStream("/it/unisa/diem/wordageddon_g16/config.properties")) {
+
+            if (input == null) {
+                throw new RuntimeException("File config.properties non trovato nel classpath!");
+            }
             PROPS.load(input);
         } catch (IOException e) {
-            SystemLogger.log("Unable to load config", e);
+            SystemLogger.log("Failed to find config. file", e);
         }
-        DB_URL=PROPS.getProperty("db.url");
+        DB_URL = PROPS.getProperty("db.url");
     }
 
     private static String get(String key) {

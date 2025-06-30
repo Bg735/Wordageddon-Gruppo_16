@@ -13,8 +13,21 @@
     -fx-cursor: hand;
 }
 .LeaderBoardBtn{
-    -fx-background-color: linear-gradient(from 0% 100% to 100% 100%, #35aa75 0%, #9144dd 100%);
-    -fx-font-size: 11px;
+    //-fx-background-color: linear-gradient(from 0% 100% to 100% 100%, #37e191 0%, #8237d6 100%);
+    -fx-background-color: linear-gradient(to bottom, #37e191, #8237d6);
+    -fx-font-size: 13px;
     -fx-background-radius: 12px;
     -fx-cursor: hand;
+}
+.LeaderBoardBtn:hover {
+    -fx-background-color: linear-gradient(to bottom, #4ef1a3, #a24ef1);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 8, 0, 0, 4);
+}
+.giocaBtn:hover {
+    -fx-background-color: linear-gradient(to bottom, #00bfff, #003f8a);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 8, 0, 0, 4);
 }

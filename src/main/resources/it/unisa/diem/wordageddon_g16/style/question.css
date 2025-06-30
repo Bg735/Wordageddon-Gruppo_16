@@ -9,7 +9,7 @@
     -fx-background-radius: 20px;
 }
 
-.avantiBtn{ //DATOGLIERE
+.avantiBtn{ //DATOGLIEREmettere icona
     -fx-background-color: white;
     -fx-text-fill: #5a00a5;
     -fx-font-weight: bold;
@@ -27,7 +27,7 @@
     -fx-padding: 0;
 }
 .progress-bar > .bar {
-    -fx-background-color: linear-gradient(#5be179, #2cff5c); /* Verde brillante */
+    -fx-background-color: linear-gradient(#5be179, #2cff5c);
     -fx-background-radius: 20;
     -fx-padding: 0;
     -fx-background-insets: 0;
@@ -38,4 +38,7 @@
 
 .buttonAnswer{
     -fx-background-color: linear-gradient(to bottom, #ffffff, #94EFFF);
+}
+.buttonAnswer:hover {
+    -fx-background-color: linear-gradient(to bottom, #ffffff, #4c9ba8);;
 }

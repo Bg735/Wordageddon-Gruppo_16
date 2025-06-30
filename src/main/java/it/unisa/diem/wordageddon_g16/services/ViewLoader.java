@@ -24,7 +24,7 @@ public class ViewLoader {
             throw new IllegalStateException("ViewLoader is not properly set. Please set the controllerFactory and stage before loading views.");
         }
         try {
-            FXMLLoader fxmlLoader = new FXMLLoader(ViewLoader.class.getResource(fxmlView+".fxml"));
+            FXMLLoader fxmlLoader = new FXMLLoader(ViewLoader.class.getResource("/it/unisa/diem/wordageddon_g16/fxml/" + fxmlView + ".fxml"));
             fxmlLoader.setControllerFactory(controllerFactory);
             stage.setScene(new Scene(fxmlLoader.load(), 1920, 1080));
         } catch (IOException e) {

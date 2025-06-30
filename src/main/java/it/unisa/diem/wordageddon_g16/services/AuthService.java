@@ -5,10 +5,13 @@ import it.unisa.diem.wordageddon_g16.db.UserDAO;
 import it.unisa.diem.wordageddon_g16.models.AppContext;
 import it.unisa.diem.wordageddon_g16.models.User;
 
+import java.io.*;
+
 public class AuthService {
 
     private final AppContext context;
     private final UserDAO userDAO;
+    private static final String SESSION_FILE = "session.ser";
 
     public AuthService(AppContext context, UserDAO userDAO) {
         this.context = context;
@@ -19,6 +22,7 @@ public class AuthService {
         var user = userDAO.selectById(username);
         if(user.isPresent() && user.get().getPassword().equals(password)) {
             context.setCurrentUser(user.get());
+            saveSession(user.get());
             return true;
         }
         return false; // User not found or password mismatch
@@ -32,6 +36,27 @@ public class AuthService {
             return true;
         }
         return false; // User already exists
+    }
+    private void saveSession(User user) {
+        try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(SESSION_FILE))) {
+            out.writeObject(user);
+        } catch (IOException e) {
+            SystemLogger.log("Errore nel salvataggio della sessione", e);
+        }
+    }
+    public boolean restoreSession() {
+        try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(SESSION_FILE))) {
+            User user = (User) in.readObject();
+            if (user != null) {
+                context.setCurrentUser(user);
+                return true;
+            }
+        } catch (IOException | ClassNotFoundException e) {}
+        return false;
+    }
+    public void logout() {
+        context.setCurrentUser(null);
+        new File(SESSION_FILE).delete(); // 👈 cancella il file
     }
 
     public boolean noUsers(){

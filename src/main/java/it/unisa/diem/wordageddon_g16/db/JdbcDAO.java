@@ -20,8 +20,7 @@ public abstract class JdbcDAO<T> implements DAO<T>{
             if (params.length > 0)
                 for (int i = 0; i < params.length; i++)
                     stm.setObject(i + 1, params[i]);
-            return cb.call(stm.executeQuery(sql));
-
+            return cb.call(stm.executeQuery());
         } catch (SQLException e) {
             SystemLogger.log("Error trying to execute query: " + sql, e);
             throw new QueryFailedException(e.getMessage());

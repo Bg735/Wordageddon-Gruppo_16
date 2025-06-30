@@ -1,0 +1,30 @@
+.circle-pane {
+    -fx-padding: 10;
+}
+
+.circle-outer {
+    -fx-fill: #ffffff40;
+    -fx-stroke: transparent;
+}
+
+.circle-middle {
+    -fx-fill: #ffffff4d;
+    -fx-stroke: transparent;
+}
+
+.circle-inner {
+    -fx-fill: white;
+    -fx-stroke: transparent;
+}
+
+/* Responsive font sizes */
+.circle-title {
+    -fx-text-fill: #a42fc1;
+    -fx-font-weight: bold;
+    -fx-font-size: 1.5em;
+}
+
+.circle-value {
+    -fx-text-fill: #9e0081;
+    -fx-font-size: 2em;
+}

@@ -1,64 +1,103 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.geometry.*?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.text.Font?>
 
-<StackPane xmlns="http://javafx.com/javafx"
-           xmlns:fx="http://javafx.com/fxml"
+<AnchorPane xmlns="http://javafx.com/javafx/23.0.1"
+            xmlns:fx="http://javafx.com/fxml/1"
+            prefHeight="832.0" prefWidth="1280.0"
+            style="-fx-background-color: white;">
 
-           style="-fx-background-color: linear-gradient(to bottom, #2e046d, #8a4cc1);"
-           prefWidth="800" prefHeight="600">
+   <!-- Contenitore centrale -->
+   <AnchorPane fx:id="contentPane"
+               AnchorPane.topAnchor="0.0"
+               AnchorPane.leftAnchor="0.0"
+               AnchorPane.rightAnchor="0.0"
+               AnchorPane.bottomAnchor="0.0">
 
-   <AnchorPane>
+      <!-- Sfondo viola arrotondato -->
+      <Pane style="-fx-background-color: purple; -fx-background-radius: 70;"
+            prefHeight="360.0"
+            AnchorPane.topAnchor="0.0"
+            AnchorPane.leftAnchor="0.0"
+            AnchorPane.rightAnchor="0.0" />
 
-      <!-- Titolo -->
-      <Label text="Scegli la risposta corretta"
-             AnchorPane.topAnchor="20.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
-             alignment="CENTER"
-             style="-fx-font-size: 24px; -fx-text-fill: white;" />
+      <!-- StackPane centrato orizzontalmente -->
+      <StackPane prefWidth="200" prefHeight="200"
+                 maxWidth="Infinity" maxHeight="Infinity"
+                 AnchorPane.topAnchor="80.0"
+                 AnchorPane.leftAnchor="0.0"
+                 AnchorPane.rightAnchor="0.0">
+         <children>
+            <Circle fill="#ffffff40" radius="88.0" />
+            <Circle fill="#ffffff4d" radius="77.0" />
+            <Circle fill="WHITE" radius="67.0" />
+            <VBox alignment="CENTER" spacing="5">
+               <children>
+                  <Label text="N. partite" textFill="#a42fc1">
+                     <font><Font size="15.0" /></font>
+                  </Label>
+                  <Label fx:id="numPartiteLabel" text="Label" textFill="#9e0081">
+                     <font><Font size="23.0" /></font>
+                  </Label>
+               </children>
+            </VBox>
+         </children>
+      </StackPane>
 
-      <!-- Barra tempo + Timer -->
-      <HBox spacing="10" alignment="CENTER"
-            AnchorPane.topAnchor="60.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
-         <ProgressBar fx:id="progressBar" prefWidth="200" progress="0.25"
-                      style="-fx-accent: #00ffcc;" />
-         <Label fx:id="timerLabel" text="2:48"
-                style="-fx-text-fill: white; -fx-font-size: 14px;" />
-      </HBox>
+      <!-- VBox con HBox, centrata orizzontalmente -->
+      <VBox alignment="CENTER"
+            spacing="20.0"
+            maxWidth="1034.0" maxHeight="170.0"
+            AnchorPane.topAnchor="292.0"
+            AnchorPane.leftAnchor="0.0"
+            AnchorPane.rightAnchor="0.0">
+         <children>
 
-      <!-- Contatore domanda + Pulsante Avanti -->
-      <VBox spacing="10" alignment="TOP_RIGHT"
-            AnchorPane.topAnchor="20.0" AnchorPane.rightAnchor="20.0">
-         <Label fx:id="questionCountLabel" text="3/12"
-                style="-fx-background-color: transparent; -fx-text-fill: white;
-                          -fx-font-size: 16px; -fx-border-color: white;
-                          -fx-border-radius: 20px; -fx-padding: 5 10;
-                          -fx-border-width: 1px; -fx-background-radius: 20px;" />
-         <Button fx:id="nextButton" text="Avanti"
-                 style="-fx-background-color: white; -fx-text-fill: #5a00a5;
-                           -fx-font-weight: bold; -fx-background-radius: 12px;" />
-      </VBox>
+            <!-- Riga 1 -->
+            <HBox alignment="CENTER" spacing="40.0">
+               <HBox alignment="CENTER" spacing="16.0" HBox.hgrow="ALWAYS">
+                  <children>
+                     <Circle fill="DODGERBLUE" radius="10.0" stroke="BLACK" />
+                     <Label text="Corrette">
+                        <font><Font size="21.0" /></font>
+                     </Label>
+                  </children>
+               </HBox>
+               <HBox alignment="CENTER" spacing="16.0" HBox.hgrow="ALWAYS">
+                  <children>
+                     <Circle fill="DODGERBLUE" radius="13.0" stroke="BLACK" />
+                     <Label text="Errate">
+                        <font><Font size="21.0" /></font>
+                     </Label>
+                  </children>
+               </HBox>
+            </HBox>
 
-      <!-- Sezione centrale: domanda + risposte -->
-      <VBox fx:id="questionContainer" spacing="20" alignment="TOP_CENTER"
-            AnchorPane.topAnchor="120.0" AnchorPane.leftAnchor="60.0" AnchorPane.rightAnchor="60.0"
-            AnchorPane.bottomAnchor="40.0">
+            <!-- Riga 2 -->
+            <HBox alignment="CENTER" spacing="40.0">
+               <HBox alignment="CENTER" spacing="16.0" HBox.hgrow="ALWAYS">
+                  <children>
+                     <Circle fill="DODGERBLUE" radius="8.0" stroke="BLACK" />
+                     <Label text="Tempo">
+                        <font><Font size="21.0" /></font>
+                     </Label>
+                  </children>
+               </HBox>
+               <HBox alignment="CENTER" spacing="16.0" HBox.hgrow="ALWAYS">
+                  <children>
+                     <Circle fill="DODGERBLUE" radius="13.0" stroke="BLACK" />
+                     <Label text="Punteggio">
+                        <font><Font size="21.0" /></font>
+                     </Label>
+                  </children>
+               </HBox>
+            </HBox>
 
-         <!-- Domanda -->
-         <Label fx:id="questionText" wrapText="true" textAlignment="CENTER"
-                maxWidth="600"
-                style="-fx-background-color: white; -fx-padding: 20px;
-                          -fx-font-size: 16px; -fx-background-radius: 20px;
-                          -fx-text-fill: black;" />
-
-         <!-- Risposte -->
-         <VBox fx:id="answerBox" spacing="15" alignment="CENTER">
-            <Button text="Risposta 1" styleClass="answer-button" />
-            <Button text="Risposta 2" styleClass="answer-button" />
-            <Button text="Risposta 3" styleClass="answer-button" />
-            <Button text="Risposta 4" styleClass="answer-button" />
-         </VBox>
+         </children>
       </VBox>
 
    </AnchorPane>
-</StackPane>
+</AnchorPane>

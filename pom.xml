@@ -45,6 +45,7 @@
         </dependency>
     </dependencies>
 
+
     <build>
         <plugins>
             <plugin>
@@ -74,6 +75,9 @@
                             <noManPages>true</noManPages>
                             <stripDebug>true</stripDebug>
                             <noHeaderFiles>true</noHeaderFiles>
+                            <jvmArgs>
+                                <jvmArg>--enable-native-access=javafx.graphics</jvmArg>
+                            </jvmArgs>
                         </configuration>
                     </execution>
                 </executions>

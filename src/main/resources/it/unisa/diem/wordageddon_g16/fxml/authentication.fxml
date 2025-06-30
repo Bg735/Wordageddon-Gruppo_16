@@ -40,7 +40,7 @@
                             <Label text="Username">
                                 <font><Font name="Alata Regular" size="10.0" /></font>
                             </Label>
-                            <TextField fx:id="userTextField1" maxWidth="Infinity" promptText="Username" />
+                            <TextField fx:id="usernameField" maxWidth="Infinity" promptText="Username" />
                         </VBox>
 
                         <!-- PASSWORD -->
@@ -48,11 +48,11 @@
                             <Label text="Password">
                                 <font><Font name="Alata Regular" size="10.0" /></font>
                             </Label>
-                            <TextField fx:id="passwordTextField1" maxWidth="Infinity" promptText="Password" />
+                            <TextField fx:id="passwordField" maxWidth="Infinity" promptText="Password" />
                         </VBox>
 
                         <VBox alignment="CENTER" spacing="5">
-                            <Button fx:id="accediBtn1" maxWidth="Infinity" onAction="#handleAccediBtn" styleClass="accediBtn" text="Accedi" textFill="#fcfafa">
+                            <Button fx:id="loginBtn" maxWidth="Infinity" onAction="#handleLoginBtn" styleClass="accediBtn" text="Accedi" textFill="#fcfafa">
                                 <font><Font name="Alata Regular" size="12.0" /></font>
                                 <cursor><Cursor fx:constant="HAND" /></cursor>
                             </Button>
@@ -61,7 +61,7 @@
                                 <font><Font name="Alata Regular" size="9.0" /></font>
                             </Label>
 
-                            <Button fx:id="RegistrazioneBtn1" maxWidth="Infinity" onAction="#handleRegistrazioneBtn" styleClass="registratiBtn" text="Registrati">
+                            <Button fx:id="registerBtn" maxWidth="Infinity" onAction="#handleRegisterBtn" styleClass="registratiBtn" text="Registrati">
                                 <font><Font name="Alata Regular" size="12.0" /></font>
                                 <cursor><Cursor fx:constant="HAND" /></cursor>
                             </Button>

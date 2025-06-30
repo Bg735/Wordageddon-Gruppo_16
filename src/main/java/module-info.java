@@ -5,5 +5,6 @@ module org.example.wordageddongruppo_16 {
 
 
     opens it.unisa.diem.wordageddon_g16 to javafx.fxml;
+    opens it.unisa.diem.wordageddon_g16.controllers to javafx.fxml;
     exports it.unisa.diem.wordageddon_g16;
 }
