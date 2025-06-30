@@ -42,13 +42,15 @@ public class WordageddonApp extends Application {
 
         ViewLoader.setStage(stage);
         ViewLoader.setControllerFactory(controllerFactory);
+        ViewLoader.load("authentication");
 
+        /*
         if (context.getAuthService().restoreSession()) {
             ViewLoader.load("menu");
         } else {
             ViewLoader.load("authentication");
         }
-
+*/
         stage.setOnCloseRequest(event -> {
             repo.close();
         });

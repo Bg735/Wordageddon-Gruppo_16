@@ -57,7 +57,7 @@
                                 <cursor><Cursor fx:constant="HAND" /></cursor>
                             </Button>
 
-                            <Label text="oppure">
+                            <Label fx:id="oppureLabel" text="oppure">
                                 <font><Font name="Alata Regular" size="9.0" /></font>
                             </Label>
 

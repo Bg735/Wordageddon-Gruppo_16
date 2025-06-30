@@ -1,0 +1,32 @@
+
+
+.alert-error, .alert-info {
+    -fx-background-color: linear-gradient(to right, #6A0DAD, #5C1B8B);
+}
+
+.alert-error .content.label,
+.alert-error .header-panel .label ,
+.alert-info .content.label{
+    -fx-text-fill: white;
+    -fx-font-family: 'Alata';
+}
+
+
+.dialog-pane .button-bar .button {
+    -fx-background-color: linear-gradient(to right, #00E6FF, #0053B7);
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+}
+.alert-error .button-bar .button {
+    -fx-background-color: linear-gradient(to right, #d32f2f, #8e0000);
+    -fx-text-fill: #ffffff;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: white;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 4, 0, 0, 2);
+}
+

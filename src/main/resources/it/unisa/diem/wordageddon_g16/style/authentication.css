@@ -12,3 +12,12 @@
 .registratiBtn{
     -fx-background-color: rgba(20, 243, 189, 0.68);
 }
+.accediBtn:hover {
+    -fx-background-color: #1a1a1a;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 8, 0.3, 0, 2);
+}
+
+.registratiBtn:hover {
+    -fx-background-color: rgba(20, 243, 189, 1);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 8, 0.3, 0, 2);
+}

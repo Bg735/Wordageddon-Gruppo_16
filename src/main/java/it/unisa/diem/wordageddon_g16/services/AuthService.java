@@ -56,7 +56,7 @@ public class AuthService {
     }
     public void logout() {
         context.setCurrentUser(null);
-        new File(SESSION_FILE).delete(); // 👈 cancella il file
+        new File(SESSION_FILE).delete();
     }
 
     public boolean noUsers(){
