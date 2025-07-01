@@ -28,17 +28,17 @@ public class MainMenuController implements Initializable {
 
     @FXML
     void handleLeaderBoardBtn(ActionEvent event) {
-        ViewLoader.load("leaderboard");
+        ViewLoader.load(ViewLoader.View.LEADERBOARD);
     }
 
     @FXML
     void handleOpenUserPanel(MouseEvent event) {
-        ViewLoader.load("userPanel");
+        ViewLoader.load(ViewLoader.View.USER_PANEL);
     }
 
     @FXML
     void handleStartBtn(ActionEvent event) {
-        ViewLoader.load("start"); // TO DO
+        ViewLoader.load(ViewLoader.View.GAME);
     }
 
     public MainMenuController(AppContext context) {

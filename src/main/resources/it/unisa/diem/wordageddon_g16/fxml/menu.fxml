@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.text.*?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Button?>
@@ -19,7 +29,7 @@
 <?import javafx.scene.shape.Polygon?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="832.0" prefWidth="1280.0" stylesheets="@../style/menu.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unisa.diem.wordageddon_g16.controllers.MainMenuController">
+<BorderPane prefHeight="832.0" prefWidth="1280.0" stylesheets="@../style/menu.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unisa.diem.wordageddon_g16.controllers.MainMenuController">
     <top>
         <HBox alignment="TOP_RIGHT" prefHeight="151.0" prefWidth="1280.0" spacing="10" BorderPane.alignment="CENTER">
             <padding>
@@ -28,6 +38,61 @@
             <children>
             <Pane prefHeight="98.0" prefWidth="602.0">
                <children>
+                  <Polygon layoutX="422.0" layoutY="119.0" points="12.0, -51.00001525878906, 35.79998779296875, -51.00001525878906, 35.79998779296875, -28.400009155273438" strokeWidth="0.0">
+                     <effect>
+                        <ColorAdjust />
+                     </effect>
+                     <stroke>
+                        <LinearGradient cycleMethod="REFLECT" endX="1.0" endY="1.0" startY="0.08333328998450078">
+                           <stops>
+                              <Stop>
+                                 <color>
+                                    <Color blue="0.9137254953384399" green="1.0" red="0.7450980544090271" />
+                                 </color>
+                              </Stop>
+                              <Stop offset="1.0">
+                                 <color>
+                                    <Color blue="0.8784313797950745" green="0.3960784375667572" red="0.7882353067398071" />
+                                 </color>
+                              </Stop>
+                           </stops>
+                        </LinearGradient>
+                     </stroke>
+                     <fill>
+                        <LinearGradient cycleMethod="REFLECT" endX="1.0" endY="1.0" startY="0.08333328998450078">
+                           <stops>
+                              <Stop>
+                                 <color>
+                                    <Color blue="0.9137254953384399" green="1.0" red="0.7450980544090271" />
+                                 </color>
+                              </Stop>
+                              <Stop offset="1.0">
+                                 <color>
+                                    <Color blue="0.8784313797950745" green="0.3960784375667572" red="0.7882353067398071" />
+                                 </color>
+                              </Stop>
+                           </stops>
+                        </LinearGradient>
+                     </fill>
+                  </Polygon>
+                  <Polygon layoutX="424.0" layoutY="127.0" points="0.0, -35.40000534057617, 34.79998779296875, -35.40000915527344, 34.79998779296875, -57.80000305175781" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0">
+                     <fill>
+                        <LinearGradient cycleMethod="REFLECT" endX="1.0" endY="1.0" startY="0.08333328998450078">
+                           <stops>
+                              <Stop>
+                                 <color>
+                                    <Color blue="0.9137254953384399" green="1.0" red="0.7450980544090271" />
+                                 </color>
+                              </Stop>
+                              <Stop offset="1.0">
+                                 <color>
+                                    <Color blue="0.8784313797950745" green="0.3960784375667572" red="0.7882353067398071" />
+                                 </color>
+                              </Stop>
+                           </stops>
+                        </LinearGradient>
+                     </fill>
+                  </Polygon>
                   <Pane layoutX="418.0" layoutY="38.0" maxHeight="-Infinity" onMouseClicked="#handleOpenUserPanel" prefHeight="32.0" prefWidth="185.0" styleClass="paneUsername">
                      <children>
                         <Label fx:id="usernameLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="12.0" layoutY="-5.0" prefHeight="38.0" prefWidth="173.0" text="UserName" textFill="WHITE">
@@ -37,24 +102,6 @@
                         </Label>
                      </children>
                   </Pane>
-                  <Polygon layoutX="438.0" layoutY="128.0" points="0.0, -35.40000534057617, 34.79998779296875, -35.40000915527344, 34.79998779296875, -57.80000305175781" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0">
-                     <fill>
-                        <LinearGradient cycleMethod="REFLECT" endX="1.0" endY="1.0" startY="0.08333328998450078">
-                           <stops>
-                              <Stop>
-                                 <color>
-                                    <Color red="0.7450980544090271" green="1.0" blue="0.9137254953384399" />
-                                 </color>
-                              </Stop>
-                              <Stop offset="1.0">
-                                 <color>
-                                    <Color red="0.7882353067398071" green="0.3960784375667572" blue="0.8784313797950745" />
-                                 </color>
-                              </Stop>
-                           </stops>
-                        </LinearGradient>
-                     </fill>
-                  </Polygon>
                   <StackPane layoutX="379.0" layoutY="20.0" prefHeight="68.0" prefWidth="71.0">
                      <children>
                         <Circle id="cerchio1" fill="#7fcef5db" radius="34.0" strokeType="INSIDE" />
@@ -69,43 +116,6 @@
                         </ImageView>
                      </children>
                   </StackPane>
-                  <Polygon layoutX="437.0" layoutY="121.0" points="12.0, -51.00001525878906, 35.79998779296875, -51.00001525878906, 35.79998779296875, -28.400009155273438" strokeWidth="0.0">
-                     <effect>
-                        <ColorAdjust />
-                     </effect>
-                     <stroke>
-                        <LinearGradient cycleMethod="REFLECT" endX="1.0" endY="1.0" startY="0.08333328998450078">
-                           <stops>
-                              <Stop>
-                                 <color>
-                                    <Color red="0.7450980544090271" green="1.0" blue="0.9137254953384399" />
-                                 </color>
-                              </Stop>
-                              <Stop offset="1.0">
-                                 <color>
-                                    <Color red="0.7882353067398071" green="0.3960784375667572" blue="0.8784313797950745" />
-                                 </color>
-                              </Stop>
-                           </stops>
-                        </LinearGradient>
-                     </stroke>
-                     <fill>
-                        <LinearGradient cycleMethod="REFLECT" endX="1.0" endY="1.0" startY="0.08333328998450078">
-                           <stops>
-                              <Stop>
-                                 <color>
-                                    <Color red="0.7450980544090271" green="1.0" blue="0.9137254953384399" />
-                                 </color>
-                              </Stop>
-                              <Stop offset="1.0">
-                                 <color>
-                                    <Color red="0.7882353067398071" green="0.3960784375667572" blue="0.8784313797950745" />
-                                 </color>
-                              </Stop>
-                           </stops>
-                        </LinearGradient>
-                     </fill>
-                  </Polygon>
                </children>
             </Pane>
             </children>

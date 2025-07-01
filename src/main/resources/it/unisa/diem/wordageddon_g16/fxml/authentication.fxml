@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Button?>
@@ -13,7 +20,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="800.0" prefWidth="1280.0" stylesheets="@../style/authentication.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unisa.diem.wordageddon_g16.controllers.AuthController">
+<BorderPane prefHeight="800.0" prefWidth="1280.0" stylesheets="@../style/authentication.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unisa.diem.wordageddon_g16.controllers.AuthController">
     <top>
         <HBox alignment="CENTER" prefHeight="431.0" prefWidth="1280.0" BorderPane.alignment="CENTER">
             <children>
@@ -31,44 +38,68 @@
 
     <center>
         <VBox alignment="TOP_CENTER" prefHeight="407.0" prefWidth="1280.0" spacing="20" BorderPane.alignment="TOP_CENTER">
-            <AnchorPane maxWidth="500" style="-fx-background-color: white;" styleClass="pane">
-                <children>
-                    <VBox spacing="10.0" AnchorPane.bottomAnchor="12.0" AnchorPane.leftAnchor="12.0" AnchorPane.rightAnchor="12.0" AnchorPane.topAnchor="12.0">
-
-                        <!-- USERNAME -->
-                        <VBox spacing="3">
-                            <Label text="Username">
-                                <font><Font name="Alata Regular" size="10.0" /></font>
-                            </Label>
-                            <TextField fx:id="usernameField" maxWidth="Infinity" promptText="Username" />
-                        </VBox>
-
-                        <!-- PASSWORD -->
-                        <VBox spacing="3">
-                            <Label text="Password">
-                                <font><Font name="Alata Regular" size="10.0" /></font>
-                            </Label>
-                            <TextField fx:id="passwordField" maxWidth="Infinity" promptText="Password" />
-                        </VBox>
-
-                        <VBox alignment="CENTER" spacing="5">
-                            <Button fx:id="loginBtn" maxWidth="Infinity" onAction="#handleLoginBtn" styleClass="accediBtn" text="Accedi" textFill="#fcfafa">
-                                <font><Font name="Alata Regular" size="12.0" /></font>
-                                <cursor><Cursor fx:constant="HAND" /></cursor>
-                            </Button>
-
-                            <Label fx:id="oppureLabel" text="oppure">
-                                <font><Font name="Alata Regular" size="9.0" /></font>
-                            </Label>
-
-                            <Button fx:id="registerBtn" maxWidth="Infinity" onAction="#handleRegisterBtn" styleClass="registratiBtn" text="Registrati">
-                                <font><Font name="Alata Regular" size="12.0" /></font>
-                                <cursor><Cursor fx:constant="HAND" /></cursor>
-                            </Button>
-                        </VBox>
-                    </VBox>
-                </children>
-            </AnchorPane>
+           <children>
+               <AnchorPane maxWidth="500" style="-fx-background-color: white;" styleClass="pane">
+                   <children>
+                       <VBox spacing="10.0" AnchorPane.bottomAnchor="12.0" AnchorPane.leftAnchor="12.0" AnchorPane.rightAnchor="12.0" AnchorPane.topAnchor="12.0">
+                          <children>
+      
+                              <!-- USERNAME -->
+                              <VBox spacing="3">
+         <children>
+                                     <Label text="Username">
+                                         <font>
+                                    <Font name="Alata Regular" size="10.0" />
+                                 </font>
+                                     </Label>
+                                     <TextField fx:id="usernameField" maxWidth="Infinity" promptText="Username" />
+         </children>
+                              </VBox>
+      
+                              <!-- PASSWORD -->
+                              <VBox spacing="3">
+         <children>
+                                     <Label text="Password">
+                                         <font>
+                                    <Font name="Alata Regular" size="10.0" />
+                                 </font>
+                                     </Label>
+                                     <TextField fx:id="passwordField" maxWidth="Infinity" promptText="Password" />
+         </children>
+                              </VBox>
+      
+                              <VBox alignment="CENTER" spacing="5">
+         <children>
+                                     <Button fx:id="loginBtn" maxWidth="Infinity" onAction="#handleLoginBtn" styleClass="accediBtn" text="Accedi" textFill="#fcfafa">
+                                         <font>
+                                    <Font name="Alata Regular" size="12.0" />
+                                 </font>
+                                         <cursor>
+                                    <Cursor fx:constant="HAND" />
+                                 </cursor>
+                                     </Button>
+         
+                                     <Label fx:id="oppureLabel" text="oppure">
+                                         <font>
+                                    <Font name="Alata Regular" size="9.0" />
+                                 </font>
+                                     </Label>
+         
+                                     <Button fx:id="registerBtn" maxWidth="Infinity" onAction="#handleRegisterBtn" styleClass="registratiBtn" text="Registrati" textFill="WHITE">
+                                         <font>
+                                    <Font name="Alata Regular" size="12.0" />
+                                 </font>
+                                         <cursor>
+                                    <Cursor fx:constant="HAND" />
+                                 </cursor>
+                                     </Button>
+         </children>
+                              </VBox>
+                          </children>
+                       </VBox>
+                   </children>
+               </AnchorPane>
+           </children>
         </VBox>
     </center>
 </BorderPane>

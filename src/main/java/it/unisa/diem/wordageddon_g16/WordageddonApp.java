@@ -33,7 +33,7 @@ public class WordageddonApp extends Application {
 
         ViewLoader.setStage(stage);
         ViewLoader.setControllerFactory(controllerFactory);
-        ViewLoader.load("authentication");
+        ViewLoader.load(ViewLoader.View.AUTH);
 
         /*
         if (context.getAuthService().restoreSession()) {

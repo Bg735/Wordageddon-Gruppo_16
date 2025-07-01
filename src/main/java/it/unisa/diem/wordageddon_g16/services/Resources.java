@@ -14,7 +14,7 @@ public class Resources {
     }
 
     public static String getStyle(String name) {
-        return RES_PATH + "styles/" + name + ".css";
+        return  Resources.class.getResource(RES_PATH + "style/" + name + ".css").toExternalForm();
     }
 
 

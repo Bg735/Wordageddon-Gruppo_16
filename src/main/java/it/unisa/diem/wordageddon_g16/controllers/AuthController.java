@@ -53,7 +53,7 @@ public class AuthController  {
         }
         boolean success = authService.login(username, password);
         if (success) {
-            ViewLoader.load("menu");
+            ViewLoader.load(ViewLoader.View.MENU);
         } else {
             showDialog(Alert.AlertType.ERROR, "Errore", "Credenziali non valide: username o password sbagliate.");
         }
@@ -81,12 +81,7 @@ public class AuthController  {
         }
 
         if (authService.register(username, password, noUsers)) {
-            String ruolo = noUsers ? "amministratore" : "utente";
-            showDialog(Alert.AlertType.INFORMATION, "Registrazione completata", "Registrazione come " + ruolo +" effettuata con successo. \nContinua con il log in.");
-            registerBtn.setVisible(false);
-            registerBtn.setManaged(false);
-            loginBtn.setVisible(true);
-            loginBtn.setManaged(true);
+            ViewLoader.load(ViewLoader.View.MENU);
         } else {
             showDialog(Alert.AlertType.ERROR, "Errore", "L'utente inserito esiste già.");
         }
@@ -100,7 +95,7 @@ public class AuthController  {
         alert.setHeaderText(null);
         alert.setContentText(messaggio);
         DialogPane dialogPane = alert.getDialogPane();
-        dialogPane.getStylesheets().add(Resources.getStyle("dialog.css"));
+        dialogPane.getStylesheets().add(Resources.getStyle("dialog"));
         dialogPane.getStyleClass().add("dialog-pane");
         switch (type) {
             case ERROR -> {
