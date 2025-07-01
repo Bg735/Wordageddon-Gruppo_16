@@ -7,7 +7,7 @@ public class Resources {
 
     private Resources(){}
 
-    private static final String RES_PATH = "src/main/resources/it/unisa/diem/wordageddon_g16/";
+    static final String RES_PATH = "/it/unisa/diem/wordageddon_g16/";
 
     public static InputStream getAsset(String filename){
         return Resources.class.getResourceAsStream(RES_PATH+"assets/"+filename);

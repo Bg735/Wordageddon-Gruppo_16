@@ -19,21 +19,15 @@ public class ViewLoader {
     public static void setStage(Stage stage) {
         ViewLoader.stage = stage;
     }
-    private static Scene scene;
 
-    public static void setScene(Scene s) {
-        scene = s;
-    }
     public static void load(String fxmlView){
-        if (controllerFactory == null || stage == null || scene == null) {
+        if (controllerFactory == null || stage == null) {
             throw new IllegalStateException("ViewLoader not properly initialized.");
         }
         try {
-            FXMLLoader fxmlLoader = new FXMLLoader(ViewLoader.class.getResource("/it/unisa/diem/wordageddon_g16/fxml/" + fxmlView + ".fxml"));
+            FXMLLoader fxmlLoader = new FXMLLoader(ViewLoader.class.getResource(Resources.RES_PATH+"fxml/" + fxmlView + ".fxml"));
             fxmlLoader.setControllerFactory(controllerFactory);
-            Parent root = fxmlLoader.load();
-            scene.setRoot(root);
-
+            stage.getScene().setRoot(fxmlLoader.load());
         } catch (IOException e) {
             throw new RuntimeException("Failed to load FXML view: " + fxmlView, e);
         }
