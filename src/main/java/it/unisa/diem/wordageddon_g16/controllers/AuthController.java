@@ -23,13 +23,19 @@ public class AuthController  {
     private Button registerBtn;
 
     @FXML
-    private TextField passwordField;
+    private PasswordField passwordPF;
+
+    @FXML
+    private TextField passwordTF;
 
     @FXML
     private TextField usernameField;
 
     @FXML
     private Label oppureLabel;
+
+    @FXML
+    private CheckBox showPasswordCB;
 
     private boolean noUsers;
 
@@ -39,14 +45,25 @@ public class AuthController  {
         if (noUsers) {
             loginBtn.setVisible(false);
             loginBtn.setManaged(false);
+            registerBtn.setDefaultButton(true);
             oppureLabel.setVisible(false);
         }
+        else{
+            loginBtn.setDefaultButton(true);
+        }
+
+        passwordPF.visibleProperty().bind(showPasswordCB.selectedProperty().not());
+        passwordPF.managedProperty().bind(showPasswordCB.selectedProperty().not());
+        passwordTF.visibleProperty().bind(showPasswordCB.selectedProperty());
+        passwordTF.managedProperty().bind(showPasswordCB.selectedProperty());
+        passwordTF.textProperty().bindBidirectional(passwordPF.textProperty());
     }
+
 
     @FXML
     void handleLoginBtn(ActionEvent event) {
         String username = usernameField.getText();
-        String password = passwordField.getText();
+        String password = passwordPF.getText();
         if (username.isEmpty() || password.isEmpty()) {
             showDialog(Alert.AlertType.ERROR, "Campi incompleti", "Inserisci username e password.");
             return;
@@ -63,7 +80,7 @@ public class AuthController  {
     @FXML
     void handleRegisterBtn(ActionEvent event) {
         String username = usernameField.getText().trim();
-        String password = passwordField.getText().trim();
+        String password = passwordPF.getText().trim();
         int maxUsernameLength = Integer.parseInt(Config.get(Config.Props.USR_CHAR_MAX_LENGTH));
         int minPasswordLength = Integer.parseInt(Config.get(Config.Props.PW_CHAR_MIN_LENGTH));
 
