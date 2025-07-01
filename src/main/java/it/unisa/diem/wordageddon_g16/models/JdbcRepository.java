@@ -13,13 +13,12 @@ import java.util.Map;
 
 public class JdbcRepository implements Repository {
 
-    private final Map<String, JdbcDAO<?>> daos;
+    private final Map<String, JdbcDAO<?>> daos = new HashMap<>();
     private Connection conn;
 
     public JdbcRepository() {
-        daos = new HashMap<>();
         try {
-            conn = DriverManager.getConnection(Config.DB_URL);
+            conn = DriverManager.getConnection(Config.get(Config.Props.DB_URL));
             var userDAO = new UserDAO(conn);
             var documentDAO = new DocumentDAO(conn);
             daos.put("user", userDAO);

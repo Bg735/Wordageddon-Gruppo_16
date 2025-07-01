@@ -61,7 +61,7 @@
                         <Circle id="cerchio1" fill="#91dafff8" radius="26.0" strokeType="INSIDE" />
                         <ImageView fitHeight="36.0" fitWidth="37.0" onMouseClicked="#handleOpenUserPanel" pickOnBounds="true" preserveRatio="true">
                            <image>
-                              <Image url="@../asserts/iconUser.png" />
+                              <Image url="@../assets/iconUser.png" />
                            </image>
                            <cursor>
                               <Cursor fx:constant="HAND" />
@@ -116,7 +116,7 @@
             <children>
                 <ImageView fitHeight="232.0" fitWidth="389.0" pickOnBounds="true" preserveRatio="true">
                     <image>
-                        <Image url="@../asserts/logo.png" />
+                        <Image url="@../assets/logo.png" />
                     </image>
                 </ImageView>
                 <Button fx:id="startBtn" maxWidth="302.0" onAction="#handleStartBtn" prefHeight="54.0" prefWidth="302.0" styleClass="giocaBtn" text="GIOCA">

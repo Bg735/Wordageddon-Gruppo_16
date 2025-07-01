@@ -34,7 +34,7 @@
                         <Circle id="cerchio1" fill="#91dafff8" radius="19.0" strokeType="INSIDE" />
                         <ImageView fitHeight="30.0" fitWidth="28.0" pickOnBounds="true" preserveRatio="true">
                            <image>
-                              <Image url="@../../asserts/iconUser.png" />
+                              <Image url="@../../assets/iconUser.png" />
                            </image>
                         </ImageView>
                      </children>
@@ -104,7 +104,7 @@
          <children>
             <ImageView fitHeight="130.0" fitWidth="215.0" pickOnBounds="true" preserveRatio="true">
                <image>
-                  <Image url="@../../asserts/logo.png" />
+                  <Image url="@../../assets/logo.png" />
                </image>
             </ImageView>
             <Button fx:id="startBtn" mnemonicParsing="false" onAction="#handleStartBtn" prefHeight="35.0" prefWidth="178.0" text="GIOCA">

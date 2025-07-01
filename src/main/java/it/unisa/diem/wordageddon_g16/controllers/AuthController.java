@@ -1,16 +1,17 @@
 package it.unisa.diem.wordageddon_g16.controllers;
 
 import it.unisa.diem.wordageddon_g16.db.DAO;
-import it.unisa.diem.wordageddon_g16.db.UserDAO;
-import it.unisa.diem.wordageddon_g16.models.User;
 import it.unisa.diem.wordageddon_g16.services.AuthService;
+import it.unisa.diem.wordageddon_g16.services.Config;
+import it.unisa.diem.wordageddon_g16.services.Resources;
 import it.unisa.diem.wordageddon_g16.services.ViewLoader;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+
+import java.util.Objects;
 
 public class AuthController  {
 
@@ -30,9 +31,12 @@ public class AuthController  {
     @FXML
     private Label oppureLabel;
 
+    private boolean noUsers;
+
     @FXML
     private void initialize() {
-        if (authService.noUsers()) {
+        noUsers = authService.noUsers();
+        if (noUsers) {
             loginBtn.setVisible(false);
             loginBtn.setManaged(false);
             oppureLabel.setVisible(false);
@@ -45,14 +49,14 @@ public class AuthController  {
         String username = usernameField.getText();
         String password = passwordField.getText();
         if (username.isEmpty() || password.isEmpty()) {
-            mostraDialog(Alert.AlertType.ERROR, "Campi incompleti", "Inserisci username e password.");
+            showDialog(Alert.AlertType.ERROR, "Campi incompleti", "Inserisci username e password.");
             return;
         }
         boolean success = authService.login(username, password);
         if (success) {
             ViewLoader.load("menu");
         } else {
-            mostraDialog(Alert.AlertType.ERROR, "Errore", "Credenziali non valide: username o password sbagliate.");
+            showDialog(Alert.AlertType.ERROR, "Errore", "Credenziali non valide: username o password sbagliate.");
         }
 
     }
@@ -61,41 +65,43 @@ public class AuthController  {
     void handleRegisterBtn(ActionEvent event) {
         String username = usernameField.getText().trim();
         String password = passwordField.getText().trim();
+        int maxUsernameLength = Integer.parseInt(Config.get(Config.Props.USR_CHAR_MAX_LENGTH));
+        int minPasswordLength = Integer.parseInt(Config.get(Config.Props.PW_CHAR_MIN_LENGTH));
+
         if (username.isEmpty() || password.isEmpty()) {
-            mostraDialog(Alert.AlertType.ERROR, "Campi incompleti", "Inserisci username e password.");
+            showDialog(Alert.AlertType.ERROR, "Campi incompleti", "Inserisci username e password.");
             return;
         }
-        if (username.length() > 15) {
-            mostraDialog(Alert.AlertType.ERROR, "Username non valido", "L'username non può superare i 15 caratteri.");
+        if (username.length() > maxUsernameLength) {
+            showDialog(Alert.AlertType.ERROR, "Username non valido", "L'username non può superare i "+ maxUsernameLength +"caratteri.");
             return;
         }
-        if (password.length() < 6) {
-            mostraDialog(Alert.AlertType.ERROR, "Password non valida", "La password deve contenere almeno 6 caratteri.");
+        if (password.length() < minPasswordLength) {
+            showDialog(Alert.AlertType.ERROR, "Password non valida", "La password deve contenere almeno "+ minPasswordLength +" caratteri.");
             return;
         }
-        boolean firstUser = authService.noUsers();
-        boolean success = authService.register(username, password, firstUser);
-        if (success) {
-            String ruolo = firstUser ? "amministratore" : "utente";
-            mostraDialog(Alert.AlertType.INFORMATION, "Registrazione completata", "Registrazione come " + ruolo +" effettuata con successo. \nContinua con il log in.");
+
+        if (authService.register(username, password, noUsers)) {
+            String ruolo = noUsers ? "amministratore" : "utente";
+            showDialog(Alert.AlertType.INFORMATION, "Registrazione completata", "Registrazione come " + ruolo +" effettuata con successo. \nContinua con il log in.");
             registerBtn.setVisible(false);
             registerBtn.setManaged(false);
             loginBtn.setVisible(true);
             loginBtn.setManaged(true);
         } else {
-            mostraDialog(Alert.AlertType.ERROR, "Errore", "Utente già esistente.");
+            showDialog(Alert.AlertType.ERROR, "Errore", "L'utente inserito esiste già.");
         }
 
 
     }
 
-    public void mostraDialog(Alert.AlertType type, String titolo, String messaggio) {
+    public void showDialog(Alert.AlertType type, String titolo, String messaggio) {
         Alert alert = new Alert(type);
         alert.setTitle(titolo);
         alert.setHeaderText(null);
         alert.setContentText(messaggio);
         DialogPane dialogPane = alert.getDialogPane();
-        dialogPane.getStylesheets().add(getClass().getResource("/it/unisa/diem/wordageddon_g16/style/dialog.css").toExternalForm());
+        dialogPane.getStylesheets().add(Resources.getStyle("dialog.css"));
         dialogPane.getStyleClass().add("dialog-pane");
         switch (type) {
             case ERROR -> {
@@ -103,7 +109,7 @@ public class AuthController  {
             }
             case INFORMATION -> {
                 dialogPane.getStyleClass().add("alert-info");
-                ImageView icon = new ImageView(new Image(getClass().getResourceAsStream("/it/unisa/diem/wordageddon_g16/asserts/confirm-icon.png")));
+                ImageView icon = new ImageView(new Image(Resources.getAsset("confirm-icon.png")));
                 icon.setFitHeight(40);
                 icon.setFitWidth(40);
                 dialogPane.setGraphic(icon);

@@ -34,14 +34,14 @@
                <graphic>
                   <ImageView fitHeight="24.0" fitWidth="94.0" preserveRatio="true">
                      <image>
-                        <Image url="@../asserts/back.png" />
+                        <Image url="@../assets/back.png" />
                      </image>
                   </ImageView>
                </graphic>
             </Button>
             <ImageView fitHeight="113.0" fitWidth="105.0" preserveRatio="true" GridPane.columnIndex="1">
                <image>
-                  <Image url="@../asserts/logo2.png" />
+                  <Image url="@../assets/logo2.png" />
                </image>
             </ImageView>
          </children>

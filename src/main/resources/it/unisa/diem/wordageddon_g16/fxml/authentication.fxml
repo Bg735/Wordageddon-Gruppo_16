@@ -19,7 +19,7 @@
             <children>
                 <ImageView pickOnBounds="true" preserveRatio="true">
                     <image>
-                        <Image url="@../asserts/logo.png" />
+                        <Image url="@../assets/logo.png" />
                     </image>
                 </ImageView>
             </children>
