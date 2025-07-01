@@ -1,15 +1,19 @@
 package it.unisa.diem.wordageddon_g16;
 
 import it.unisa.diem.wordageddon_g16.controllers.*;
+import it.unisa.diem.wordageddon_g16.db.DAO;
 import it.unisa.diem.wordageddon_g16.models.*;
+import it.unisa.diem.wordageddon_g16.models.interfaces.Repository;
 import it.unisa.diem.wordageddon_g16.services.ViewLoader;
 import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import javafx.util.Callback;
 import javafx.scene.image.Image;
 
 import java.io.IOException;
-import java.util.Objects;
 
 public class WordageddonApp extends Application {
 
@@ -33,17 +37,19 @@ public class WordageddonApp extends Application {
             }
         };
 
+        Scene scene = new Scene(new StackPane(), 1280, 832);
+        stage.setScene(scene);
         stage.setResizable(true);
         stage.setWidth(1280);
         stage.setHeight(832);
-        stage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/it/unisa/diem/wordageddon_g16/assets/logo2.png"))));
+        stage.getIcons().add(new Image(getClass().getResourceAsStream("/it/unisa/diem/wordageddon_g16/asserts/logo2.png")));
 
         ViewLoader.setStage(stage);
+        ViewLoader.setScene(scene);
         ViewLoader.setControllerFactory(controllerFactory);
-        ViewLoader.load("authentication");
 
-        /*
-        if (context.getAuthService().restoreSession()) {
+        ViewLoader.load("authentication");
+        /*if (context.getAuthService().restoreSession()) {
             ViewLoader.load("menu");
         } else {
             ViewLoader.load("authentication");

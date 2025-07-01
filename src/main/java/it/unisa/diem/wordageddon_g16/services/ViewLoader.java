@@ -1,6 +1,7 @@
 package it.unisa.diem.wordageddon_g16.services;
 
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.util.Callback;
@@ -18,15 +19,21 @@ public class ViewLoader {
     public static void setStage(Stage stage) {
         ViewLoader.stage = stage;
     }
+    private static Scene scene;
 
+    public static void setScene(Scene s) {
+        scene = s;
+    }
     public static void load(String fxmlView){
-        if (controllerFactory == null || stage == null) {
-            throw new IllegalStateException("ViewLoader is not properly set. Please set the controllerFactory and stage before loading views.");
+        if (controllerFactory == null || stage == null || scene == null) {
+            throw new IllegalStateException("ViewLoader not properly initialized.");
         }
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(ViewLoader.class.getResource("/it/unisa/diem/wordageddon_g16/fxml/" + fxmlView + ".fxml"));
             fxmlLoader.setControllerFactory(controllerFactory);
-            stage.setScene(new Scene(fxmlLoader.load(), 1920, 1080));
+            Parent root = fxmlLoader.load();
+            scene.setRoot(root);
+
         } catch (IOException e) {
             throw new RuntimeException("Failed to load FXML view: " + fxmlView, e);
         }

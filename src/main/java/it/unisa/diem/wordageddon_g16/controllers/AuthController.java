@@ -43,7 +43,6 @@ public class AuthController  {
         }
     }
 
-
     @FXML
     void handleLoginBtn(ActionEvent event) {
         String username = usernameField.getText();
@@ -119,15 +118,8 @@ public class AuthController  {
         alert.showAndWait();
     }
 
-    private DAO<?> userDAO;
-
     public <T> AuthController(AuthService authService) {
         this.authService = authService;
     }
 
-
-
-    // aggiungi checker per username e password
-
-    // no utenti? solo registrazione e mettilo admin
 }
