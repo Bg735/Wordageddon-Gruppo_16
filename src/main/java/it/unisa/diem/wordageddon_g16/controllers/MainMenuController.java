@@ -10,6 +10,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -23,6 +24,9 @@ public class MainMenuController implements Initializable {
     private Button startBtn;
 
     @FXML
+    private AnchorPane userPanelBtn;
+
+    @FXML
     private Label usernameLabel;
     private final AppContext context;
 
@@ -32,7 +36,8 @@ public class MainMenuController implements Initializable {
     }
 
     @FXML
-    void handleOpenUserPanel(MouseEvent event) {
+    void onUserPanelRequested(MouseEvent event) {
+        System.out.println(event.getSource());
         ViewLoader.load(ViewLoader.View.USER_PANEL);
     }
 

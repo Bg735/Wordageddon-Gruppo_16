@@ -35,13 +35,50 @@
             <padding>
                 <Insets left="15.0" top="15.0" />
             </padding>
-            <children>
-            <Pane prefHeight="98.0" prefWidth="602.0">
+         <children>
+            <AnchorPane fx:id="userPanelBtn" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onMouseClicked="#onUserPanelRequested" prefHeight="32.0" prefWidth="218.0" translateY="25.0">
                <children>
-                  <Polygon layoutX="422.0" layoutY="119.0" points="12.0, -51.00001525878906, 35.79998779296875, -51.00001525878906, 35.79998779296875, -28.400009155273438" strokeWidth="0.0">
+                  <Polygon layoutX="36.0" layoutY="91.0" points="0.0, -35.40000534057617, 34.79998779296875, -35.40000915527344, 34.79998779296875, -57.80000305175781" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0">
+                     <fill>
+                        <LinearGradient cycleMethod="REFLECT" endX="1.0" endY="1.0" startY="0.08333328998450078">
+                           <stops>
+                              <Stop>
+                                 <color>
+                                    <Color blue="0.9137254953384399" green="1.0" red="0.7450980544090271" />
+                                 </color>
+                              </Stop>
+                              <Stop offset="1.0">
+                                 <color>
+                                    <Color blue="0.8784313797950745" green="0.3960784375667572" red="0.7882353067398071" />
+                                 </color>
+                              </Stop>
+                           </stops>
+                        </LinearGradient>
+                     </fill>
+                     <cursor>
+                        <Cursor fx:constant="DEFAULT" />
+                     </cursor>
+                  </Polygon>
+                  <Polygon layoutX="35.0" layoutY="83.0" points="12.0, -51.00001525878906, 35.79998779296875, -51.00001525878906, 35.79998779296875, -28.400009155273438" strokeWidth="0.0">
                      <effect>
                         <ColorAdjust />
                      </effect>
+                     <fill>
+                        <LinearGradient cycleMethod="REFLECT" endX="1.0" endY="1.0" startY="0.08333328998450078">
+                           <stops>
+                              <Stop>
+                                 <color>
+                                    <Color blue="0.9137254953384399" green="1.0" red="0.7450980544090271" />
+                                 </color>
+                              </Stop>
+                              <Stop offset="1.0">
+                                 <color>
+                                    <Color blue="0.8784313797950745" green="0.3960784375667572" red="0.7882353067398071" />
+                                 </color>
+                              </Stop>
+                           </stops>
+                        </LinearGradient>
+                     </fill>
                      <stroke>
                         <LinearGradient cycleMethod="REFLECT" endX="1.0" endY="1.0" startY="0.08333328998450078">
                            <stops>
@@ -58,67 +95,47 @@
                            </stops>
                         </LinearGradient>
                      </stroke>
-                     <fill>
-                        <LinearGradient cycleMethod="REFLECT" endX="1.0" endY="1.0" startY="0.08333328998450078">
-                           <stops>
-                              <Stop>
-                                 <color>
-                                    <Color blue="0.9137254953384399" green="1.0" red="0.7450980544090271" />
-                                 </color>
-                              </Stop>
-                              <Stop offset="1.0">
-                                 <color>
-                                    <Color blue="0.8784313797950745" green="0.3960784375667572" red="0.7882353067398071" />
-                                 </color>
-                              </Stop>
-                           </stops>
-                        </LinearGradient>
-                     </fill>
+                     <cursor>
+                        <Cursor fx:constant="DEFAULT" />
+                     </cursor>
                   </Polygon>
-                  <Polygon layoutX="424.0" layoutY="127.0" points="0.0, -35.40000534057617, 34.79998779296875, -35.40000915527344, 34.79998779296875, -57.80000305175781" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0">
-                     <fill>
-                        <LinearGradient cycleMethod="REFLECT" endX="1.0" endY="1.0" startY="0.08333328998450078">
-                           <stops>
-                              <Stop>
-                                 <color>
-                                    <Color blue="0.9137254953384399" green="1.0" red="0.7450980544090271" />
-                                 </color>
-                              </Stop>
-                              <Stop offset="1.0">
-                                 <color>
-                                    <Color blue="0.8784313797950745" green="0.3960784375667572" red="0.7882353067398071" />
-                                 </color>
-                              </Stop>
-                           </stops>
-                        </LinearGradient>
-                     </fill>
-                  </Polygon>
-                  <Pane layoutX="418.0" layoutY="38.0" maxHeight="-Infinity" onMouseClicked="#handleOpenUserPanel" prefHeight="32.0" prefWidth="185.0" styleClass="paneUsername">
+                  <Pane layoutX="33.0" maxHeight="-Infinity" prefHeight="32.0" prefWidth="185.0" styleClass="paneUsername">
                      <children>
                         <Label fx:id="usernameLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="12.0" layoutY="-5.0" prefHeight="38.0" prefWidth="173.0" text="UserName" textFill="WHITE">
                            <font>
                               <Font size="17.0" />
                            </font>
-                        </Label>
-                     </children>
-                  </Pane>
-                  <StackPane layoutX="379.0" layoutY="20.0" prefHeight="68.0" prefWidth="71.0">
-                     <children>
-                        <Circle id="cerchio1" fill="#7fcef5db" radius="34.0" strokeType="INSIDE" />
-                        <Circle id="cerchio1" fill="#91dafff8" radius="26.0" strokeType="INSIDE" />
-                        <ImageView fitHeight="36.0" fitWidth="37.0" onMouseClicked="#handleOpenUserPanel" pickOnBounds="true" preserveRatio="true">
-                           <image>
-                              <Image url="@../assets/iconUser.png" />
-                           </image>
                            <cursor>
                               <Cursor fx:constant="HAND" />
                            </cursor>
-                        </ImageView>
+                        </Label>
                      </children>
-                  </StackPane>
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor>
+                  </Pane>
+                  <Circle id="cerchio1" fill="#7fcef5db" layoutX="30.0" layoutY="16.0" radius="34.0" strokeType="INSIDE">
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor></Circle>
+                  <Circle id="cerchio1" fill="#91dafff8" layoutX="30.0" layoutY="16.0" radius="26.0" strokeType="INSIDE">
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor></Circle>
+                  <ImageView fitHeight="36.0" fitWidth="37.0" layoutX="12.0" layoutY="-2.0" pickOnBounds="true" preserveRatio="true">
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor>
+                     <image>
+                        <Image url="@../assets/iconUser.png" />
+                     </image>
+                  </ImageView>
                </children>
-            </Pane>
-            </children>
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+            </AnchorPane>
+         </children>
         </HBox>
     </top>
     <center>

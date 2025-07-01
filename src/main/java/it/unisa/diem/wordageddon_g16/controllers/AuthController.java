@@ -68,8 +68,7 @@ public class AuthController  {
             showDialog(Alert.AlertType.ERROR, "Campi incompleti", "Inserisci username e password.");
             return;
         }
-        boolean success = authService.login(username, password);
-        if (success) {
+        if (authService.login(username, password)) {
             ViewLoader.load(ViewLoader.View.MENU);
         } else {
             showDialog(Alert.AlertType.ERROR, "Errore", "Credenziali non valide: username o password sbagliate.");
