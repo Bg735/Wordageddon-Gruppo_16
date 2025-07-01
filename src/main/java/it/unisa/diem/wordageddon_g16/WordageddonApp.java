@@ -6,6 +6,8 @@ import it.unisa.diem.wordageddon_g16.models.*;
 import it.unisa.diem.wordageddon_g16.models.interfaces.Repository;
 import it.unisa.diem.wordageddon_g16.services.ViewLoader;
 import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Callback;
@@ -35,17 +37,15 @@ public class WordageddonApp extends Application {
             }
         };
 
+        Scene scene = new Scene(new StackPane(), 1280, 832);
+        stage.setScene(scene);
         stage.setResizable(true);
-        stage.setWidth(1280);
-        stage.setHeight(832);
-        stage.getIcons().add(new Image(getClass().getResourceAsStream("/it/unisa/diem/wordageddon_g16/asserts/logo2.png")));
-
         ViewLoader.setStage(stage);
+        ViewLoader.setScene(scene);
         ViewLoader.setControllerFactory(controllerFactory);
-        ViewLoader.load("authentication");
 
-        /*
-        if (context.getAuthService().restoreSession()) {
+        ViewLoader.load("authentication");
+        /*if (context.getAuthService().restoreSession()) {
             ViewLoader.load("menu");
         } else {
             ViewLoader.load("authentication");

@@ -7,7 +7,6 @@ import it.unisa.diem.wordageddon_g16.services.AuthService;
 import it.unisa.diem.wordageddon_g16.services.ViewLoader;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -38,7 +37,6 @@ public class AuthController  {
             oppureLabel.setVisible(false);
         }
     }
-
 
     @FXML
     void handleLoginBtn(ActionEvent event) {
@@ -113,15 +111,8 @@ public class AuthController  {
         alert.showAndWait();
     }
 
-    private DAO<?> userDAO;
-
     public <T> AuthController(AuthService authService) {
         this.authService = authService;
     }
 
-
-
-    // aggiungi checker per username e password
-
-    // no utenti? solo registrazione e mettilo admin
 }
