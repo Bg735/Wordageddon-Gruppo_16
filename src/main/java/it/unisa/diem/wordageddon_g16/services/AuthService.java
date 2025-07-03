@@ -37,14 +37,14 @@ public class AuthService {
         return false; // User already exists
     }
     private void saveSession(User user) {
-        try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(Config.get(Config.Props.SESSION_FILE)))) {
+        try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(Config.get(Config.Props.SESSION_PATH)))) {
             out.writeObject(user);
         } catch (IOException e) {
             SystemLogger.log("Errore nel salvataggio della sessione", e);
         }
     }
     public boolean loadSession() {
-        try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(Config.get(Config.Props.SESSION_FILE)))) {
+        try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(Config.get(Config.Props.SESSION_PATH)))) {
             User user = (User) in.readObject();
             if (user != null) {
                 context.setCurrentUser(user);
@@ -58,7 +58,7 @@ public class AuthService {
 
     public void logout() {
         context.setCurrentUser(null);
-        new File(Config.get(Config.Props.SESSION_FILE)).delete();
+        new File(Config.get(Config.Props.SESSION_PATH)).delete();
     }
 
     public boolean noUsers(){

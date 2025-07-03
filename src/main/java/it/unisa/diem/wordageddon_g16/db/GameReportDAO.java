@@ -101,7 +101,7 @@ public class GameReportDAO extends JdbcDAO<GameReport> {
                 gameReport.getScore()
             );              // Insert on GameReport must be done first to ensure the foreign key constraint is satisfied
             for (Document document : gameReport.getDocuments()) {
-                executeUpdate(updateOnContent, gameReport.getId(), document.getId());
+                executeUpdate(updateOnContent, gameReport.getId(), document.id());
             }
 
         } catch (SQLException e) {

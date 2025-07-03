@@ -2,19 +2,7 @@ package it.unisa.diem.wordageddon_g16.models;
 
 import java.util.Objects;
 
-public class Document {
-
-    private final long id;
-    private final String title;
-    private final String path;
-    private final int wordCount;
-
-    public Document(long id, String title, String path, int wordCount) {
-        this.id = id;
-        this.title = title;
-        this.path = path;
-        this.wordCount = wordCount;
-    }
+public record Document(long id, String title, String filename, int wordCount) {
 
     @Override
     public boolean equals(Object o) {
@@ -26,21 +14,5 @@ public class Document {
     @Override
     public int hashCode() {
         return Objects.hashCode(id);
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public String getPath() {
-        return path;
-    }
-
-    public int getWordCount() {
-        return wordCount;
     }
 }

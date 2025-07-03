@@ -11,7 +11,10 @@ public class Config {
         DB_URL("db.url"),
         PW_CHAR_MIN_LENGTH("auth.char_min_length"),
         USR_CHAR_MAX_LENGTH("auth.char_max_length"),
-        SESSION_FILE("session.url");
+        DOCS_PATH("path.docs"),
+        SESSION_PATH("path.session");
+
+
         private final String key;
 
         Props(String key) {

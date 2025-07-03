@@ -90,7 +90,7 @@ public class GameService {
                 Document currentDoc = docList.get(random.nextInt(documentsLeft--));
                 docList.remove(currentDoc);
 
-                int remainder = wordsNeeded - currentDoc.getWordCount();
+                int remainder = wordsNeeded - currentDoc.wordCount();
                 if (remainder > wordCountTolerance){
                     wordsNeeded = remainder;
                     result.add(currentDoc);
@@ -137,15 +137,16 @@ public class GameService {
     }
 
 
+    /**
+     * Questo metodo dovrebbe essere chiamato in maniera asincrona, durante la fase di visualizzazione dei documenti:
+     * in questo modo, il gioco può iniziare immediatamente, e le domande saranno pronte quando richieste.
+     * Tale cautela è dovuta al fatto che la generazione delle domande può richiedere tempo in caso di nuovi documenti,
+     * che è necessario scansionare per ricavare domande basate sulle parole contenute al loro interno.
+     *
+     * @return la lista delle domande da sottoporre durante il quiz, basate sui documenti mostrati all'utente.
+     */
     public List<Question> getQuestions() {
-
-    }
-
-
-
-
-    public void init(Difficulty difficulty) {
-        params = new GameParams(difficulty);
+        //TODO
         for(Document doc : params.documents){
             WDM wdm;
             var optionalWdm = wdmDAO.selectById(doc);
@@ -156,6 +157,10 @@ public class GameService {
             else wdm = optionalWdm.get();
             wdmMap.put(doc,wdm);
         }
+    }
+
+    public void init(Difficulty difficulty) {
+        params = new GameParams(difficulty);
     }
 
     public Difficulty getDifficulty() {

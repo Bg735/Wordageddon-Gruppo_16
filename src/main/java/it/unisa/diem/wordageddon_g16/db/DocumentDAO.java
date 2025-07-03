@@ -70,7 +70,7 @@ public class DocumentDAO extends JdbcDAO<Document> {
     public void insert(Document document) {
         String query = "INSERT INTO Document (title, path, wordCount) VALUES (?, ?, ?)";
         try {
-            executeUpdate(query, document.getTitle(), document.getPath(), document.getWordCount());
+            executeUpdate(query, document.title(), document.filename(), document.wordCount());
         } catch (Exception e) {
             SystemLogger.log("Error trying to insert document: " + document, e);
             throw new QueryFailedException(e.getMessage());
@@ -81,7 +81,7 @@ public class DocumentDAO extends JdbcDAO<Document> {
     public void update(Document document) {
         String query = "UPDATE Document SET title = ?, path = ?, wordCount = ? WHERE id = ?";
         try {
-            executeUpdate(query, document.getTitle(), document.getPath(), document.getWordCount(), document.getId());
+            executeUpdate(query, document.title(), document.filename(), document.wordCount(), document.id());
         } catch (Exception e) {
             SystemLogger.log("Error trying to update document: " + document, e);
             throw new UpdateFailedException(e.getMessage());
@@ -92,7 +92,7 @@ public class DocumentDAO extends JdbcDAO<Document> {
     public void delete(Document document) {
         String query = "DELETE FROM Document WHERE id = ?";
         try {
-            executeUpdate(query, document.getId());             // Delete on Document also deletes the associated Content and WDM due to integrity constraints (ON DELETE CASCADE)
+            executeUpdate(query, document.id());             // Delete on Document also deletes the associated Content and WDM due to integrity constraints (ON DELETE CASCADE)
         } catch (Exception e) {
             SystemLogger.log("Error trying to delete document: " + document, e);
             throw new UpdateFailedException(e.getMessage());
