@@ -9,13 +9,23 @@ public class WDM {
 
     public WDM(Document document) {
         this.document = document;
-        words = new HashMap<>();
+        words = calculateWordMatrix(document);
     }
 
-    public WDM(Document document, Map<String, Integer> words) {
-        this.document = document;
-        this.words = words;
+    private Map<String,Integer> calculateWordMatrix(Document document) {
+        Map<String, Integer> wordMap = new HashMap<>();
+
+
+
+
+        for (String word : document.getWords()) {
+            wordMap.put(word, wordMap.getOrDefault(word, 0) + 1);
+        }
+        return wordMap;
     }
+
+
+
 
     public Map<String, Integer> getWords() {
         return words;

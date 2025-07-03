@@ -24,9 +24,8 @@ public class GameReportDAO extends JdbcDAO<GameReport> {
     }
 
     @Override
-    public Optional<GameReport> selectById(Object oid) {
-        Long id = (Long) oid;
-        return selectBase("SELECT * FROM GameReport WHERE id = ?", id).stream().findFirst();
+    public Optional<GameReport> selectById(Object id) {
+        return selectWhere("id = ?", (long) id).stream().findFirst();
     }
 
     @Override

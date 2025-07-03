@@ -1,6 +1,9 @@
 package it.unisa.diem.wordageddon_g16.controllers;
 
 import it.unisa.diem.wordageddon_g16.db.DAO;
+import it.unisa.diem.wordageddon_g16.models.AppContext;
+import it.unisa.diem.wordageddon_g16.models.User;
+import it.unisa.diem.wordageddon_g16.services.UserPanelService;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -37,6 +40,15 @@ public class UserPanelController {
     private Label usernameLabel;
 
     @FXML
+    private AnchorPane anchorSemicerchio;
+
+    @FXML
+    private StackPane stackMedio;
+
+    private final UserPanelService userPanelService;
+    private final User currentUser;
+
+    @FXML
     void handleAdmin(ActionEvent event) {
 
     }
@@ -56,8 +68,6 @@ public class UserPanelController {
 
     }
 
-    @FXML private AnchorPane anchorSemicerchio;
-    @FXML private StackPane stackMedio;
 
     @FXML
     public void initialize() {
@@ -73,13 +83,9 @@ public class UserPanelController {
 
     }
 
-    public UserPanelController() {
+    public UserPanelController(AppContext context) {
+        this.userPanelService=context.getUserPanelService();
+        this.currentUser= context.getCurrentUser();
     }
-
-    /*
-    DEVE ESSERE DECOMMENTATO E ELIMINARE L'ALTRO COSTRUTTORE
-     public UserPanelController(DAO<Object> user, DAO<Object> gameReport) {
-    }
-     */
 
 }

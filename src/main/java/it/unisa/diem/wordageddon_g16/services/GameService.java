@@ -7,11 +7,10 @@ import it.unisa.diem.wordageddon_g16.db.WdmDAO;
 import it.unisa.diem.wordageddon_g16.models.AppContext;
 import it.unisa.diem.wordageddon_g16.models.Difficulty;
 import it.unisa.diem.wordageddon_g16.models.Document;
+import it.unisa.diem.wordageddon_g16.models.WDM;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class GameService {
 
@@ -21,15 +20,19 @@ public class GameService {
     private final StopWordDAO stopwordDAO;
     private final AppContext context;
 
-    public class GameParams{
+    private GameParams params;
+    private Map<Document, WDM> wdmMap;
+
+    private class GameParams{
 
         private static final Random random = new Random();
 
-        private Duration timer;
-        private List<Document> documents;
-        private int questionCount;
+        private final Duration timer;
+        private final List<Document> documents;
+        private final int questionCount;
+        private final Difficulty difficulty;
 
-        private class DifficultyIndex {
+        private static class DifficultyIndex {
             private final float cap;
             private float value;
 
@@ -55,8 +58,8 @@ public class GameService {
             public float getCap() { return cap; }
         }
 
-
-        public GameParams(Difficulty difficulty) {
+        private GameParams(Difficulty difficulty) {
+            this.difficulty = difficulty;
 
             var cap = switch (difficulty) {
                 case EASY -> 1.0f;
@@ -64,11 +67,12 @@ public class GameService {
                 case HARD -> 3.0f;
             };
             var di = new DifficultyIndex(cap);
-            documents = generateDocuments(di);
-            timer = generateTimer(di);
-
+            documents = Collections.unmodifiableList(generateDocuments(di.getNextRelative()));
+            timer = generateTimer(di.getNextRelative());
+            questionCount = generateQuestionCount(di.getRemaining());
         }
-        private List<Document> generateDocuments(DifficultyIndex di) throws IllegalArgumentException {
+
+        private List<Document> generateDocuments(float influence) throws IllegalArgumentException {
             int maxWords = 1000;
             int minWords = 200;
             int wordCountTolerance = 50;
@@ -80,7 +84,7 @@ public class GameService {
                 throw new IllegalStateException("No documents available for the game");
             }
 
-            int wordsNeeded = Math.round(minWords + (maxWords-minWords)*di.getNextRelative());
+            int wordsNeeded = Math.round(minWords + (maxWords-minWords)*influence);
             var documentsLeft = docList.size();
             do{
                 Document currentDoc = docList.get(random.nextInt(documentsLeft--));
@@ -102,16 +106,26 @@ public class GameService {
             return result;
         }
 
-        private Duration generateTimer(DifficultyIndex di) {
+        private Duration generateTimer(float influence) {
             int timerMax = 10*60; //seconds
             int timerMin = 2*60; //seconds
 
-            return Duration.ofSeconds((long) (timerMax-(timerMax-timerMin)*(di.getNextRelative())));
+            return Duration.ofSeconds((long) (timerMax-(timerMax-timerMin)*(influence)));
         }
 
+        private int generateQuestionCount(float influence) {
+            int maxQuestions = 20;
+            int minQuestions = 5;
 
-
+            return (int) (minQuestions + (maxQuestions-minQuestions)*influence);
+        }
     }
+
+    public record Question(
+            String text,
+            List<String> answers,
+            int correctAnswerIndex
+    ){}
 
     public GameService(AppContext context, GameReportDAO gameReportDAO, WdmDAO wdmDAO,
                        DocumentDAO documentDAO, StopWordDAO stopwordDAO) {
@@ -123,5 +137,53 @@ public class GameService {
     }
 
 
+    public List<Question> getQuestions() {
+
+    }
+
+
+
+
+    public void init(Difficulty difficulty) {
+        params = new GameParams(difficulty);
+        for(Document doc : params.documents){
+            WDM wdm;
+            var optionalWdm = wdmDAO.selectById(doc);
+            if (optionalWdm.isEmpty()){
+                wdm = new WDM(doc);
+                wdmDAO.insert(wdm);
+            }
+            else wdm = optionalWdm.get();
+            wdmMap.put(doc,wdm);
+        }
+    }
+
+    public Difficulty getDifficulty() {
+        if (params == null) {
+            throw new IllegalStateException("Game not initialized");
+        }
+        return params.difficulty;
+    }
+
+    public Duration getTimeLimit() {
+        if (params == null) {
+            throw new IllegalStateException("Game not initialized");
+        }
+        return params.timer;
+    }
+
+    public List<Document> getDocuments() {
+        if (params == null) {
+            throw new IllegalStateException("Game not initialized");
+        }
+        return params.documents;
+    }
+
+    public int getQuestionCount() {
+        if (params == null) {
+            throw new IllegalStateException("Game not initialized");
+        }
+        return params.questionCount;
+    }
 
 }

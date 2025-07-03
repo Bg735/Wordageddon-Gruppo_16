@@ -1,7 +1,6 @@
 package it.unisa.diem.wordageddon_g16.db;
 
 import it.unisa.diem.wordageddon_g16.models.Document;
-import it.unisa.diem.wordageddon_g16.models.JdbcRepository;
 import it.unisa.diem.wordageddon_g16.models.WDM;
 import javafx.util.Callback;
 
@@ -20,39 +19,22 @@ public class WdmDAO extends JdbcDAO<WDM> {
         super(conn);
         this.documentDAO = documentDAO;
     }
-
     @Override
-    public Optional<WDM> selectById(Object oid) {
-        Long id = (Long) oid;
-        String query = "SELECT * FROM WDM WHERE document_id = ?";
-        Callback<ResultSet, Optional<WDM>> callback = res -> {
-            try {
-                if (res != null && res.next()) {
-                    var document = documentDAO.selectById(id);
-                    if (document.isPresent()) {
-                        Map<String, Integer> wordCount = new HashMap<>();
-                        while (res.next()) {
-                            wordCount.put(res.getString("word"), res.getInt("occurrences"));
-                        }
-                        WDM wdm = new WDM(
-                            document.get(),
-                            wordCount
-                        );
-                        return Optional.of(wdm);
-                    }
-                }
-            } catch (Exception e) {
-                throw new QueryFailedException(e.getMessage());
-            }
-            return Optional.empty();
-        };
-        return executeQuery(query, callback, id);
-
+    public Optional<WDM> selectById(Object document) {
+        return selectWhere("document = ?", ((Document)document).getId()).stream().findFirst();
     }
 
     @Override
     public List<WDM> selectAll() {
-        String query = "SELECT * FROM WDM";
+        return selectBase("SELECT * FROM WDM");
+    }
+
+    public List<WDM> selectWhere(String sqlClause, Object... params) {
+        String query = "SELECT * FROM WDM WHERE " + sqlClause;
+        return selectBase(query, params);
+    }
+
+    private List<WDM> selectBase(String query, Object... params) {
         Callback<ResultSet, List<WDM>> callback = res -> {
             try {
                 if (res == null) {
@@ -72,12 +54,12 @@ public class WdmDAO extends JdbcDAO<WDM> {
                 throw new QueryFailedException(e.getMessage());
             }
         };
-        return executeQuery(query, callback);
+        return executeQuery(query, callback, params);
     }
 
     @Override
     public void delete(WDM wdm) {
-        String query = "DELETE FROM WDM WHERE document_id = ?";
+        String query = "DELETE FROM WDM WHERE document = ?";
         try {
             executeUpdate(query, wdm.getDocument().getId());
         } catch (Exception e) {
@@ -87,7 +69,7 @@ public class WdmDAO extends JdbcDAO<WDM> {
 
     @Override
     public void update(WDM wdm) {
-        String query = "UPDATE WDM SET occurrences = ? WHERE document_id = ? AND word = ?";
+        String query = "UPDATE WDM SET occurrences = ? WHERE document = ? AND word = ?";
         try {
             for (Map.Entry<String, Integer> entry : wdm.getWords().entrySet()) {
                 executeUpdate(query, entry.getValue(), wdm.getDocument().getId(), entry.getKey());

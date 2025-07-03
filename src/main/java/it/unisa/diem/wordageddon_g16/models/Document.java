@@ -4,10 +4,10 @@ import java.util.Objects;
 
 public class Document {
 
-    private long id;
-    private String title;
-    private String path;
-    private int wordCount;
+    private final long id;
+    private final String title;
+    private final String path;
+    private final int wordCount;
 
     public Document(long id, String title, String path, int wordCount) {
         this.id = id;
