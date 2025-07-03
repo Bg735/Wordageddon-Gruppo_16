@@ -6,11 +6,18 @@ import it.unisa.diem.wordageddon_g16.models.Document;
 import it.unisa.diem.wordageddon_g16.models.GameReport;
 import it.unisa.diem.wordageddon_g16.models.User;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class UserPanelService {
+    public record UserPanelEntry (
+              String difficulty,
+              int score,
+              String time
+    ){ }
 
-    private final GameReportDAO gameReportDAO;
+        private final GameReportDAO gameReportDAO;
     private final UserDAO userDAO;
     private final DocumentDAO documentDAO;
     private final StopWordDAO stopWordDAO;
@@ -41,6 +48,24 @@ public class UserPanelService {
                         String.format("%02d:%02d", report.getUsedTime().toMinutesPart(), report.getUsedTime().toSecondsPart())
                 ))
                 .toList();
+    }
+
+    public Map<String, Object> getUserStatsForCurrentUser() {
+        List<GameReport> reports = getCurrentUserReports();
+
+        int max = reports.stream().mapToInt(GameReport::getScore)
+                .max().orElse(0);
+
+        double average = reports.stream().mapToInt(GameReport::getScore)
+                .average().orElse(0.0);
+
+        int total = reports.size();
+
+        Map<String, Object> stats = new HashMap<>();
+        stats.put("maxScore", max);
+        stats.put("averageScore", average);
+        stats.put("totalGames", total);
+        return stats;
     }
 
     public List<User> getAllUsers() {

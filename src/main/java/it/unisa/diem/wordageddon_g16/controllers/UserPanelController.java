@@ -22,6 +22,7 @@ import javafx.scene.layout.StackPane;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 
 public class UserPanelController {
     private final UserPanelService service;
@@ -33,13 +34,13 @@ public class UserPanelController {
     private TableColumn<GameReport, String> livelloClm;
 
     @FXML
-    private Label numPartiteLabel;
+    private Label totalGameLabel;
 
     @FXML
-    private Label ptMedioLabel;
+    private Label avgScoreLabel;
 
     @FXML
-    private Label ptMiglioreLabel;
+    private Label maxScoreLabel;
 
     @FXML
     private TableColumn<GameReport, Integer> punteggioClm;
@@ -115,13 +116,11 @@ public class UserPanelController {
         List<GameReport> reports = service.getCurrentUserReports();
         userTableView.getItems().setAll(reports);
 
+
+        Map<String, Object> stats = service.getUserStatsForCurrentUser();
+        totalGameLabel.setText(String.valueOf(stats.get("totalGames")));
+        avgScoreLabel.setText(String.format("%.1f", stats.get("averageScore")));
+        maxScoreLabel.setText(String.valueOf(stats.get("maxScore")));
     }
 
-
-
-/*
-     public UserPanelController(DAO<Object> user, DAO<Object> gameReport, UserPanelService service) {
-         this.service = service;
-     }
-*/
 }

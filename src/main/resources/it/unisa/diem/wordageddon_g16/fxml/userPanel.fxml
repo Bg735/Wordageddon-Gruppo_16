@@ -205,7 +205,7 @@
                     <Circle fill="WHITE" radius="37.0" />
                         <VBox alignment="CENTER">
                             <Label alignment="BOTTOM_CENTER" text="Miglio Pt." textFill="#a42fc1" />
-                            <Label fx:id="ptMiglioreLabel" alignment="TOP_CENTER" text="Label" textFill="#9e0081" />
+                            <Label fx:id="maxScoreLabel" alignment="TOP_CENTER" text="Label" textFill="#9e0081" />
 
                         </VBox>
                 </StackPane>
@@ -215,7 +215,7 @@
                     <Circle fill="WHITE" radius="37.0" />
                     <VBox alignment="CENTER">
                         <Label alignment="BOTTOM_CENTER" text="Pt. medio" textFill="#a42fc1" />
-                        <Label fx:id="ptMedioLabel" alignment="TOP_CENTER" text="Label" textFill="#9e0081" />
+                        <Label fx:id="avgScoreLabel" alignment="TOP_CENTER" text="Label" textFill="#9e0081" />
                     </VBox>
 
                 </StackPane>
@@ -227,7 +227,7 @@
                     <Circle fill="WHITE" radius="37.0" />
                     <VBox alignment="CENTER">
                         <Label alignment="BOTTOM_CENTER" text="N. partite" textFill="#a42fc1" />
-                        <Label fx:id="numPartiteLabel" alignment="TOP_CENTER" text="Label" textFill="#9e0081" />
+                        <Label fx:id="totalGameLabel" alignment="TOP_CENTER" text="Label" textFill="#9e0081" />
                     </VBox>
                 </StackPane>
             <StackPane.margin>
