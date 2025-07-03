@@ -57,7 +57,8 @@ public class WordageddonApp extends Application {
             case "MainMenuController" -> new MainMenuController(context);
             //case "GameSessionController" -> new GameSessionController(repo.<Document,Long>getDAO("document"), repo.<String,Object>getDAO("stopword"), repo.<WDM,Long>getDAO("wdm"));
            // case "LeaderboardController" -> new LeaderboardController(repo.getDAO("gameReport"));
-          //  case "UserPanelController" -> new UserPanelController(repo.getDAO("user"), repo.getDAO("gameReport"));
+            case "UserPanelController" -> new UserPanelController();
+          //case "UserPanelController" -> new UserPanelController(repo.getDAO("user"), repo.getDAO("gameReport"));
 
             default -> {
                 throw new RuntimeException("Failed to create controller");
