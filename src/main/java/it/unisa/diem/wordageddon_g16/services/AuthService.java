@@ -1,6 +1,5 @@
 package it.unisa.diem.wordageddon_g16.services;
 
-import it.unisa.diem.wordageddon_g16.db.DAO;
 import it.unisa.diem.wordageddon_g16.db.UserDAO;
 import it.unisa.diem.wordageddon_g16.models.AppContext;
 import it.unisa.diem.wordageddon_g16.models.User;
@@ -44,14 +43,16 @@ public class AuthService {
             SystemLogger.log("Errore nel salvataggio della sessione", e);
         }
     }
-    public boolean restoreSession() {
+    public boolean loadSession() {
         try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(Config.get(Config.Props.SESSION_FILE)))) {
             User user = (User) in.readObject();
             if (user != null) {
                 context.setCurrentUser(user);
                 return true;
             }
-        } catch (IOException | ClassNotFoundException e) {}
+        } catch (IOException | ClassNotFoundException e) {
+            SystemLogger.log("Errore nel caricamento della sessione", e);
+        }
         return false;
     }
 

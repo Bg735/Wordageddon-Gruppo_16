@@ -2,7 +2,6 @@ package it.unisa.diem.wordageddon_g16.controllers;
 
 import it.unisa.diem.wordageddon_g16.models.AppContext;
 import it.unisa.diem.wordageddon_g16.models.User;
-import it.unisa.diem.wordageddon_g16.services.AuthService;
 import it.unisa.diem.wordageddon_g16.services.ViewLoader;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -31,7 +30,7 @@ public class MainMenuController implements Initializable {
     private final AppContext context;
 
     @FXML
-    void handleLeaderBoardBtn(ActionEvent event) {
+    void onLeaderboardRequested(ActionEvent event) {
         ViewLoader.load(ViewLoader.View.LEADERBOARD);
     }
 
@@ -42,7 +41,7 @@ public class MainMenuController implements Initializable {
     }
 
     @FXML
-    void handleStartBtn(ActionEvent event) {
+    void onMenuRequested(ActionEvent event) {
         ViewLoader.load(ViewLoader.View.GAME);
     }
 

@@ -1,6 +1,7 @@
 package it.unisa.diem.wordageddon_g16.controllers;
 
 import it.unisa.diem.wordageddon_g16.db.DAO;
+import it.unisa.diem.wordageddon_g16.models.AppContext;
 import it.unisa.diem.wordageddon_g16.services.AuthService;
 import it.unisa.diem.wordageddon_g16.services.Config;
 import it.unisa.diem.wordageddon_g16.services.Resources;
@@ -129,8 +130,8 @@ public class AuthController  {
         alert.showAndWait();
     }
 
-    public <T> AuthController(AuthService authService) {
-        this.authService = authService;
+    public <T> AuthController(AppContext context) {
+        this.authService = context.getAuthService();
     }
 
 }

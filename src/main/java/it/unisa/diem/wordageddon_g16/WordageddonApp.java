@@ -9,6 +9,7 @@ import it.unisa.diem.wordageddon_g16.services.ViewLoader;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Callback;
@@ -20,9 +21,20 @@ public class WordageddonApp extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {;
-
         var repo = new JdbcRepository();
-        var controllerFactory = getControllerFactory(repo);
+        var context = new AppContext(repo);
+
+        Callback<Class<?>,Object> controllerFactory = clazz -> switch (clazz.getSimpleName()) {
+            case "AuthController" -> new AuthController(context);
+            case "MainMenuController" -> new MainMenuController(context);
+            case "GameSessionController" -> new GameSessionController();
+            case "LeaderboardController" -> new LeaderboardController(context);
+            case "UserPanelController" -> new UserPanelController(context);
+
+            default -> {
+                throw new RuntimeException("Failed to create controller");
+            }
+        };
 
         stage.setResizable(true);
         stage.setWidth(1280);
@@ -35,13 +47,14 @@ public class WordageddonApp extends Application {
         ViewLoader.setControllerFactory(controllerFactory);
         ViewLoader.load(ViewLoader.View.AUTH);
 
-        /*
-        if (context.getAuthService().restoreSession()) {
-            ViewLoader.load("menu");
+
+        if (context.getAuthService().loadSession()) {
+            ViewLoader.load(ViewLoader.View.MENU);
         } else {
-            ViewLoader.load("authentication");
+            ViewLoader.load(ViewLoader.View.AUTH);
         }
-*/
+
+        System.out.println(Font.loadFont(getClass().getResourceAsStream("/it/unisa/diem/wordageddon_g16/fonts/Alata-Regular.ttf"), 12));
         stage.setOnCloseRequest(event -> {
             repo.close();
         });
@@ -49,22 +62,7 @@ public class WordageddonApp extends Application {
         stage.show();
     }
 
-    private static Callback<Class<?>, Object> getControllerFactory(JdbcRepository repo) {
-        var context = new AppContext(repo);
 
-        return clazz -> switch (clazz.getSimpleName()) {
-            case "AuthController" -> new AuthController(context.getAuthService());
-            case "MainMenuController" -> new MainMenuController(context);
-            //case "GameSessionController" -> new GameSessionController(repo.<Document,Long>getDAO("document"), repo.<String,Object>getDAO("stopword"), repo.<WDM,Long>getDAO("wdm"));
-           // case "LeaderboardController" -> new LeaderboardController(repo.getDAO("gameReport"));
-            case "UserPanelController" -> new UserPanelController();
-          //case "UserPanelController" -> new UserPanelController(repo.getDAO("user"), repo.getDAO("gameReport"));
-
-            default -> {
-                throw new RuntimeException("Failed to create controller");
-            }
-        };
-    }
 
     public static void main(String[] args) {
         launch();

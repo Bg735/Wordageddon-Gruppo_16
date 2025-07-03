@@ -146,7 +146,7 @@
                         <Image url="@../assets/logo.png" />
                     </image>
                 </ImageView>
-                <Button fx:id="startBtn" maxWidth="302.0" onAction="#handleStartBtn" prefHeight="54.0" prefWidth="302.0" styleClass="giocaBtn" text="GIOCA">
+                <Button fx:id="startBtn" maxWidth="302.0" onAction="#onMenuRequested" prefHeight="54.0" prefWidth="302.0" styleClass="giocaBtn" text="GIOCA">
                     <font>
                         <Font name="Alata Regular" size="54.0" />
                     </font>
@@ -161,7 +161,7 @@
                 <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
             </padding>
             <children>
-                <Button fx:id="leaderBoardBtn" maxWidth="200" onAction="#handleLeaderBoardBtn" prefHeight="58.0" prefWidth="184.0" styleClass="LeaderBoardBtn" text="LeaderBoard">
+                <Button fx:id="leaderBoardBtn" maxWidth="200" onAction="#onLeaderboardRequested" prefHeight="58.0" prefWidth="184.0" styleClass="LeaderBoardBtn" text="LeaderBoard">
                     <font>
                         <Font name="Alata Regular" size="35.0" />
                     </font>

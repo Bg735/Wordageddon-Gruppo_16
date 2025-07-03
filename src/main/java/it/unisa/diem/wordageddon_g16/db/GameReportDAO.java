@@ -26,54 +26,21 @@ public class GameReportDAO extends JdbcDAO<GameReport> {
     @Override
     public Optional<GameReport> selectById(Object oid) {
         Long id = (Long) oid;
-        String query = "SELECT * FROM GameReport WHERE id = ?";
-        Callback<ResultSet,Optional<GameReport>> callback = res -> {
-            try {
-                if (res != null && res.next()) {
-                    var user = userDAO.selectById(res.getString("user"));
-                    var docList = executeQuery(
-                            "SELECT document FROM Content WHERE report = ?",
-                            docs -> {
-                                List<Document> documents = new ArrayList<>();
-                                try {
-                                    while (docs.next()) {
-                                        documentDAO.selectById(docs.getLong("document")).ifPresent(documents::add);
-                                    }
-                                } catch (SQLException e) {
-                                    SystemLogger.log("Error trying to get documents for report with id: " + id, e);
-                                    throw new QueryFailedException(e.getMessage());
-                                }
-                                return documents;
-                            },
-                            id
-                    );
-                    if (user.isPresent()) //The user being present is guaranteed by the foreign key constraint in the database
-                        return Optional.of(new GameReport(
-                                res.getLong("id"),
-                                user.get(),
-                                docList,
-                                res.getTimestamp("timestamp").toLocalDateTime(),
-                                Difficulty.valueOf(res.getString("difficulty")),
-                                Duration.parse(res.getString("max_time")),
-                                Duration.parse(res.getString("used_time")),
-                                res.getInt("question_count"),
-                                res.getInt("score")
-                        ));
-                    return Optional.empty();
-                }
-            } catch (SQLException e) {
-                SystemLogger.log("Error trying to get report with id: " + id, e);
-                throw new QueryFailedException(e.getMessage());
-            }
-            return Optional.empty();
-        };
-        return executeQuery(query, callback, id);
+        return selectBase("SELECT * FROM GameReport WHERE id = ?", id).stream().findFirst();
     }
 
     @Override
     public List<GameReport> selectAll() {
+        return selectBase("SELECT * FROM GameReport");
+    }
+
+    public List<GameReport> selectWhere(String sqlClause, Object... params) {
+        String query = "SELECT * FROM GameReport WHERE " + sqlClause;
+        return selectBase(query, params);
+    }
+
+    private List<GameReport> selectBase(String query, Object... params) {
         var result = new ArrayList<GameReport>();
-        String query = "SELECT * FROM GameReport";
         Callback<ResultSet,List<GameReport>> callback = res -> {
             try {
                 if (res == null) {
@@ -117,7 +84,7 @@ public class GameReportDAO extends JdbcDAO<GameReport> {
             }
             return result;
         };
-        return executeQuery(query, callback);
+        return executeQuery(query, callback, params);
     }
 
     @Override
