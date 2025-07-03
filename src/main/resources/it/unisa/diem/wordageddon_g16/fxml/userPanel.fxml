@@ -21,59 +21,56 @@
 <?import javafx.scene.text.Font?>
 
 <BorderPane prefHeight="832.0" prefWidth="1280.0" stylesheets="@../style/userPanel.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unisa.diem.wordageddon_g16.controllers.UserPanelController">
-
-    <top>
-        <HBox alignment="CENTER_LEFT" prefHeight="202.0" prefWidth="1280.0" spacing="10" BorderPane.alignment="CENTER">
-            <padding>
-                <Insets right="15.0" top="10.0" />
-            </padding>
-            <children>
-            <VBox prefHeight="192.0" prefWidth="119.0">
-               <children>
-                      <Button mnemonicParsing="false" onAction="#handleGoBack" prefHeight="32.0" prefWidth="80.0" styleClass="backBtn">
-                          <graphic>
-                              <ImageView fitHeight="24.0" fitWidth="52.0" preserveRatio="true">
-                                  <image>
-                                      <Image url="@../assets/back.png" />
-                                  </image>
-                              </ImageView>
-                          </graphic>
-                      </Button>
-                  <Pane prefHeight="160.0" prefWidth="153.0">
-                     <children>
+    <top><HBox alignment="CENTER" prefHeight="202.0" prefWidth="1280.0" spacing="10">
+        <padding>
+            <Insets right="15.0" top="10.0" />
+        </padding>
+        <children>
+            <VBox alignment="TOP_LEFT" spacing="10">
+                <Button mnemonicParsing="false" onAction="#handleGoBack" prefHeight="32.0" prefWidth="80.0" styleClass="backBtn">
+                    <graphic>
+                        <ImageView fitHeight="24.0" fitWidth="52.0" preserveRatio="true">
+                            <image>
+                                <Image url="@../assets/back.png" />
+                            </image>
+                        </ImageView>
+                    </graphic>
+                </Button>
+                <Pane prefHeight="160.0" prefWidth="153.0">
+                    <children>
                         <Pane layoutX="35.0" layoutY="28.0" prefHeight="38.0" prefWidth="187.0" styleClass="paneUsername">
-                           <children>
-                              <Label fx:id="usernameLabel" alignment="CENTER" layoutX="9.0" prefHeight="39.0" prefWidth="180.0" text="usernameLabel">
-                                 <font>
-                                    <Font name="Alata Regular" size="14.0" />
-                                 </font>
-                              </Label>
-                           </children>
+                            <children>
+                                <Label fx:id="usernameLabel" alignment="CENTER" layoutX="9.0" prefHeight="39.0" prefWidth="180.0" text="usernameLabel">
+                                    <font>
+                                        <Font name="Alata Regular" size="14.0" />
+                                    </font>
+                                </Label>
+                            </children>
                         </Pane>
                         <Pane layoutY="14.0" prefHeight="66.0" prefWidth="31.0" styleClass="semicerchio">
-                           <children>
-                              <Circle fill="#91dafff3" layoutX="30.0" layoutY="32.0" radius="26.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" styleClass="cerchio1" />
-                              <ImageView fitHeight="41.0" fitWidth="37.0" layoutX="23.0" layoutY="13.0" pickOnBounds="true" preserveRatio="true">
-                                 <image>
-                                    <Image url="@../assets/iconUser.png" />
-                                 </image>
-                              </ImageView>
-                           </children>
+                            <children>
+                                <Circle fill="#91dafff3" layoutX="30.0" layoutY="32.0" radius="26.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" styleClass="cerchio1" />
+                                <ImageView fitHeight="41.0" fitWidth="37.0" layoutX="23.0" layoutY="13.0" pickOnBounds="true" preserveRatio="true">
+                                    <image>
+                                        <Image url="@../assets/iconUser.png" />
+                                    </image>
+                                </ImageView>
+                            </children>
                         </Pane>
-                     </children>
-                  </Pane>
-               </children>
+                    </children>
+                </Pane>
             </VBox>
-                <Region prefHeight="192.0" prefWidth="0.0" HBox.hgrow="ALWAYS" />
-                <ImageView fitHeight="244.0" fitWidth="127.0" preserveRatio="true">
-                    <image>
-                        <Image url="@../assets/logo2.png" />
-                    </image>
-                </ImageView>
-                <Region prefHeight="152.0" prefWidth="0.0" HBox.hgrow="ALWAYS" />
+            <Region HBox.hgrow="ALWAYS" />
+            <ImageView fitHeight="244.0" fitWidth="127.0" preserveRatio="true">
+                <image>
+                    <Image url="@../assets/logo2.png" />
+                </image>
+            </ImageView>
+            <Region HBox.hgrow="ALWAYS" />
             <VBox alignment="CENTER">
-               <children>
-                      <MenuButton alignment="CENTER" maxWidth="173.0" prefHeight="38.0" prefWidth="173.0" styleClass="privilegiBtn" text="Privilegi admin" textAlignment="CENTER" textFill="WHITE">
+               <Pane fx:id="adminPanel" prefHeight="66.0" prefWidth="184.0">
+                  <children>
+                      <MenuButton alignment="CENTER" layoutX="31.0" layoutY="19.0" maxWidth="173.0" prefHeight="30.0" prefWidth="153.0" styleClass="privilegiBtn" text="Privilegi admin" textAlignment="CENTER" textFill="WHITE">
                           <cursor>
                               <Cursor fx:constant="OPEN_HAND" />
                           </cursor>
@@ -100,20 +97,28 @@
                                   </graphic>
                               </MenuItem>
                               <MenuItem onAction="#handleAdmin" text="Gestione admin">
-                           <graphic>
-                              <ImageView fitHeight="12.0" fitWidth="12.0" pickOnBounds="true" preserveRatio="true">
-                                 <image>
-                                    <Image url="@../assets/admin.png" />
-                                 </image>
-                              </ImageView>
-                           </graphic></MenuItem>
+                                  <graphic>
+                                      <ImageView fitHeight="12.0" fitWidth="12.0" preserveRatio="true">
+                                          <image>
+                                              <Image url="@../assets/admin.png" />
+                                          </image>
+                                      </ImageView>
+                                  </graphic>
+                              </MenuItem>
                           </items>
                       </MenuButton>
-               </children>
+                     <ImageView fitHeight="50.0" fitWidth="53.0" layoutX="-4.0" layoutY="8.0" pickOnBounds="true" preserveRatio="true">
+                        <image>
+                           <Image url="@../assets/iconPrivalege.png" />
+                        </image>
+                     </ImageView>
+                  </children>
+               </Pane>
             </VBox>
-            </children>
-        </HBox>
-    </top>
+
+        </children>
+    </HBox></top>
+
     <center>
         <VBox alignment="CENTER" prefWidth="910.0" spacing="10" BorderPane.alignment="CENTER">
             <padding>
@@ -122,7 +127,7 @@
             <children>
                 <TableView fx:id="userTableView" prefHeight="400.0">
                     <columns>
-                        <TableColumn fx:id="livelloCol" prefWidth="235.99998092651367" text="LIVELLO" />
+                        <TableColumn fx:id="livelloClm" prefWidth="235.99998092651367" text="LIVELLO" />
                         <TableColumn fx:id="punteggioClm" prefWidth="272.79998779296875" text="PUNTEGGIO" />
                         <TableColumn fx:id="tempoClm" prefWidth="241.5999755859375" text="TEMPO" />
                     </columns>
@@ -134,7 +139,7 @@
         </VBox>
     </center>
 
-    <!-- Questo è un commento in FXML
+    <!--
     <right>
         <AnchorPane>
         <VBox AnchorPane.topAnchor="10" AnchorPane.bottomAnchor="10"

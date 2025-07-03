@@ -97,6 +97,18 @@ public class GameReportDAO extends JdbcDAO<GameReport> {
                             },
                             res.getLong("id")
                     );
+                    String maxTimeStr = res.getString("max_time");
+                    String[] maxParts = maxTimeStr.split(":");
+                    int maxMinutes = Integer.parseInt(maxParts[0]);
+                    int maxSeconds = Integer.parseInt(maxParts[1]);
+                    Duration maxTime = Duration.ofMinutes(maxMinutes).plusSeconds(maxSeconds);
+
+                    String usedTimeStr = res.getString("used_time");
+                    String[] usedParts = usedTimeStr.split(":");
+                    int usedMinutes = Integer.parseInt(usedParts[0]);
+                    int usedSeconds = Integer.parseInt(usedParts[1]);
+                    Duration usedTime = Duration.ofMinutes(usedMinutes).plusSeconds(usedSeconds);
+
                     if (user.isPresent()) { //The user being present is guaranteed by the foreign key constraint in the database
                         result.add(new GameReport(
                                 res.getLong("id"),
@@ -104,8 +116,8 @@ public class GameReportDAO extends JdbcDAO<GameReport> {
                                 docList,
                                 res.getTimestamp("timestamp").toLocalDateTime(),
                                 Difficulty.valueOf(res.getString("difficulty")),
-                                Duration.parse(res.getString("max_time")),
-                                Duration.parse(res.getString("used_time")),
+                                maxTime,
+                                usedTime,
                                 res.getInt("question_count"),
                                 res.getInt("score")
                         ));
@@ -124,13 +136,16 @@ public class GameReportDAO extends JdbcDAO<GameReport> {
     public void insert(GameReport gameReport) {
         String updateOnReport = "INSERT INTO GameReport (user, timestamp, difficulty, max_time, used_time, question_count, score) VALUES (?, ?, ?, ?, ?, ?, ?)";
         String updateOnContent = "INSERT INTO Content (report, document) VALUES (?, ?)";
+        String formattedUsedTime = String.format("%02d:%02d", gameReport.getUsedTime().toMinutesPart(), gameReport.getUsedTime().toSecondsPart());
+        String formattedMaxTimeStr = String.format("%02d:%02d",  gameReport.getMaxTime().toMinutesPart(), gameReport.getMaxTime().toSecondsPart());
+
         try {
             executeUpdate(updateOnReport,
                 gameReport.getUser().getName(),
                 gameReport.getTimestamp(),
                 gameReport.getDifficulty().name(),
-                gameReport.getMaxTime().toString(),
-                gameReport.getUsedTime().toString(),
+                    formattedMaxTimeStr,
+                    formattedUsedTime,
                 gameReport.getQuestionCount(),
                 gameReport.getScore()
             );              // Insert on GameReport must be done first to ensure the foreign key constraint is satisfied

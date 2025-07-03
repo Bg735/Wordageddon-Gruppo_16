@@ -31,8 +31,18 @@
 }
 
 
-
 .table-view .cell {
     -fx-font-size: 14px;
     -fx-alignment: center;
+}
+.logOutBtn:hover {
+    -fx-background-color: linear-gradient(to bottom, #ff4d4d, #a80000);
+    -fx-scale-x: 1.03;
+    -fx-scale-y: 1.03;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 10, 0.3, 0, 4);
+}
+
+.logOutBtn{
+    -fx-background-color: linear-gradient(to bottom, #ed706a, rgb(188, 0, 0));
+    -fx-cursor: hand;;
 }

@@ -8,7 +8,6 @@
 .alert-error .header-panel .label ,
 .alert-info .content.label{
     -fx-text-fill: white;
-    -fx-font-family: 'Alata';
 }
 
 
