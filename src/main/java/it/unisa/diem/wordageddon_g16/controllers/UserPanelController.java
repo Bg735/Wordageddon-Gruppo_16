@@ -63,9 +63,11 @@ public class UserPanelController {
 
     private final User currentUser;
 
-    public UserPanelController(UserPanelService userPanelService) {
-        this.service=userPanelService;
-        currentUser=service.getAppContext().getCurrentUser();
+
+
+    public UserPanelController(AppContext context) {
+        this.service = context.getUserPanelService();
+        currentUser=context.getCurrentUser();
     }
 
     @FXML
