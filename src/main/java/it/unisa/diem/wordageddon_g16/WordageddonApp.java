@@ -29,7 +29,7 @@ public class WordageddonApp extends Application {
             case "MainMenuController" -> new MainMenuController(context);
             case "GameSessionController" -> new GameSessionController();
             case "LeaderboardController" -> new LeaderboardController(context);
-            case "UserPanelController" -> new UserPanelController(context);
+            //case "UserPanelController" -> new UserPanelController(context);
 
             default -> {
                 throw new RuntimeException("Failed to create controller");
