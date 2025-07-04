@@ -1,1 +1,1 @@
-moduleSearchIndex = [{"l":"org.example.wordageddongruppo_16"}];updateSearchResults();
+moduleSearchIndex = [];updateSearchResults();

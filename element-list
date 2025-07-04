@@ -1,2 +1,6 @@
-module:org.example.wordageddongruppo_16
 it.unisa.diem.wordageddon_g16
+it.unisa.diem.wordageddon_g16.controllers
+it.unisa.diem.wordageddon_g16.db
+it.unisa.diem.wordageddon_g16.models
+it.unisa.diem.wordageddon_g16.models.interfaces
+it.unisa.diem.wordageddon_g16.services
