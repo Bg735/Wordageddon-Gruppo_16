@@ -1,1 +1,1 @@
-packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"it.unisa.diem.wordageddon_g16"},{"l":"it.unisa.diem.wordageddon_g16.controllers"},{"l":"it.unisa.diem.wordageddon_g16.db"},{"l":"it.unisa.diem.wordageddon_g16.models"},{"l":"it.unisa.diem.wordageddon_g16.models.interfaces"},{"l":"it.unisa.diem.wordageddon_g16.services"}];updateSearchResults();
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"m":"it.unisa.diem.wordageddongruppo_16","l":"it.unisa.diem.wordageddon_g16"}];updateSearchResults();

@@ -1,1 +1,1 @@
-moduleSearchIndex = [];updateSearchResults();
+moduleSearchIndex = [{"l":"it.unisa.diem.wordageddongruppo_16"}];updateSearchResults();
