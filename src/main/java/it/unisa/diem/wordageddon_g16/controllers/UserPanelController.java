@@ -24,6 +24,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.File;
+import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -102,7 +103,7 @@ public class UserPanelController {
         addButton.setOnAction(e -> {
             String word = wordInput.getText().trim();
             if (!word.isEmpty()) {
-                service.addStopword(word);
+                service.addStopWords(word);
                 wordInput.clear();
             }
         });
@@ -114,9 +115,11 @@ public class UserPanelController {
             File file = fileChooser.showOpenDialog(popupStage);
             if (file != null) {
                 try {
-                    service.addStopWords(file);
+                    service.addStopwordsFromFile(file);
                 } catch (RuntimeException ex) {
                     ex.printStackTrace();
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
                 }
             }
         });

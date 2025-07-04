@@ -127,7 +127,7 @@ public class UserPanelService {
         return stopWordDAO.selectAll();
     }
 
-    public void addStopword(String word) {
+    public void addStopWords(String word) {
         stopWordDAO.insert(word);
     }
 
