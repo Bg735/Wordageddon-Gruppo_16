@@ -63,7 +63,7 @@ public class LeaderboardService {
 
             int totalScore;
             int gamesPlayed;
-            int averageScore;
+            int averageScore;ciao
 
             if (reports.isEmpty()){
                 totalScore = 0;
