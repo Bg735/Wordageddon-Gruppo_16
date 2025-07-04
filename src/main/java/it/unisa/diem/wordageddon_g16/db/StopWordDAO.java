@@ -5,9 +5,7 @@ import javafx.util.Callback;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class StopWordDAO extends JdbcDAO<String> {
     public StopWordDAO(Connection conn) {
@@ -20,11 +18,11 @@ public class StopWordDAO extends JdbcDAO<String> {
     }
 
     @Override
-    public List<String> selectAll() {
+    public Set<String> selectAll() {
         String query = "SELECT word FROM StopWord";
-        Callback<ResultSet,List<String>> callback = res -> {
+        Callback<ResultSet,Set<String>> callback = res -> {
             try{
-                List<String> stopWords = new ArrayList<>();
+                Set<String> stopWords = new HashSet<>();
                 while (res.next()) {
                     stopWords.add(res.getString("word"));
                 }
@@ -35,7 +33,6 @@ public class StopWordDAO extends JdbcDAO<String> {
             }
         };
         return executeQuery(query, callback);
-
     }
 
     @Override

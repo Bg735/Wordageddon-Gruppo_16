@@ -125,7 +125,34 @@ public class GameService {
             String text,
             List<String> answers,
             int correctAnswerIndex
-    ){}
+    ){
+        enum QuestionType {
+            ABSOLUTE_FREQUENCY(1f), // Quante volte appare una parola
+            WHICH_MORE(0.5f), // Quale parola appare più spesso tra quelle proposte
+            WHICH_LESS(0.5f), // Quale parola appare meno spesso tra quelle proposte
+            WHICH_DOCUMENT(1f), // Quale documento contiene una parola
+            WHICH_ABSENT(1f); // Quale parola non è presente in nessun documento
+
+            private final float weight;
+
+            QuestionType(float weight) {
+                this.weight = weight;
+            }
+
+            public static QuestionType getRandomType() {
+                var types = values();
+                return types[GameParams.random.nextInt(types.length)];
+            }
+        }
+
+        public static Question create(String text, List<String> answers, int correctAnswerIndex) {
+            if (text == null || answers == null || correctAnswerIndex < 0 || correctAnswerIndex >= answers.size()) {
+                throw new IllegalArgumentException("Invalid question parameters");
+            }
+            return new Question(text, answers, correctAnswerIndex);
+        }
+
+    }
 
     public GameService(AppContext context, GameReportDAO gameReportDAO, WdmDAO wdmDAO,
                        DocumentDAO documentDAO, StopWordDAO stopwordDAO) {
@@ -146,12 +173,19 @@ public class GameService {
      * @return la lista delle domande da sottoporre durante il quiz, basate sui documenti mostrati all'utente.
      */
     public List<Question> getQuestions() {
-        //TODO
+        if (params == null) throw new IllegalStateException("Game not initialized");
+        loadWdmMap();
+        List<Question> questions = new ArrayList<>();
+
+
+    }
+
+    private void loadWdmMap(){
         for(Document doc : params.documents){
             WDM wdm;
             var optionalWdm = wdmDAO.selectById(doc);
             if (optionalWdm.isEmpty()){
-                wdm = new WDM(doc);
+                wdm = new WDM(doc, stopwordDAO.selectAll());
                 wdmDAO.insert(wdm);
             }
             else wdm = optionalWdm.get();
