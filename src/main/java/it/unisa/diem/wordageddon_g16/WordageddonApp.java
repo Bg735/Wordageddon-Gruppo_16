@@ -5,6 +5,7 @@ import it.unisa.diem.wordageddon_g16.db.DAO;
 import it.unisa.diem.wordageddon_g16.models.*;
 import it.unisa.diem.wordageddon_g16.models.interfaces.Repository;
 import it.unisa.diem.wordageddon_g16.services.Resources;
+import it.unisa.diem.wordageddon_g16.services.UserPanelService;
 import it.unisa.diem.wordageddon_g16.services.ViewLoader;
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -29,7 +30,15 @@ public class WordageddonApp extends Application {
             case "MainMenuController" -> new MainMenuController(context);
             case "GameSessionController" -> new GameSessionController();
             case "LeaderboardController" -> new LeaderboardController(context);
-            case "UserPanelController" -> new UserPanelController(context);
+            case "UserPanelController" -> new UserPanelController(
+                    new UserPanelService(
+                            repo.getDAO("gameReport"),
+                            repo.getDAO("user"),
+                            repo.getDAO("document"),
+                            repo.getDAO("stopWord"),
+                            context
+                    )
+            );
 
             default -> {
                 throw new RuntimeException("Failed to create controller");
