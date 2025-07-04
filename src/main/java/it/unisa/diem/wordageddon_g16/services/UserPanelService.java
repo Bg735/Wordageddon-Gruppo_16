@@ -5,7 +5,9 @@ import it.unisa.diem.wordageddon_g16.models.AppContext;
 import it.unisa.diem.wordageddon_g16.models.Document;
 import it.unisa.diem.wordageddon_g16.models.GameReport;
 import it.unisa.diem.wordageddon_g16.models.User;
+import javafx.print.Printer;
 
+import java.io.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -85,8 +87,27 @@ public class UserPanelService {
             userDAO.update(user);
         });
     }
-
-
+//escludo l'utente corrente dalla lista degli utenti per la funzione handleAdmin
+    public List<User> getAllUsersExceptCurrent() {
+        String currentUsername = appContext.getCurrentUser().getName();
+        return getAllUsers().stream()
+                .filter(user -> !user.getName().equals(currentUsername))
+                .toList();
+    }
+    //Permetto l'aggiunta di stopword da file
+    public void addStopWords(File file)  throws RuntimeException{
+      try(BufferedReader bf = new BufferedReader( new FileReader(file))) {
+          String line;
+          while ((line = bf.readLine()) != null) {
+              String word = line.trim();
+              if (!word.isEmpty()) {
+                  stopWordDAO.insert(word);
+              }
+          }
+      } catch (IOException e) {
+          System.out.println("error reading stop words file");
+      }
+    }
     public List<Document> getAllDocuments() {
         return documentDAO.selectAll();
     }
