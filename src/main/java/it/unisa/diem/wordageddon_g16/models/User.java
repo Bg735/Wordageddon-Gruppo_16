@@ -39,4 +39,8 @@ public class User implements Serializable{
     public int hashCode() {
         return Objects.hashCode(name);
     }
+
+    public void setAdmin(boolean b) {
+        isAdmin = b;
+    }
 }
