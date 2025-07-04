@@ -106,7 +106,7 @@ public class UserPanelController {
                 wordInput.clear();
             }
         });
-        //Upload da file
+        //Inserimento da file
         Button uploadButton = new Button("Carica da file");
         uploadButton.setOnAction(e -> {
             FileChooser fileChooser = new FileChooser();
