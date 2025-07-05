@@ -21,7 +21,7 @@
 
 /* Responsive font sizes */
 .circle-title {
-    -fx-text-fill: 83;
+    -fx-text-fill: 85;
     -fx-font-weight: bold;
     -fx-font-size: 1.5em;
 }
@@ -40,5 +40,18 @@
 .floating-region {
     -fx-background-color: white;
     -fx-background-radius: 50 50 50 50;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 10, 0, 0, 5);
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 20, 0, 0, 5);
+}
+
+
+.floating-title {
+    -fx-text-fill: black;
+    -fx-font-size: 2.5em;
+    -fx-font-weight: bold;
+}
+
+.floating-subtitle {
+    -fx-text-fill: black;
+    -fx-font-size: 1.8em;
+    -fx-font-weight: medium;
 }
