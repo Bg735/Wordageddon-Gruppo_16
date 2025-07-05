@@ -159,15 +159,19 @@ public class UserPanelController {
                 Button bot = new Button("delete");
                 Button bot1 = new Button("Open doc");
                 bot.setOnAction(e -> {
-                    DocumentDAO.delete(d);
-                    root.getChildren().remove(docRow);
+                    try {
+                        DocumentDAO.delete(d);
+                        root.getChildren().remove(docRow);
+                    }catch(Exception ex) {
+                        SystemLogger.log("Errore durante la cancellazione del documento", ex);
 
+                    }
                 });
                 bot1.setOnAction(e1 -> {
                     try{
                         Desktop.getDesktop().open(new File(d.getPath()));
                     }catch(IOException ex){
-                        System.out.println("error opening doc");
+                        SystemLogger.log("Errore durante l'apertura del documento", ex);
                     }
                 });
 
@@ -221,11 +225,13 @@ public class UserPanelController {
         btnAdd.setOnAction(e -> {
             String word = wordInput.getText().trim().toLowerCase();
             if (!word.isEmpty() && !sw.getItems().contains(word)) {
-                service.addStopWords(word);
-                sw.getItems().add(word);
-                wordInput.clear();
-            } else {
-                System.out.println("StopWord vuota o già presente!");
+                try {
+                    service.addStopWords(word);
+                    sw.getItems().add(word);
+                    wordInput.clear();
+                } catch (Exception ex) {
+                    SystemLogger.log("Errore durante l'aggiunta di una stopword", ex);
+                }
             }
         });
 
@@ -242,10 +248,10 @@ public class UserPanelController {
                     service.addStopwordsFromFile(file);
                     sw.getItems().setAll(service.getAllStopwords());
                 } catch (RuntimeException ex) {
-                    System.out.println("Errore di stopwords");
+                    SystemLogger.log("Errore di stopwords", ex);
                     ex.printStackTrace();
                 } catch (IOException ex) {
-                    System.out.println("Errore nella chiusura del file di testo");
+                    SystemLogger.log("Errore nella chiusura del file di testo", ex);
                     throw new RuntimeException(ex);
                 }
             }
@@ -254,9 +260,13 @@ public class UserPanelController {
         removeButton.setOnAction(e -> {
             String selected = sw.getSelectionModel().getSelectedItem();
             if (selected != null) {
+                try{
                 service.deleteStopword(selected);
                 sw.getItems().remove(selected);
-            }
+            } catch (Exception ex) {
+                    SystemLogger.log("Errore durante la rimozione di una stopword", ex);
+                }
+                }
         });
         root.getChildren().addAll(
                 new Label("Inserisci una nuova stopword:"),
