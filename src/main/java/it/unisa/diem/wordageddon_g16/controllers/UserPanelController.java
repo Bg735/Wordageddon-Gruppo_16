@@ -1,8 +1,12 @@
 package it.unisa.diem.wordageddon_g16.controllers;
 
 
+import it.unisa.diem.wordageddon_g16.db.DocumentDAO;
+import it.unisa.diem.wordageddon_g16.db.JdbcDAO;
+import it.unisa.diem.wordageddon_g16.db.UserDAO;
 import it.unisa.diem.wordageddon_g16.models.AppContext;
 import it.unisa.diem.wordageddon_g16.models.GameReport;
+import it.unisa.diem.wordageddon_g16.models.JdbcRepository;
 import it.unisa.diem.wordageddon_g16.models.User;
 import it.unisa.diem.wordageddon_g16.services.Resources;
 import it.unisa.diem.wordageddon_g16.services.SystemLogger;
@@ -12,23 +16,32 @@ import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
+import javafx.stage.Popup;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.sql.DriverManager;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+
+import static java.awt.SystemColor.window;
 
 public class UserPanelController {
     private final UserPanelService service;
@@ -75,8 +88,49 @@ public class UserPanelController {
 
     @FXML
     void handleAdmin(ActionEvent event) {
+        JdbcRepository repo = new JdbcRepository();
+        try {
+            UserDAO userDAO = repo.getDAO("user");
+            List<User> users = userDAO.selectAll();
+            users.remove(currentUser);
+            VBox userListVBox = new VBox(10);
+            userListVBox.setPadding(new Insets(10));
+            userListVBox.setSpacing(10);
 
+            for (User user : users) {
+                HBox userRow = new HBox(20);
+                userRow.setAlignment(Pos.CENTER_LEFT);
+                Label nameLabel = new Label(user.getName());
+                nameLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
 
+                Button btnUser = new Button(user.isAdmin() ? "Admin" : "User");
+                btnUser.getStyleClass().add("Btn");
+
+                //inverto stato e di conseguenza aggiorno il db
+                btnUser.setOnAction(e -> {
+                    user.setAdmin(!user.isAdmin());
+                    userDAO.update(user);
+                    btnUser.setText(user.isAdmin() ? "Admin" : "User");
+                });
+
+                userRow.getChildren().addAll(nameLabel, btnUser);
+                userListVBox.getChildren().add(userRow);
+            }
+            ScrollPane scrollPane = new ScrollPane(userListVBox);
+            scrollPane.setFitToWidth(true);
+            scrollPane.setPrefHeight(400);
+            scrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
+            VBox content = new VBox(10, new Label("Gestione privilegi amministratore:"), scrollPane);
+            content.setPadding(new Insets(20));
+
+            Popup popup = new Popup();
+            popup.getContent().add(content);
+            Node source = (Node) event.getSource();
+            Window window = source.getScene().getWindow();
+            popup.show(window);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @FXML

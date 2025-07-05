@@ -8,7 +8,7 @@ import it.unisa.diem.wordageddon_g16.services.UserPanelService;
 public class AppContext {
     private final AuthService authService;
     private final LeaderboardService leaderboardService;
-    private final UserPanelService userPanelService;
+    public final UserPanelService userPanelService;
 
     private User currentUser;
 
