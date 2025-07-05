@@ -2,12 +2,14 @@ package it.unisa.diem.wordageddon_g16.controllers;
 
 
 import it.unisa.diem.wordageddon_g16.models.AppContext;
+import it.unisa.diem.wordageddon_g16.models.Document;
 import it.unisa.diem.wordageddon_g16.models.GameReport;
 import it.unisa.diem.wordageddon_g16.models.User;
 import it.unisa.diem.wordageddon_g16.services.Resources;
 import it.unisa.diem.wordageddon_g16.services.SystemLogger;
 import it.unisa.diem.wordageddon_g16.services.UserPanelService;
 import it.unisa.diem.wordageddon_g16.services.ViewLoader;
+import it.unisa.diem.wordageddon_g16.db.DocumentDAO;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
@@ -29,10 +31,12 @@ import javafx.stage.Popup;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class UserPanelController {
@@ -131,6 +135,52 @@ public class UserPanelController {
 
     @FXML
     void handleDocumenti(ActionEvent event) {
+        Stage popup = new Stage();
+        popup.initModality(Modality.APPLICATION_MODAL);
+        popup.setTitle("Gestione Documenti");
+        popup.setHeight(400);
+        popup.setWidth(300);
+        popup.setResizable(false);
+
+        VBox root = new VBox(15);
+        root.setPadding(new Insets(10));
+        root.setSpacing(10);
+
+        //ottengo i doc dal db
+        List<Document> documenti = DocumentDAO.selectAll();
+        if(documenti.isEmpty()) {
+            root.getChildren().add(new Label("Non ci sono documenti disponibili!"));
+        }
+        else {
+            for(Document d : documenti) {
+                HBox docRow = new HBox(15);
+                docRow.setAlignment(Pos.CENTER_LEFT);
+                Label lab = new Label(d.getTitle() + "(ID:" + d.getId() +  "," + d.getWordCount() + "parole )");
+                Button bot = new Button("delete");
+                Button bot1 = new Button("Open doc");
+                bot.setOnAction(e -> {
+                    DocumentDAO.delete(d);
+                    root.getChildren().remove(docRow);
+
+                });
+                bot1.setOnAction(e1 -> {
+                    try{
+                        Desktop.getDesktop().open(new File(d.getPath()));
+                    }catch(IOException ex){
+                        System.out.println("error opening doc");
+                    }
+                });
+
+                docRow.getChildren().addAll(lab, bot);
+                docRow.getChildren().addAll(bot1);
+                root.getChildren().add(docRow);
+
+            }
+        }
+     Scene scene = new Scene(root);
+        scene.getStylesheets().add(Resources.getStyle("popup"));
+        popup.setScene(scene);
+        popup.showAndWait();
 
     }
 
@@ -155,19 +205,33 @@ public class UserPanelController {
         popupStage.setResizable(false);
 
         VBox root = new VBox(10);
+        root.setPadding(new Insets(10));
+        root.setSpacing(10);
 
+        //permetto di aggiungere una stopword
         TextField wordInput = new TextField();
         wordInput.setPromptText("Inserisci una nuova stopword");
-        Button addButton = new Button("Aggiungi");
-        addButton.setOnAction(e -> {
-            String word = wordInput.getText().trim();
-            if (!word.isEmpty()) {
+
+        //le inserisco in una lista di sw
+        ListView<String> sw = new ListView<>();
+        sw.getItems().addAll(service.getAllStopwords());
+
+        //aggiunta manuale sw
+        Button btnAdd = new Button("Aggiungi");
+        btnAdd.setOnAction(e -> {
+            String word = wordInput.getText().trim().toLowerCase();
+            if (!word.isEmpty() && !sw.getItems().contains(word)) {
                 service.addStopWords(word);
+                sw.getItems().add(word);
                 wordInput.clear();
+            } else {
+                System.out.println("StopWord vuota o già presente!");
             }
         });
-        Button uploadButton = new Button("Carica da file");
-        uploadButton.setOnAction(e -> {
+
+        //carico file
+        Button btnFile = new Button("Carica da file");
+        btnFile.setOnAction(e -> {
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Seleziona file di stopwords");
             FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("File di testo (*.txt)", "*.txt");
@@ -176,21 +240,32 @@ public class UserPanelController {
             if (file != null) {
                 try {
                     service.addStopwordsFromFile(file);
+                    sw.getItems().setAll(service.getAllStopwords());
                 } catch (RuntimeException ex) {
-                    SystemLogger.log("Errore di stopwords", ex);
+                    System.out.println("Errore di stopwords");
                     ex.printStackTrace();
                 } catch (IOException ex) {
-                    SystemLogger.log("Errore nella chiusura del file di testo", ex);
+                    System.out.println("Errore nella chiusura del file di testo");
                     throw new RuntimeException(ex);
                 }
+            }
+        });
+        Button removeButton = new Button("Rimuovi selezionata");
+        removeButton.setOnAction(e -> {
+            String selected = sw.getSelectionModel().getSelectedItem();
+            if (selected != null) {
+                service.deleteStopword(selected);
+                sw.getItems().remove(selected);
             }
         });
         root.getChildren().addAll(
                 new Label("Inserisci una nuova stopword:"),
                 wordInput,
-                addButton,
+                btnAdd,
                 new Label("Oppure caricala da file:"),
-                uploadButton);
+                btnFile,
+                new Label("StopWords attuali:"),
+                sw, removeButton );
         root.setAlignment(Pos.CENTER);
         Scene scene = new Scene(root);
         scene.getStylesheets().add(Resources.getStyle("popup"));
