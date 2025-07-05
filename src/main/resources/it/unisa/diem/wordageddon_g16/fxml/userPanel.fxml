@@ -242,7 +242,7 @@
                 <Insets bottom="10.0" left="25.0" top="10.0" />
             </padding>
             <children>
-                <Button prefHeight="35.0" prefWidth="115.0" styleClass="logOutBtn" text="Log out" textFill="WHITE" />
+                <Button onAction="#handleLogOut" prefHeight="35.0" prefWidth="115.0" styleClass="logOutBtn" text="Log out" textFill="WHITE" />
             </children>
         </HBox>
     </bottom>

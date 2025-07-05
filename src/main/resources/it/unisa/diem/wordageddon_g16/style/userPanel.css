@@ -36,3 +36,14 @@
     -fx-font-size: 14px;
     -fx-alignment: center;
 }
+
+.logOutBtn{
+    -fx-background-color: linear-gradient(to bottom, #ed706a, rgb(188, 0, 0));
+    -fx-font-family: "Alata";
+    -fx-cursor: hand;;
+}
+.logOutBtn:hover {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 6, 0.6, 0, 2);
+    -fx-scale-x: 1.03;
+    -fx-scale-y: 1.03;
+}

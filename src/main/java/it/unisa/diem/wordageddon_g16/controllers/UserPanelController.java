@@ -1,17 +1,18 @@
 package it.unisa.diem.wordageddon_g16.controllers;
 
-import it.unisa.diem.wordageddon_g16.db.DAO;
+
 import it.unisa.diem.wordageddon_g16.models.AppContext;
-import it.unisa.diem.wordageddon_g16.models.Difficulty;
 import it.unisa.diem.wordageddon_g16.models.GameReport;
 import it.unisa.diem.wordageddon_g16.models.User;
+import it.unisa.diem.wordageddon_g16.services.Resources;
+import it.unisa.diem.wordageddon_g16.services.SystemLogger;
 import it.unisa.diem.wordageddon_g16.services.UserPanelService;
 import it.unisa.diem.wordageddon_g16.services.ViewLoader;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -26,7 +27,6 @@ import javafx.stage.Stage;
 import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -65,12 +65,12 @@ public class UserPanelController {
     @FXML private StackPane stackMedio;
 
     private final User currentUser;
-
-
+    private final AppContext appContext;
 
     public UserPanelController(AppContext context) {
         this.service = context.getUserPanelService();
         currentUser=context.getCurrentUser();
+        this.appContext = context;
     }
 
     @FXML
@@ -85,6 +85,12 @@ public class UserPanelController {
     }
 
     @FXML
+     void handleLogOut(ActionEvent event) {
+        appContext.getAuthService().logout();
+        ViewLoader.load(ViewLoader.View.AUTH);
+    }
+
+    @FXML
     void handleGoBack(ActionEvent event) {
         ViewLoader.load(ViewLoader.View.MENU);
     }
@@ -94,9 +100,12 @@ public class UserPanelController {
         Stage popupStage = new Stage();
         popupStage.initModality(Modality.APPLICATION_MODAL);
         popupStage.setTitle("Gestione Stopwords");
+        popupStage.setHeight(400);
+        popupStage.setWidth(300);
+        popupStage.setResizable(false);
+
         VBox root = new VBox(10);
-        root.setStyle("-fx-padding: 20;");
-        //Inserimento manuale
+
         TextField wordInput = new TextField();
         wordInput.setPromptText("Inserisci una nuova stopword");
         Button addButton = new Button("Aggiungi");
@@ -107,25 +116,34 @@ public class UserPanelController {
                 wordInput.clear();
             }
         });
-        //Inserimento da file
         Button uploadButton = new Button("Carica da file");
         uploadButton.setOnAction(e -> {
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Seleziona file di stopwords");
+            FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("File di testo (*.txt)", "*.txt");
+            fileChooser.getExtensionFilters().add(extFilter);
             File file = fileChooser.showOpenDialog(popupStage);
             if (file != null) {
                 try {
                     service.addStopwordsFromFile(file);
                 } catch (RuntimeException ex) {
+                    SystemLogger.log("Errore di stopwords", ex);
                     ex.printStackTrace();
                 } catch (IOException ex) {
+                    SystemLogger.log("Errore nella chiusura del file di testo", ex);
                     throw new RuntimeException(ex);
                 }
             }
         });
-        root.getChildren().addAll(new Label("Inserisci stopword manualmente:"), wordInput, addButton,
-                new Separator(), new Label("Oppure caricale da file:"), uploadButton);
+        root.getChildren().addAll(
+                new Label("Inserisci una nuova stopword:"),
+                wordInput,
+                addButton,
+                new Label("Oppure caricala da file:"),
+                uploadButton);
+        root.setAlignment(Pos.CENTER);
         Scene scene = new Scene(root);
+        scene.getStylesheets().add(Resources.getStyle("popup"));
         popupStage.setScene(scene);
         popupStage.showAndWait();
     }

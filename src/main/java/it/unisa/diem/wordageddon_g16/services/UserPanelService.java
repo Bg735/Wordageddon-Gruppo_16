@@ -15,12 +15,6 @@ import java.util.List;
 import java.util.Map;
 
 public class UserPanelService {
-    public record UserPanelEntry (
-            String difficulty,
-            int score,
-            String time
-    ){ }
-
     private final GameReportDAO gameReportDAO;
     private final UserDAO userDAO;
     private final DocumentDAO documentDAO;
@@ -44,16 +38,6 @@ public class UserPanelService {
                 .filter(r -> r.getUser().getName().equals(appContext.getCurrentUser().getName()))
                 .toList();
     }
-    public List<UserPanelEntry> getUserPanelEntriesForCurrentUser() {
-        return getCurrentUserReports().stream()
-                .map(report -> new UserPanelEntry(
-                        report.getDifficulty().name(),
-                        report.getScore(),
-                        String.format("%02d:%02d", report.getUsedTime().toMinutesPart(), report.getUsedTime().toSecondsPart())
-                ))
-                .toList();
-    }
-
     public Map<String, Object> getUserStatsForCurrentUser() {
         List<GameReport> reports = getCurrentUserReports();
 
@@ -72,10 +56,6 @@ public class UserPanelService {
         return stats;
     }
 
-    public List<User> getAllUsers() {
-        return userDAO.selectAll();
-    }
-
     public void promoteUser(String username) {
         userDAO.selectById(username).ifPresent(user -> {
             user.setAdmin(true);
@@ -90,14 +70,13 @@ public class UserPanelService {
         });
     }
 
-    //Mostro tutti gli utenti, eccetto l'utente corrente
+
     public List<User> getAllUsersExceptCurrent() {
         String currentUsername = appContext.getCurrentUser().getName();
-        return getAllUsers().stream().filter(user -> !user.getName().equals(currentUsername))
+        return userDAO.selectAll().stream().filter(user -> !user.getName().equals(currentUsername))
                 .toList();
     }
 
-    //Aggiungo StopWords da file
     public void addStopwordsFromFile(File file) throws IOException {
         try (BufferedReader bf = new BufferedReader(new FileReader(file))) {
             String line;
@@ -108,7 +87,7 @@ public class UserPanelService {
                 }
             }
         } catch (IOException e) {
-           System.out.println("Error while reading stopwords from file");
+            SystemLogger.log("Errore della lettura di stopwords", e);
         }
     }
     public List<Document> getAllDocuments() {
