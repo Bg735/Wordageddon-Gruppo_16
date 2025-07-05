@@ -1,12 +1,8 @@
 package it.unisa.diem.wordageddon_g16.controllers;
 
 
-import it.unisa.diem.wordageddon_g16.db.DocumentDAO;
-import it.unisa.diem.wordageddon_g16.db.JdbcDAO;
-import it.unisa.diem.wordageddon_g16.db.UserDAO;
 import it.unisa.diem.wordageddon_g16.models.AppContext;
 import it.unisa.diem.wordageddon_g16.models.GameReport;
-import it.unisa.diem.wordageddon_g16.models.JdbcRepository;
 import it.unisa.diem.wordageddon_g16.models.User;
 import it.unisa.diem.wordageddon_g16.services.Resources;
 import it.unisa.diem.wordageddon_g16.services.SystemLogger;
@@ -33,15 +29,11 @@ import javafx.stage.Popup;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 
-import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.sql.DriverManager;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
-
-import static java.awt.SystemColor.window;
 
 public class UserPanelController {
     private final UserPanelService service;
@@ -88,49 +80,53 @@ public class UserPanelController {
 
     @FXML
     void handleAdmin(ActionEvent event) {
-        JdbcRepository repo = new JdbcRepository();
-        try {
-            UserDAO userDAO = repo.getDAO("user");
-            List<User> users = userDAO.selectAll();
-            users.remove(currentUser);
-            VBox userListVBox = new VBox(10);
-            userListVBox.setPadding(new Insets(10));
-            userListVBox.setSpacing(10);
+            Stage popupStage = new Stage();
+            popupStage.initModality(Modality.APPLICATION_MODAL);
+            popupStage.setTitle("Gestione Admin");
+            popupStage.setHeight(400);
+            popupStage.setWidth(300);
+            popupStage.setResizable(false);
 
-            for (User user : users) {
-                HBox userRow = new HBox(20);
-                userRow.setAlignment(Pos.CENTER_LEFT);
-                Label nameLabel = new Label(user.getName());
-                nameLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
+            VBox root = new VBox(15);
+            root.setPadding(new Insets(10));
+            root.setSpacing(10);
+            List<User> otherUsers=service.getAllUsersExceptCurrent();
+            if (otherUsers.isEmpty()) {
+                Label noUsersLabel = new Label("Nessun altro utente disponibile.");
+                root.getChildren().add(noUsersLabel);
+            } else {
+                for (User user : otherUsers ){
+                    HBox userRow = new HBox(20);
+                    userRow.setAlignment(Pos.CENTER_LEFT);
+                    Label nameLabel = new Label(user.getName());
+                    nameLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
+                    ToggleButton toggle = new ToggleButton();
+                    toggle.setText(user.isAdmin() ? "Admin" : "User");
+                    toggle.setSelected(user.isAdmin());
 
-                Button btnUser = new Button(user.isAdmin() ? "Admin" : "User");
-                btnUser.getStyleClass().add("Btn");
+                    toggle.setOnAction(e -> {
+                        boolean nowAdmin = toggle.isSelected();
+                        toggle.setText(nowAdmin ? "Admin" : "User");
 
-                //inverto stato e di conseguenza aggiorno il db
-                btnUser.setOnAction(e -> {
-                    user.setAdmin(!user.isAdmin());
-                    userDAO.update(user);
-                    btnUser.setText(user.isAdmin() ? "Admin" : "User");
-                });
+                        if (nowAdmin) {
+                            service.promoteUser(user.getName());
+                        } else {
+                            service.demoteUser(user.getName());
+                        }
+                    });
 
-                userRow.getChildren().addAll(nameLabel, btnUser);
-                userListVBox.getChildren().add(userRow);
+                    userRow.getChildren().addAll(nameLabel, toggle);
+                    root.getChildren().add(userRow);
+                }
+
             }
-            ScrollPane scrollPane = new ScrollPane(userListVBox);
-            scrollPane.setFitToWidth(true);
-            scrollPane.setPrefHeight(400);
-            scrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
-            VBox content = new VBox(10, new Label("Gestione privilegi amministratore:"), scrollPane);
-            content.setPadding(new Insets(20));
+        Scene scene = new Scene(root);
+        //scene.getStylesheets().add(getClass().getResource("/style/popup.css").toExternalForm());
+        scene.getStylesheets().add(Resources.getStyle("popup"));
 
-            Popup popup = new Popup();
-            popup.getContent().add(content);
-            Node source = (Node) event.getSource();
-            Window window = source.getScene().getWindow();
-            popup.show(window);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        popupStage.setScene(scene);
+        popupStage.showAndWait();
+
     }
 
     @FXML
