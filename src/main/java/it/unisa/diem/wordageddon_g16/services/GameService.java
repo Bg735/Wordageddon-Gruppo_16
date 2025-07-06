@@ -176,9 +176,35 @@ public class GameService {
         if (params == null) throw new IllegalStateException("Game not initialized");
         loadWdmMap();
         List<Question> questions = new ArrayList<>();
-
+        for(int i = 0; i < params.questionCount; i++) {
+            var type = Question.QuestionType.getRandomType();
+            Question q = switch (type) {
+                case ABSOLUTE_FREQUENCY -> absoluteFrequencyQuestion();
+                case WHICH_MORE -> whichMoreQuestion();
+                case WHICH_LESS -> whichLessQuestion();
+                case WHICH_DOCUMENT -> whichDocumentQuestion();
+                case WHICH_ABSENT -> witchAbsentQuestion();
+            };
+            questions.add(q);
+        }
+    return questions;
 
     }
+    
+    //metodo che mostra una parola e richiede quante volte appare nel doc
+    private Question absoluteFrequencyQuestion() {}
+
+    //metodo che mostra tot. parole e richiede quante volte appare nel documento
+    private Question whichMoreQuestion() {}
+
+    //metodo che mostra tot. parole e richiede il numero di occorrenze
+    private Question whichLessQuestion() {}
+
+    //metodo che mostra una parola e richiede in quale documento appare
+    private Question whichDocumentQuestion() {}
+
+    //metodo che richiede quale parola NON appare in nessun documento
+    private  Question witchAbsentQuestion() {}
 
     private void loadWdmMap(){
         for(Document doc : params.documents){
@@ -217,7 +243,9 @@ public class GameService {
         }
         return params.documents;
     }
-
+//controllo se params è nullo, creo random prendo per il numero di domande params faccio un for da param.questioncount e per ognuna prendo un tipo da getquestion tipe e da questo genero la domanda di quel tipo
+  //questiontype.getrandom type e poi chismo il metodo usando WDM, creo un set e poi aggiungo il valore da wdm e da quello scelgo random la parola set parola- num.occorrenze , genero random la domanda e la risposta
+    //getquestion e poi un metoodo per ogni tipo di domanda
     public int getQuestionCount() {
         if (params == null) {
             throw new IllegalStateException("Game not initialized");
