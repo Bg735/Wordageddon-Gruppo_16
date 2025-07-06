@@ -5,11 +5,12 @@ import it.unisa.diem.wordageddon_g16.models.AppContext;
 import it.unisa.diem.wordageddon_g16.models.Document;
 import it.unisa.diem.wordageddon_g16.models.GameReport;
 import it.unisa.diem.wordageddon_g16.models.User;
-
+import java.nio.file.Files;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -94,9 +95,30 @@ public class UserPanelService {
         return documentDAO.selectAll();
     }
 
-    public void addDocument(Document doc) {
-        documentDAO.insert(doc);
+    public Document addDocument(File file) {
+        try {
+            List<String> lines = Files.readAllLines(file.toPath());
+            String content = String.join(" ", lines);
+            int wordCount = content.trim().split("\\s+").length;
+            String title = file.getName();
+            String path = file.getAbsolutePath();
+
+            Document doc = new Document(0, title, path, wordCount);
+            documentDAO.insert(doc);
+
+            return documentDAO.selectAll().stream()
+                    .filter(d -> d.getTitle().equals(title) && d.getPath().equals(path))
+                    .max(Comparator.comparingLong(Document::getId))
+                    .orElseThrow(() -> new RuntimeException("Documento non trovato dopo inserimento."));
+
+        } catch (IOException e) {
+            SystemLogger.log("Errore lettura file", e);
+            throw new RuntimeException("Errore nella lettura del file");
+        }
     }
+
+
+
 
     public void deleteDocument(Document doc) {
         documentDAO.delete(doc);

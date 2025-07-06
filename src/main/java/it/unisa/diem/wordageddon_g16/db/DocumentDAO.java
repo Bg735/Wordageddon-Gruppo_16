@@ -26,7 +26,7 @@ public class DocumentDAO extends JdbcDAO<Document> {
                             res.getInt("id"),
                             res.getString("title"),
                             res.getString("path"),
-                            res.getInt("wordCount")
+                            res.getInt("word_count")
                     );
                     return Optional.of(document);
                 }
@@ -41,7 +41,7 @@ public class DocumentDAO extends JdbcDAO<Document> {
     }
 
     @Override
-    public static List<Document> selectAll() {
+    public  List<Document> selectAll() {
         String query = "SELECT * FROM Document";
         Callback<ResultSet,List<Document>> callback = res -> {
             try {
@@ -54,7 +54,7 @@ public class DocumentDAO extends JdbcDAO<Document> {
                             res.getInt("id"),
                             res.getString("title"),
                             res.getString("path"),
-                            res.getInt("wordCount")
+                            res.getInt("word_count")
                     ));
                 }
                 return result;
@@ -68,7 +68,7 @@ public class DocumentDAO extends JdbcDAO<Document> {
 
     @Override
     public void insert(Document document) {
-        String query = "INSERT INTO Document (title, path, wordCount) VALUES (?, ?, ?)";
+        String query = "INSERT INTO Document (title, path, word_count) VALUES (?, ?, ?)";
         try {
             executeUpdate(query, document.getTitle(), document.getPath(), document.getWordCount());
         } catch (Exception e) {
@@ -79,7 +79,7 @@ public class DocumentDAO extends JdbcDAO<Document> {
 
     @Override
     public void update(Document document) {
-        String query = "UPDATE Document SET title = ?, path = ?, wordCount = ? WHERE id = ?";
+        String query = "UPDATE Document SET title = ?, path = ?, word_count = ? WHERE id = ?";
         try {
             executeUpdate(query, document.getTitle(), document.getPath(), document.getWordCount(), document.getId());
         } catch (Exception e) {
@@ -89,7 +89,7 @@ public class DocumentDAO extends JdbcDAO<Document> {
     }
 
     @Override
-    public static void delete(Document document) {
+    public  void delete(Document document) {
         String query = "DELETE FROM Document WHERE id = ?";
         try {
             executeUpdate(query, document.getId());             // Delete on Document also deletes the associated Content and WDM due to integrity constraints (ON DELETE CASCADE)

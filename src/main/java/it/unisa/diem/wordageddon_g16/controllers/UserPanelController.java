@@ -9,35 +9,34 @@ import it.unisa.diem.wordageddon_g16.services.Resources;
 import it.unisa.diem.wordageddon_g16.services.SystemLogger;
 import it.unisa.diem.wordageddon_g16.services.UserPanelService;
 import it.unisa.diem.wordageddon_g16.services.ViewLoader;
-import it.unisa.diem.wordageddon_g16.db.DocumentDAO;
+import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
-import javafx.stage.Popup;
 import javafx.stage.Stage;
-import javafx.stage.Window;
-
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
+
+import static java.awt.Color.*;
 
 public class UserPanelController {
     private final UserPanelService service;
@@ -84,109 +83,130 @@ public class UserPanelController {
 
     @FXML
     void handleAdmin(ActionEvent event) {
-            Stage popupStage = new Stage();
-            popupStage.initModality(Modality.APPLICATION_MODAL);
-            popupStage.setTitle("Gestione Admin");
-            popupStage.setHeight(400);
-            popupStage.setWidth(300);
-            popupStage.setResizable(false);
+        PopupBuilder popup = new PopupBuilder("Gestione Ruoli Utenti", 450, 350);
+        VBox root = popup.getRoot();
+        List<User> otherUsers = service.getAllUsersExceptCurrent();
 
-            VBox root = new VBox(15);
-            root.setPadding(new Insets(10));
-            root.setSpacing(10);
-            List<User> otherUsers=service.getAllUsersExceptCurrent();
-            if (otherUsers.isEmpty()) {
-                Label noUsersLabel = new Label("Nessun altro utente disponibile.");
-                root.getChildren().add(noUsersLabel);
-            } else {
-                for (User user : otherUsers ){
-                    HBox userRow = new HBox(20);
-                    userRow.setAlignment(Pos.CENTER_LEFT);
-                    Label nameLabel = new Label(user.getName());
-                    nameLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
-                    ToggleButton toggle = new ToggleButton();
-                    toggle.setText(user.isAdmin() ? "Admin" : "User");
-                    toggle.setSelected(user.isAdmin());
+        if (otherUsers.isEmpty()) {
+            Label noUsersLabel = new Label("Nessun altro utente disponibile.");
+            noUsersLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: gray;");
+            root.getChildren().add(noUsersLabel);
+        } else {
+            for (User user : otherUsers) {
+                VBox userBox = new VBox(5);
+                HBox userRow = new HBox(20);
+                userRow.setAlignment(Pos.CENTER_LEFT);
+                userRow.setPadding(new Insets(5, 10, 5, 10));
+                userRow.setStyle("-fx-background-color: #f4f4f4; -fx-background-radius: 5;");
 
-                    toggle.setOnAction(e -> {
-                        boolean nowAdmin = toggle.isSelected();
-                        toggle.setText(nowAdmin ? "Admin" : "User");
+                Label nameLabel = new Label(user.getName());
+                nameLabel.setStyle("-fx-text-fill: black;");
+                HBox.setHgrow(nameLabel, Priority.ALWAYS);
 
-                        if (nowAdmin) {
-                            service.promoteUser(user.getName());
-                        } else {
-                            service.demoteUser(user.getName());
-                        }
-                    });
+                ToggleButton toggle = new ToggleButton();
+                toggle.setText(user.isAdmin() ? "👑 Admin" : "👤 User");
+                toggle.setSelected(user.isAdmin());
+                toggle.setStyle("-fx-font-size: 12px;");
 
-                    userRow.getChildren().addAll(nameLabel, toggle);
-                    root.getChildren().add(userRow);
-                }
+                Label feedbackLabel = new Label();
+                feedbackLabel.setStyle("-fx-text-fill: white; -fx-font-size: 10px;");
+                feedbackLabel.setVisible(false); // Inizialmente nascosto
 
+                toggle.setOnAction(e -> {
+                    boolean nowAdmin = toggle.isSelected();
+                    toggle.setText(nowAdmin ? "Admin" : "User");
+
+                    if (nowAdmin) {
+                        service.promoteUser(user.getName());
+                    } else {
+                        service.demoteUser(user.getName());
+                    }
+
+                    // Mostra il messaggio nel popup
+                    feedbackLabel.setText("Ruolo aggiornato a " + (nowAdmin ? "Admin" : "User"));
+                    feedbackLabel.setVisible(true);
+
+                    PauseTransition pause = new PauseTransition(javafx.util.Duration.seconds(1.5));
+                    pause.setOnFinished(ev -> feedbackLabel.setVisible(false));
+                    pause.play();
+                });
+
+                Region spacer = new Region();
+                HBox.setHgrow(spacer, Priority.ALWAYS);
+
+                userRow.getChildren().addAll(nameLabel, spacer, toggle);
+                userBox.getChildren().addAll(userRow, feedbackLabel);
+                root.getChildren().add(userBox);
             }
-        Scene scene = new Scene(root);
-        //scene.getStylesheets().add(getClass().getResource("/style/popup.css").toExternalForm());
-        scene.getStylesheets().add(Resources.getStyle("popup"));
-
-        popupStage.setScene(scene);
-        popupStage.showAndWait();
-
+        }
+        popup.show();
     }
 
     @FXML
     void handleDocumenti(ActionEvent event) {
-        Stage popup = new Stage();
-        popup.initModality(Modality.APPLICATION_MODAL);
-        popup.setTitle("Gestione Documenti");
-        popup.setHeight(400);
-        popup.setWidth(300);
-        popup.setResizable(false);
+        PopupBuilder popup = new PopupBuilder("Gestione Documenti", 400, 300);
+        VBox root = popup.getRoot();
 
-        VBox root = new VBox(15);
-        root.setPadding(new Insets(10));
-        root.setSpacing(10);
+        ObservableList<Document> documentList = FXCollections.observableArrayList(service.getAllDocuments());
 
-        //ottengo i doc dal db
-        List<Document> documenti = DocumentDAO.selectAll();
-        if(documenti.isEmpty()) {
-            root.getChildren().add(new Label("Non ci sono documenti disponibili!"));
-        }
-        else {
-            for(Document d : documenti) {
-                HBox docRow = new HBox(15);
-                docRow.setAlignment(Pos.CENTER_LEFT);
-                Label lab = new Label(d.getTitle() + "(ID:" + d.getId() +  "," + d.getWordCount() + "parole )");
-                Button bot = new Button("delete");
-                Button bot1 = new Button("Open doc");
-                bot.setOnAction(e -> {
-                    try {
-                        DocumentDAO.delete(d);
-                        root.getChildren().remove(docRow);
-                    }catch(Exception ex) {
-                        SystemLogger.log("Errore durante la cancellazione del documento", ex);
-
-                    }
-                });
-                bot1.setOnAction(e1 -> {
-                    try{
-                        Desktop.getDesktop().open(new File(d.getPath()));
-                    }catch(IOException ex){
-                        SystemLogger.log("Errore durante l'apertura del documento", ex);
-                    }
-                });
-
-                docRow.getChildren().addAll(lab, bot);
-                docRow.getChildren().addAll(bot1);
-                root.getChildren().add(docRow);
-
+        ListView<Document> listView = new ListView<>(documentList);
+        listView.setCellFactory(lv -> new ListCell<>() {
+            private final HBox content = new HBox(10);
+            private final Label label = new Label();
+            private final Button removeBtn = new Button("Rimuovi");
+            {
+                label.setTextFill(Color.BLACK);
+                HBox.setHgrow(label, Priority.ALWAYS);
+                content.setAlignment(Pos.CENTER);
+                content.setPadding(new Insets(2, 1, 2, 1));
+                label.setAlignment(Pos.BASELINE_LEFT);
+                content.getChildren().addAll(label, removeBtn);
             }
-        }
-     Scene scene = new Scene(root);
-        scene.getStylesheets().add(Resources.getStyle("popup"));
-        popup.setScene(scene);
-        popup.showAndWait();
 
+            @Override
+            protected void updateItem(Document doc, boolean empty) {
+                super.updateItem(doc, empty);
+                if (empty || doc == null) {
+                    setGraphic(null);
+                } else {
+                    label.setText(doc.getTitle());
+                    label.setStyle("-fx-text-fill:black");
+                    removeBtn.setOnAction(e -> {
+                        service.deleteDocument(doc);
+                        documentList.remove(doc);
+                    });
+                    setGraphic(content);
+                }
+            }
+        });
+
+        // Pulsante per caricare nuovo documento
+        Button uploadBtn = new Button("Carica nuovo documento (.txt)");
+        uploadBtn.setOnAction(e -> {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Seleziona un file .txt");
+            fileChooser.getExtensionFilters().add(
+                    new FileChooser.ExtensionFilter("File di testo (*.txt)", "*.txt")
+            );
+
+            File file = fileChooser.showOpenDialog(popup.getStage());
+            if (file != null) {
+                try {
+                    Document newDoc = service.addDocument(file); // Assicurati che ritorni il Document creato
+                    documentList.setAll(service.getAllDocuments());
+                } catch (Exception ex) {
+                    SystemLogger.log("Errore durante il caricamento di un documento", ex);}
+            }
+        });
+
+        root.getChildren().addAll(
+                new Label("Documenti esistenti:"),
+                listView,
+                uploadBtn
+        );
+        popup.show();
     }
+
 
     @FXML
      void handleLogOut(ActionEvent event) {
@@ -201,16 +221,8 @@ public class UserPanelController {
 
     @FXML
     void handleStopWords(ActionEvent event) {
-        Stage popupStage = new Stage();
-        popupStage.initModality(Modality.APPLICATION_MODAL);
-        popupStage.setTitle("Gestione Stopwords");
-        popupStage.setHeight(400);
-        popupStage.setWidth(300);
-        popupStage.setResizable(false);
-
-        VBox root = new VBox(10);
-        root.setPadding(new Insets(10));
-        root.setSpacing(10);
+        PopupBuilder popup = new PopupBuilder("Gestione Documenti", 400, 500);
+        VBox root = popup.getRoot();
 
         //permetto di aggiungere una stopword
         TextField wordInput = new TextField();
@@ -242,7 +254,7 @@ public class UserPanelController {
             fileChooser.setTitle("Seleziona file di stopwords");
             FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("File di testo (*.txt)", "*.txt");
             fileChooser.getExtensionFilters().add(extFilter);
-            File file = fileChooser.showOpenDialog(popupStage);
+            File file = fileChooser.showOpenDialog(popup.getStage());
             if (file != null) {
                 try {
                     service.addStopwordsFromFile(file);
@@ -277,10 +289,7 @@ public class UserPanelController {
                 new Label("StopWords attuali:"),
                 sw, removeButton );
         root.setAlignment(Pos.CENTER);
-        Scene scene = new Scene(root);
-        scene.getStylesheets().add(Resources.getStyle("popup"));
-        popupStage.setScene(scene);
-        popupStage.showAndWait();
+        popup.show();
     }
 
     @FXML
@@ -319,6 +328,38 @@ public class UserPanelController {
         totalGameLabel.setText(String.valueOf(stats.get("totalGames")));
         avgScoreLabel.setText(String.format("%.1f", stats.get("averageScore")));
         maxScoreLabel.setText(String.valueOf(stats.get("maxScore")));
+    }
+
+    private class PopupBuilder {
+        private final Stage stage;
+        private final VBox root;
+
+        public PopupBuilder(String title, int width, int height) {
+            this.stage = new Stage();
+            this.root = new VBox(15);
+            this.root.setPadding(new Insets(15));
+            this.root.setAlignment(Pos.CENTER);
+            this.stage.setTitle(title);
+            this.stage.setHeight(height);
+            this.stage.setWidth(width);
+            this.stage.initModality(Modality.APPLICATION_MODAL);
+            this.stage.setResizable(false);
+        }
+
+        public VBox getRoot() {
+            return root;
+        }
+
+        public void show() {
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(Resources.getStyle("popup"));
+            stage.setScene(scene);
+            stage.showAndWait();
+        }
+
+        public Stage getStage() {
+            return stage;
+        }
     }
 
 }
