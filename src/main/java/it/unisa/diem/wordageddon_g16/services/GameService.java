@@ -190,21 +190,135 @@ public class GameService {
     return questions;
 
     }
-    
+
     //metodo che mostra una parola e richiede quante volte appare nel doc
-    private Question absoluteFrequencyQuestion() {}
+    private Question absoluteFrequencyQuestion() {
+        List<Document> docs  = params.documents;
+        Document document = docs.get(GameParams.random.nextInt(docs.size()));
+        WDM wdm = wdmMap.get(document); //wdm associata al documento
 
-    //metodo che mostra tot. parole e richiede quante volte appare nel documento
-    private Question whichMoreQuestion() {}
+        //estraggo le parole presenti nel document
+        List<String> words = new ArrayList<>();
+        for (String word : wdm.getWords().keySet()) {
+            words.add(word);
+        }
+        //controllo che ci sia almeno 1 parola
+        if(words.isEmpty()) throw new IllegalStateException("No words available");
 
-    //metodo che mostra tot. parole e richiede il numero di occorrenze
-    private Question whichLessQuestion() {}
+        //scelgo una parola random e vedo quante volte appare nel document
+        String word = words.get(GameParams.random.nextInt(words.size()));
+        int frequency = wdm.getWords().get(word);
+
+        //genero le restanti (3) risposte sbagliate
+        Set<Integer> wrongAnswers = new HashSet<>();
+        while(wrongAnswers.size() < 3) {
+            int answerIndex = frequency  + GameParams.random.nextInt(5) - 2;
+            if(answerIndex != frequency && answerIndex > 0) {
+                wrongAnswers.add(answerIndex);
+            }
+        }
+        //lista finale delle risposte
+        List<String> answers = new ArrayList<>();
+        for(int answerIndex : wrongAnswers) {
+            answers.add(String.valueOf(answerIndex));
+        }
+        int correctAnswerIndex = GameParams.random.nextInt(4);
+        answers.add(correctAnswerIndex, String.valueOf(frequency));
+        return Question.create("Quante volte appare la parola " + word + "nel documento " + document.title() + "?", answers, correctAnswerIndex);
+    }
+
+    //metodo che mostra tot. parole e richiede quale parola appare più frequentemente
+    private Question whichMoreQuestion() {
+        List<Document> docs = params.documents;
+        Document document = docs.get(GameParams.random.nextInt(docs.size()));
+        WDM wdm = wdmMap.get(document);
+
+        //ottengo le parole + la rispettiva frequenza del doc
+        List<Map.Entry<String, Integer>> wordFrequency = new ArrayList<>(wdm.getWords().entrySet());
+        Collections.shuffle(wordFrequency);
+
+        //seleziono le prime 4 parole della lista
+        List<Map.Entry<String, Integer>> currentAnswer = new ArrayList<>();
+        for(int y = 0; y < 4; y++) {
+          currentAnswer.add(wordFrequency.get(y)) ;
+        }
+
+        //lista parole da usare come risposta
+        List<String> answers = new ArrayList<>();
+        int correctIndex = 0;
+        int maxFreq = -1;
+
+        //aggiungo parola alla risposta
+        for (int i = 0; i < currentAnswer.size(); i++) {
+            Map.Entry<String, Integer> entry = currentAnswer.get(i);
+            answers.add(entry.getKey());
+
+        //controllo se la parola ha la frequenza più alta
+        if(entry.getValue() > maxFreq) {
+        maxFreq = entry.getValue();
+        correctIndex = i;
+        }
+        }
+
+        //creo la domanda
+        return Question.create( "Quale di queste parole appare più frequentemente nel documento " + document.title() + "?", answers, correctIndex);
+    }
+
+    //metodo che mostra tot. parole e richiede quale appare meno spesso
+    private Question whichLessQuestion() {
+        List<Document> docs  = params.documents;
+        Document document = docs.get(GameParams.random.nextInt(docs.size()));
+        WDM wdm = wdmMap.get(document);
+
+        //ottengo le parole + la rispettiva frequenza del doc
+        List<Map.Entry<String, Integer>> wordFrequency = new ArrayList<>(wdm.getWords().entrySet());
+        Collections.shuffle(wordFrequency);
+
+        //copio i primi 4 elementi in una nuova lista
+        List<Map.Entry<String, Integer>> selected = new ArrayList<>();
+        for (int i = 0; i < 4; i++) {
+            selected.add(wordFrequency.get(i));
+        }
+
+        //indice della risposta + valore minimo della frequenza
+        int correctIndex = 0;
+        int minFreq = Integer.MAX_VALUE;
+
+        //scorro la lista per trovare la frequenza minima
+        for(int i = 0; i<selected.size(); i++) {
+            if(selected.get(i).getValue() < minFreq) {
+                minFreq = selected.get(i).getValue();
+                correctIndex = i;
+            }
+        }
+
+        //creo la solita lista finale delle risposte
+        List<String> answers = new ArrayList<>();
+        for (var entry : selected) {
+            answers.add(entry.getKey());
+        }
+
+        //creo la domanda
+        return Question.create("Quale delle seguenti parole appare meno frequentemente nel documento " + document.title() + "?", answers, correctIndex);
+    }
 
     //metodo che mostra una parola e richiede in quale documento appare
-    private Question whichDocumentQuestion() {}
+    private Question whichDocumentQuestion() {
+        List<Document> docs  = params.documents;
+        Document document = docs.get(GameParams.random.nextInt(docs.size()));
+        WDM wdm = wdmMap.get(document);
+
+        return Question.create();
+    }
 
     //metodo che richiede quale parola NON appare in nessun documento
-    private  Question witchAbsentQuestion() {}
+    private  Question witchAbsentQuestion() {
+        List<Document> docs  = params.documents;
+        Document document = docs.get(GameParams.random.nextInt(docs.size()));
+        WDM wdm = wdmMap.get(document);
+
+        return Question.create();
+    }
 
     private void loadWdmMap(){
         for(Document doc : params.documents){
@@ -243,9 +357,7 @@ public class GameService {
         }
         return params.documents;
     }
-//controllo se params è nullo, creo random prendo per il numero di domande params faccio un for da param.questioncount e per ognuna prendo un tipo da getquestion tipe e da questo genero la domanda di quel tipo
-  //questiontype.getrandom type e poi chismo il metodo usando WDM, creo un set e poi aggiungo il valore da wdm e da quello scelgo random la parola set parola- num.occorrenze , genero random la domanda e la risposta
-    //getquestion e poi un metoodo per ogni tipo di domanda
+
     public int getQuestionCount() {
         if (params == null) {
             throw new IllegalStateException("Game not initialized");
