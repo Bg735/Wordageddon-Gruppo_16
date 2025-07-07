@@ -308,16 +308,57 @@ public class GameService {
         Document document = docs.get(GameParams.random.nextInt(docs.size()));
         WDM wdm = wdmMap.get(document);
 
-        return Question.create();
+        //estraggo le parole dal doc scelto
+        List<String> words = new ArrayList<>(wdm.getWords().keySet());
+        if(words.isEmpty()) throw new IllegalStateException("No words available");
+
+        //scelgo una parola casuale da quel doc
+        String word = words.get(GameParams.random.nextInt(words.size()));
+
+        //lista d documenti da usare come risposte
+        List<Document> docAnswer = new ArrayList<>();
+        docAnswer.add(document);
+        while(docAnswer.size() < 4) {
+            Document d = docs.get(GameParams.random.nextInt(docs.size()));
+            docAnswer.add(d);
+        }
+        Collections.shuffle(docAnswer);
+
+        //creo lista delle risposte e identifico l'indice corretto
+        List<String> answers = new ArrayList<>();
+        int index = -1;
+        for (int i = 0; i < docAnswer.size(); i++) {
+            Document d = docAnswer.get(i);
+            answers.add(d.title());
+            if (d.equals(document)) {
+                index = i;
+            }
+        }
+        return Question.create("In quale di questi documenti appare la parola " + word + "?", answers, index);
+
     }
 
     //metodo che richiede quale parola NON appare in nessun documento
     private  Question witchAbsentQuestion() {
         List<Document> docs  = params.documents;
-        Document document = docs.get(GameParams.random.nextInt(docs.size()));
-        WDM wdm = wdmMap.get(document);
+        //costruisco un set con tutte le parole presenti nei documenti
+        Set<String> allWords = new HashSet<>();
+        for (WDM wdm : wdmMap.values()) {
+            allWords.addAll(wdm.getWords().keySet());
+        }
+        if (allWords.size() < 3) {
+            throw new IllegalStateException("Not enough words for the question");
+        }
 
-        return Question.create();
+        //seleziono 3 parole che sono presenti nel doc
+        List<String> presentWords = new ArrayList<>(allWords);
+        Collections.shuffle(presentWords);
+        List<String> answers = new ArrayList<>();
+        answers.add(presentWords.get(0));
+        answers.add(presentWords.get(1));
+        answers.add(presentWords.get(2));
+
+        return Question.create( "Quale delle seguenti parole NON è presente in nessun documento?", answers, 0);
     }
 
     private void loadWdmMap(){
