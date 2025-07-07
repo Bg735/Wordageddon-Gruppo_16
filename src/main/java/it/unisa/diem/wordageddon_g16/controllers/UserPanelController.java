@@ -29,14 +29,20 @@ import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 
-import static java.awt.Color.*;
+/**
+ * @class UserPanelController
+ * @brief Controller della schermata dedicata all' utente.
+ *
+ * Gestisce la logica della vista associata al pannello utente, inclusa la visualizzazione delle statistiche
+ * personali,la gestione dei documenti, delle stopwords e degli utenti con privilegi amministrativi.
+ *
+ */
 
 public class UserPanelController {
     private final UserPanelService service;
@@ -75,6 +81,11 @@ public class UserPanelController {
     private final User currentUser;
     private final AppContext appContext;
 
+    /**
+     * Costruttore del controller.
+     *
+     * @param context Il contesto applicativo che fornisce accesso all'utente corrente e ai service delle interfacce.
+     */
     public UserPanelController(AppContext context) {
         this.service = context.getUserPanelService();
         currentUser=context.getCurrentUser();
@@ -104,7 +115,7 @@ public class UserPanelController {
                 HBox.setHgrow(nameLabel, Priority.ALWAYS);
 
                 ToggleButton toggle = new ToggleButton();
-                toggle.setText(user.isAdmin() ? "👑 Admin" : "👤 User");
+                toggle.setText(user.isAdmin() ? "Admin" : "User");
                 toggle.setSelected(user.isAdmin());
                 toggle.setStyle("-fx-font-size: 12px;");
 
@@ -142,6 +153,14 @@ public class UserPanelController {
         popup.show();
     }
 
+    /**
+     * Gestisce il popup per la gestione dei documenti.
+     *
+     * Mostra un elenco dei documenti esistenti con possibilità di rimozione.
+     * Consente anche il caricamento di un nuovo file `.txt`. Il contenuto viene sincronizzato con il database.
+     *
+     * @param event L'evento ActionEvent generato dal click sul menu.
+     */
     @FXML
     void handleDocumenti(ActionEvent event) {
         PopupBuilder popup = new PopupBuilder("Gestione Documenti", 400, 300);
@@ -180,7 +199,14 @@ public class UserPanelController {
             }
         });
 
-        // Pulsante per caricare nuovo documento
+        Label feedbackLabel = new Label();
+        feedbackLabel.setStyle("-fx-font-size: 11px; ");
+        feedbackLabel.setWrapText(true);
+        feedbackLabel.setVisible(false);
+
+        PauseTransition pause = new PauseTransition(javafx.util.Duration.seconds(1.5));
+        pause.setOnFinished(e -> feedbackLabel.setVisible(false));
+
         Button uploadBtn = new Button("Carica nuovo documento (.txt)");
         uploadBtn.setOnAction(e -> {
             FileChooser fileChooser = new FileChooser();
@@ -192,33 +218,63 @@ public class UserPanelController {
             File file = fileChooser.showOpenDialog(popup.getStage());
             if (file != null) {
                 try {
-                    Document newDoc = service.addDocument(file); // Assicurati che ritorni il Document creato
-                    documentList.setAll(service.getAllDocuments());
+                    Document newDoc = service.addDocument(file);
+                    if (newDoc != null) {
+                        documentList.setAll(service.getAllDocuments());
+                        feedbackLabel.setText("Documento caricato con successo!");
+                        feedbackLabel.setStyle("-fx-text-fill: white;");
+                    } else {
+                        feedbackLabel.setText("Il documento è già presente.");
+                    }
                 } catch (Exception ex) {
-                    SystemLogger.log("Errore durante il caricamento di un documento", ex);}
+                    SystemLogger.log("Errore durante il caricamento di un documento", ex);
+                    feedbackLabel.setText("Errore durante il caricamento.");
+                }
+
+                feedbackLabel.setVisible(true);
+                pause.playFromStart();
             }
         });
+
 
         root.getChildren().addAll(
                 new Label("Documenti esistenti:"),
                 listView,
-                uploadBtn
+                uploadBtn,
+                feedbackLabel
         );
         popup.show();
     }
 
-
+    /**
+     * Effettua il logout dell'utente corrente e ritorna alla schermata di autenticazione.
+     *
+     * @param event L'evento ActionEvent generato dal click sul pulsante "Logout".
+     */
     @FXML
      void handleLogOut(ActionEvent event) {
         appContext.getAuthService().logout();
         ViewLoader.load(ViewLoader.View.AUTH);
     }
 
+    /**
+     * Gestisce il ritorno alla schermata del menu principale.
+     *
+     * @param event L'evento ActionEvent generato dal click sul pulsante "Indietro".
+     */
     @FXML
     void handleGoBack(ActionEvent event) {
         ViewLoader.load(ViewLoader.View.MENU);
     }
 
+    /**
+     * Gestisce il popup per la gestione delle stopwords.
+     *
+     * Permette l'aggiunta manuale tramite TextInput, il caricamento da file `.txt` e la rimozione di stopwords.
+     * Il contenuto viene sincronizzato con il database.
+     *
+     * @param event L'evento ActionEvent generato dal click sul menu.
+     */
     @FXML
     void handleStopWords(ActionEvent event) {
         PopupBuilder popup = new PopupBuilder("Gestione Documenti", 400, 500);
@@ -292,6 +348,13 @@ public class UserPanelController {
         popup.show();
     }
 
+
+    /**
+     * Metodo di inizializzazione automatico chiamato da JavaFX.
+     *
+     * Imposta le informazioni iniziali dell'interfaccia: etichetta dell'utente, visualizzazione menu per gli admin,
+     * tabella dei report di gioco e statistiche, e comportamenti grafici dinamici.
+     */
     @FXML
     public void initialize() {
         // Posiziona il secondo StackPane a metà altezza dell'AnchorPane a forma di semicerchio
@@ -330,6 +393,13 @@ public class UserPanelController {
         maxScoreLabel.setText(String.valueOf(stats.get("maxScore")));
     }
 
+    /**
+     @class PopupBuilder
+
+     @brief Classe di utilità per creare popup modali JavaFX con layout VBox.
+
+     Facilita la costruzione e visualizzazione di popup riutilizzabili con stile uniforme.
+     */
     private class PopupBuilder {
         private final Stage stage;
         private final VBox root;

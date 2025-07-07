@@ -15,6 +15,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * @class UserPanelService
+ *
+ * Service per la gestione delle funzionalità accessibili dal pannello utente.
+ * Fornisce metodi per informazioni sui report di gioco, gestione documenti, stopwords e admin.
+ */
 public class UserPanelService {
     private final GameReportDAO gameReportDAO;
     private final UserDAO userDAO;
@@ -22,10 +28,15 @@ public class UserPanelService {
     private final StopWordDAO stopWordDAO;
     private final AppContext appContext;
 
-    public AppContext getAppContext() {
-        return appContext;
-    }
-
+    /**
+     * Costruttore del servizio.
+     *
+     * @param gameReportDAO DAO per i report di gioco
+     * @param userDAO DAO per gli utenti
+     * @param documentDAO DAO per i documenti
+     * @param stopWordDAO DAO per le stopword
+     * @param appContext Contesto applicativo
+     */
     public UserPanelService(GameReportDAO gameReportDAO, UserDAO userDAO, DocumentDAO documentDAO, StopWordDAO stopWordDAO, AppContext appContext) {
         this.gameReportDAO = gameReportDAO;
         this.userDAO = userDAO;
@@ -34,11 +45,22 @@ public class UserPanelService {
         this.appContext = appContext;
     }
 
+    /**
+     * Recupera tutti i report dell'utente attualmente loggato.
+     *
+     * @return lista di GameReport
+     */
     public List<GameReport> getCurrentUserReports() {
         return gameReportDAO.selectAll().stream()
                 .filter(r -> r.getUser().getName().equals(appContext.getCurrentUser().getName()))
                 .toList();
     }
+
+    /**
+     * Calcola statistiche sull'utente corrente: punteggio massimo, medio e numero di partite.
+     *
+     * @return mappa con chiavi "maxScore", "averageScore", "totalGames"
+     */
     public Map<String, Object> getUserStatsForCurrentUser() {
         List<GameReport> reports = getCurrentUserReports();
 
@@ -57,6 +79,11 @@ public class UserPanelService {
         return stats;
     }
 
+    /**
+     * Promuove un utente a ruolo admin.
+     *
+     * @param username nome dell'utente da promuovere
+     */
     public void promoteUser(String username) {
         userDAO.selectById(username).ifPresent(user -> {
             user.setAdmin(true);
@@ -64,6 +91,11 @@ public class UserPanelService {
         });
     }
 
+    /**
+     * Retrocede un utente da admin a utente normale.
+     *
+     * @param username nome dell'utente da retrocedere
+     */
     public void demoteUser(String username) {
         userDAO.selectById(username).ifPresent(user -> {
             user.setAdmin(false);
@@ -71,13 +103,22 @@ public class UserPanelService {
         });
     }
 
-
+    /**
+     * Recupera tutti gli utenti escluso quello attualmente loggato.
+     *
+     * @return lista di utenti
+     */
     public List<User> getAllUsersExceptCurrent() {
         String currentUsername = appContext.getCurrentUser().getName();
         return userDAO.selectAll().stream().filter(user -> !user.getName().equals(currentUsername))
                 .toList();
     }
 
+    /**
+     * Aggiunge stopword leggendo da un file.
+     *
+     * @param file file .txt contenente le stopwords
+     */
     public void addStopwordsFromFile(File file) throws IOException {
         try (BufferedReader bf = new BufferedReader(new FileReader(file))) {
             String line;
@@ -91,10 +132,22 @@ public class UserPanelService {
             SystemLogger.log("Errore della lettura di stopwords", e);
         }
     }
+
+    /**
+     * Restituisce tutti i documenti presenti nel sistema.
+     *
+     * @return lista di documenti
+     */
     public List<Document> getAllDocuments() {
         return documentDAO.selectAll();
     }
 
+    /**
+     * Aggiunge un nuovo documento al db, se non è già presente.
+     *
+     * @param file il file da caricare
+     * @return il documento aggiunto o null se già esiste
+     */
     public Document addDocument(File file) {
         try {
             List<String> lines = Files.readAllLines(file.toPath());
@@ -103,9 +156,15 @@ public class UserPanelService {
             String title = file.getName();
             String path = file.getAbsolutePath();
 
+            boolean alreadyExists = documentDAO.selectAll().stream()
+                    .anyMatch(d -> d.getTitle().equals(title) && d.getPath().equals(path));
+
+            if (alreadyExists) {
+                return null;
+            }
+
             Document doc = new Document(0, title, path, wordCount);
             documentDAO.insert(doc);
-
             return documentDAO.selectAll().stream()
                     .filter(d -> d.getTitle().equals(title) && d.getPath().equals(path))
                     .max(Comparator.comparingLong(Document::getId))
@@ -117,21 +176,38 @@ public class UserPanelService {
         }
     }
 
-
-
-
+    /**
+     * Elimina un documento dal sistema.
+     *
+     * @param doc il documento da eliminare
+     */
     public void deleteDocument(Document doc) {
         documentDAO.delete(doc);
     }
 
+    /**
+     * Recupera tutte le stopword.
+     *
+     * @return lista di stringhe con le stopwords
+     */
     public List<String> getAllStopwords() {
         return stopWordDAO.selectAll();
     }
 
+    /**
+     * Aggiunge una singola stopword.
+     *
+     * @param word la parola da aggiungere
+     */
     public void addStopWords(String word) {
         stopWordDAO.insert(word);
     }
 
+    /**
+     * Rimuove una stopword dal sistema.
+     *
+     * @param word la parola da rimuovere
+     */
     public void deleteStopword(String word) {
         stopWordDAO.delete(word);
     }
