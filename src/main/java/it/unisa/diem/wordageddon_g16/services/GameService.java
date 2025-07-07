@@ -183,7 +183,7 @@ public class GameService {
                 case WHICH_MORE -> whichMoreQuestion();
                 case WHICH_LESS -> whichLessQuestion();
                 case WHICH_DOCUMENT -> whichDocumentQuestion();
-                case WHICH_ABSENT -> witchAbsentQuestion();
+                case WHICH_ABSENT -> whichAbsentQuestion();
             };
             questions.add(q);
         }
