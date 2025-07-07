@@ -1,5 +1,7 @@
 package it.unisa.diem.wordageddon_g16.db;
 
+import it.unisa.diem.wordageddon_g16.db.exceptions.QueryFailedException;
+import it.unisa.diem.wordageddon_g16.db.exceptions.UpdateFailedException;
 import it.unisa.diem.wordageddon_g16.models.*;
 import it.unisa.diem.wordageddon_g16.services.SystemLogger;
 import javafx.util.Callback;
