@@ -79,7 +79,7 @@ public class GameService {
 
             var result = new ArrayList<Document>();
 
-            var docList = documentDAO.selectAll();
+            var docList = new ArrayList<>(documentDAO.selectAll());
             if (docList.isEmpty()) {
                 throw new IllegalStateException("No documents available for the game");
             }
@@ -339,7 +339,7 @@ public class GameService {
     }
 
     //metodo che richiede quale parola NON appare in nessun documento
-    private  Question witchAbsentQuestion() {
+    private  Question whichAbsentQuestion() {
         List<Document> docs  = params.documents;
         //costruisco un set con tutte le parole presenti nei documenti
         Set<String> allWords = new HashSet<>();
@@ -358,7 +358,15 @@ public class GameService {
         answers.add(presentWords.get(1));
         answers.add(presentWords.get(2));
 
-        return Question.create( "Quale delle seguenti parole NON è presente in nessun documento?", answers, 0);
+        //invento parola
+        String absentWord = "rossella";
+        answers.add(absentWord);
+
+        //mischio le risposte
+        Collections.shuffle(answers);
+        int correctIndex = answers.indexOf(absentWord);
+
+        return Question.create( "Quale delle seguenti parole NON è presente in nessun documento?", answers, correctIndex);
     }
 
     private void loadWdmMap(){
@@ -376,6 +384,7 @@ public class GameService {
 
     public void init(Difficulty difficulty) {
         params = new GameParams(difficulty);
+        wdmMap = new HashMap();
     }
 
     public Difficulty getDifficulty() {
