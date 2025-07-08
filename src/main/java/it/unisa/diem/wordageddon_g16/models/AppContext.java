@@ -15,7 +15,7 @@ public class AppContext {
     public AppContext(Repository repo) {
         authService = new AuthService(this, repo.getDAO("user"));
         leaderboardService = new LeaderboardService(this, repo.getDAO("gameReport"), repo.getDAO("user"));
-        userPanelService = new UserPanelService(repo.getDAO("gameReport"), repo.getDAO("user"), repo.getDAO("document"), repo.getDAO("stopWord"), this);
+        userPanelService = new UserPanelService(repo.getDAO("gameReport"), repo.getDAO("user"), repo.getDAO("document"), repo.getDAO("stopWord"), repo.getDAO("wdm"), this);
     }
 
     public AuthService getAuthService() { return authService; }

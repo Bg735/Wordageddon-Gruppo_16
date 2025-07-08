@@ -27,6 +27,7 @@ public class UserPanelService {
     private final DocumentDAO documentDAO;
     private final StopWordDAO stopWordDAO;
     private final AppContext appContext;
+    private final WdmDAO wdmDao;
 
     /**
      * Costruttore del servizio.
@@ -37,12 +38,13 @@ public class UserPanelService {
      * @param stopWordDAO DAO per le stopword
      * @param appContext Contesto applicativo
      */
-    public UserPanelService(GameReportDAO gameReportDAO, UserDAO userDAO, DocumentDAO documentDAO, StopWordDAO stopWordDAO, AppContext appContext) {
+    public UserPanelService(GameReportDAO gameReportDAO, UserDAO userDAO, DocumentDAO documentDAO, StopWordDAO stopWordDAO, WdmDAO wdmDAO, AppContext appContext) {
         this.gameReportDAO = gameReportDAO;
         this.userDAO = userDAO;
         this.documentDAO = documentDAO;
         this.stopWordDAO = stopWordDAO;
         this.appContext = appContext;
+        this.wdmDao = wdmDAO;
     }
 
     /**
@@ -158,7 +160,7 @@ public class UserPanelService {
 
             Set<String> stopWords = stopWordDAO.selectAll();
 
-            Task<WDM> task = new DocumentAnalysisTask(targetPath, title, documentDAO, stopWords);
+            Task<WDM> task = new DocumentAnalysisTask(targetPath, documentDAO, wdmDao, stopWords);
             new Thread(task).start();
             return task;
         } catch (IOException e) {
