@@ -1,0 +1,24 @@
+Diagramma upload documenti
+@startuml
+actor Amministratore
+participant "InterfacciaAdmin" as UI
+participant "ControllerUpload" as Controller
+participant "AnalizzatoreDocumenti" as Analizzatore
+participant "Database" as DB
+
+== Flusso normale ==
+Amministratore -> UI : clicca su icona upload
+UI -> Controller : invia documento da caricare
+Controller -> Analizzatore : analizza documento
+Analizzatore -> Controller : risultati analisi
+Controller -> DB : salva documento e analisi
+DB --> Controller : conferma salvataggio
+Controller -> UI : mostra conferma caricamento
+UI -> Amministratore : conferma caricamento completato
+
+== Flusso alternativo ==
+alt Errore nel caricamento, analisi o salvataggio
+    Controller -> UI : mostra messaggio di errore
+    UI -> Amministratore : errore nel caricamento
+end
+@enduml

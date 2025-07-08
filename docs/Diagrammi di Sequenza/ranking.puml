@@ -1,0 +1,25 @@
+@startuml
+actor Utente
+participant "InterfacciaUtente" as UI
+participant "ControllerClassifica" as Controller
+participant "GestoreClassifica" as Gestore
+participant "Database" as DB
+
+Utente -> UI : seleziona “Leaderboard”
+UI -> Controller : richiesta visualizzazione classifica
+Controller -> Gestore : recupera i punteggi
+Gestore -> DB : effettua una query dei punteggi
+
+alt Punteggi disponibili
+    DB --> Gestore : mostra la lista punteggi
+    Gestore -> Gestore : ordina in ordine decrescente
+    Gestore --> Controller : classifica ordinata
+    Controller -> UI : mostra la classifica
+    UI -> Utente : visualizza la classifica
+else Nessun punteggio
+    DB --> Gestore : lista vuota
+    Gestore --> Controller : nessun dato disponibile
+    Controller -> UI : mostra messaggio di errore
+    UI -> Utente : "Nessun punteggio disponibile"
+end
+@enduml

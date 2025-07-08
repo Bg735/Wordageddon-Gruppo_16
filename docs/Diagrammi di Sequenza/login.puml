@@ -1,0 +1,29 @@
+@startuml
+actor Utente
+
+participant "Interfaccia" as UI
+participant "Controller" as Controller
+database "Database" as DB
+
+== Flusso Principale ==
+
+Utente -> UI : apre applicazione
+UI -> Utente : mostra form di login
+Utente -> UI : inserisce username e password
+Utente -> UI : seleziona il pulsante "Login"
+
+Controller -> DB : verifica credenziali
+DB --> Controller : verifica eseguita correttamente
+Controller --> UI : login riuscito
+UI -> Utente : accesso al menù
+== Flusso Alternativo ==
+
+group Credenziali errate
+Controller -> DB : verifica credenziali
+DB --> Controller : verifica non andata a buon fine
+Controller --> UI : mostra errore
+UI -> Utente : messaggio di errore
+end
+
+@enduml
+
