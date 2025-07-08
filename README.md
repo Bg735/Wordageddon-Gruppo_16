@@ -1,6 +1,6 @@
 
 <p align="center">
-  <img src="src\main\resources\it\unisa\diem\wordageddon_g16\asserts\logo.png" alt="Wordageddon Logo" width="200"/>
+  <img src="src/main/resources/it/unisa/diem/wordageddon_g16/assets/logo2.png" alt="Wordageddon Logo" width="200"/>
 </p>
 
 # Wordageddon
