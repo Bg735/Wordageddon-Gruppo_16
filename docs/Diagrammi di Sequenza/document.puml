@@ -21,3 +21,4 @@ else Documento non disponibile
     Controller -> UI : mostra messaggio d'errore
 end
 @enduml
+
