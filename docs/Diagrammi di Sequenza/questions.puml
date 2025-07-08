@@ -21,3 +21,4 @@ StatManager --> Sistema : calcola le statistiche
 Sistema -> UI : mostra il punteggio e le statistiche
 
 @enduml
+

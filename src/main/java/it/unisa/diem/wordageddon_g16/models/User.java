@@ -40,7 +40,15 @@ public class User implements Serializable{
         return Objects.hashCode(name);
     }
 
-    public void setAdmin(boolean b) {
-        isAdmin = b;
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setAdmin(boolean admin) {
+        isAdmin = admin;
     }
 }

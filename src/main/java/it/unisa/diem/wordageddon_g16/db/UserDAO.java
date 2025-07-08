@@ -1,6 +1,7 @@
 package it.unisa.diem.wordageddon_g16.db;
 
-import it.unisa.diem.wordageddon_g16.models.Document;
+import it.unisa.diem.wordageddon_g16.db.exceptions.QueryFailedException;
+import it.unisa.diem.wordageddon_g16.db.exceptions.UpdateFailedException;
 import it.unisa.diem.wordageddon_g16.models.User;
 import it.unisa.diem.wordageddon_g16.services.SystemLogger;
 import javafx.util.Callback;
@@ -27,9 +28,9 @@ public class UserDAO extends JdbcDAO<User> {
                 try{
                     if (res != null && res.next()) {
                         User user = new User(
-                            res.getString("name"),
-                            res.getString("password"),
-                            res.getBoolean("isAdmin")
+                                res.getString("name"),
+                                res.getString("password"),
+                                res.getBoolean("isAdmin")
                         );
                         return Optional.of(user);
                     }

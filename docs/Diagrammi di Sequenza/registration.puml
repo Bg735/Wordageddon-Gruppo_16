@@ -26,5 +26,5 @@ DB --> Controller : username già in uso
 Controller --> UI : mostra errore
 UI -> Utente : messaggio di errore
 end
-
 @enduml
+

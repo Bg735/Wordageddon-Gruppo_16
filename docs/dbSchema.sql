@@ -40,10 +40,10 @@ CREATE TABLE Content(
 );
 
 CREATE TABLE WDM(
-                        document INTEGER REFERENCES Document(id) ON DELETE CASCADE,
-                        word TEXT NOT NULL CHECK (LENGTH(word) > 0),
-                        occurrences INTEGER NOT NULL CHECK (occurrences >= 0),
-                        PRIMARY KEY (document, word)
+                    document INTEGER REFERENCES Document(id) ON DELETE CASCADE,
+                    word TEXT NOT NULL CHECK (LENGTH(word) > 0),
+                    occurrences INTEGER NOT NULL CHECK (occurrences >= 0),
+                    PRIMARY KEY (document, word)
 );
 
 CREATE TABLE StopWord(

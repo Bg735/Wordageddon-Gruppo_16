@@ -1,17 +1,49 @@
 package it.unisa.diem.wordageddon_g16.db;
 
-import it.unisa.diem.wordageddon_g16.services.SystemLogger;
-
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.List;
+import java.util.Collection;
 import java.util.Optional;
 
-public interface DAO<T>{
+/**
+ * Interfaccia generica per il pattern Data Access Object (DAO).
+ * Definisce le operazioni CRUD di base per la gestione degli oggetti di tipo T nel database.
+ *
+ * @param <T> il tipo di oggetto gestito dal DAO
+ */
+public interface DAO<T> {
+
+    /**
+     * Recupera un oggetto tramite il suo identificativo.
+     *
+     * @param id l'identificativo dell'oggetto da recuperare
+     * @return un Optional contenente l'oggetto trovato, o vuoto se non esiste
+     */
     Optional<T> selectById(Object id);
-    List<T> selectAll();
+
+    /**
+     * Recupera tutti gli oggetti gestiti dal DAO.
+     *
+     * @return una collezione contenente tutti gli oggetti trovati
+     */
+    Collection<T> selectAll();
+
+    /**
+     * Inserisce un nuovo oggetto nel database.
+     *
+     * @param t l'oggetto da inserire
+     */
     void insert(T t);
+
+    /**
+     * Aggiorna le informazioni di un oggetto esistente nel database.
+     *
+     * @param t l'oggetto da aggiornare
+     */
     void update(T t);
+
+    /**
+     * Elimina un oggetto dal database.
+     *
+     * @param t l'oggetto da eliminare
+     */
     void delete(T t);
 }
-

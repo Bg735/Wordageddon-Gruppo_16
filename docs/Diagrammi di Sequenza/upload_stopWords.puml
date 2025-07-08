@@ -1,24 +1,24 @@
+Diagramma upload documenti
 @startuml
 actor Amministratore
 participant "InterfacciaAdmin" as UI
-participant "ControllerStopwords" as Controller
-participant "GestoreStopwords" as Gestore
+participant "ControllerUpload" as Controller
+participant "AnalizzatoreDocumenti" as Analizzatore
 participant "Database" as DB
 
 == Flusso normale ==
-Amministratore -> UI : clicca su icona 'upload stopwords'
-UI -> Controller : invia file di stopwords
-Controller -> Gestore : legge il file
-Gestore -> DB : salva stopwords
-DB --> Gestore : conferma il salvataggio delle stopwords
-Gestore --> Controller : conferma andata a buon fine
-Controller -> UI : mostra la conferma del caricamento
-UI -> Amministratore : caricamento completato
+Amministratore -> UI : clicca su icona upload
+UI -> Controller : invia documento da caricare
+Controller -> Analizzatore : analizza documento
+Analizzatore -> Controller : risultati analisi
+Controller -> DB : salva documento e analisi
+DB --> Controller : conferma salvataggio
+Controller -> UI : mostra conferma caricamento
+UI -> Amministratore : conferma caricamento completato
 
 == Flusso alternativo ==
-alt File vuoto o non leggibile
-    Gestore --> Controller : errore di lettura delle stopwords
-    Controller -> UI : mostra un messaggio di errore
+alt Errore nel caricamento, analisi o salvataggio
+    Controller -> UI : mostra messaggio di errore
     UI -> Amministratore : errore nel caricamento
 end
 @enduml

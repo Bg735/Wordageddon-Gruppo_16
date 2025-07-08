@@ -1,25 +1,24 @@
 @startuml
 actor Utente
-participant "InterfacciaUtente" as UI
-participant "ControllerClassifica" as Controller
-participant "GestoreClassifica" as Gestore
-participant "Database" as DB
+participant "Sistema" as Sistema
+participant "MotoreDomande" as Motore
+participant "InterfacciaDomande" as UI
+participant "StatisticaManager" as StatManager
 
-Utente -> UI : seleziona “Leaderboard”
-UI -> Controller : richiesta visualizzazione classifica
-Controller -> Gestore : recupera i punteggi
-Gestore -> DB : effettua una query dei punteggi
 
-alt Punteggi disponibili
-    DB --> Gestore : mostra la lista punteggi
-    Gestore -> Gestore : ordina in ordine decrescente
-    Gestore --> Controller : classifica ordinata
-    Controller -> UI : mostra la classifica
-    UI -> Utente : visualizza la classifica
-else Nessun punteggio
-    DB --> Gestore : lista vuota
-    Gestore --> Controller : nessun dato disponibile
-    Controller -> UI : mostra messaggio di errore
-    UI -> Utente : "Nessun punteggio disponibile"
+Sistema -> Motore : analizza il testo del documento
+Motore -> Motore : genera le domande in base al testo
+Motore --> Sistema : lista delle domande
+
+loop Per ogni domanda
+    Sistema -> UI : mostra la domanda con le risposte
+    Utente -> UI : seleziona la risposta
+    UI -> Sistema : salva la risposta
 end
+
+Sistema -> StatManager : calcola il punteggio
+StatManager --> Sistema : calcola le statistiche
+Sistema -> UI : mostra il punteggio e le statistiche
+
 @enduml
+

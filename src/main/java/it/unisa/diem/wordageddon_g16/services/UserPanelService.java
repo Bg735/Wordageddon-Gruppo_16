@@ -1,10 +1,10 @@
 package it.unisa.diem.wordageddon_g16.services;
 
 import it.unisa.diem.wordageddon_g16.db.*;
-import it.unisa.diem.wordageddon_g16.models.AppContext;
-import it.unisa.diem.wordageddon_g16.models.Document;
-import it.unisa.diem.wordageddon_g16.models.GameReport;
-import it.unisa.diem.wordageddon_g16.models.User;
+import it.unisa.diem.wordageddon_g16.models.*;
+import it.unisa.diem.wordageddon_g16.services.tasks.DocumentAnalysisTask;
+import javafx.concurrent.Task;
+
 import java.nio.file.Files;
 import java.io.BufferedReader;
 import java.io.File;
@@ -13,10 +13,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @class UserPanelService
@@ -30,6 +27,7 @@ public class UserPanelService {
     private final DocumentDAO documentDAO;
     private final StopWordDAO stopWordDAO;
     private final AppContext appContext;
+    private final WdmDAO wdmDao;
 
     /**
      * Costruttore del servizio.
@@ -40,12 +38,13 @@ public class UserPanelService {
      * @param stopWordDAO DAO per le stopword
      * @param appContext Contesto applicativo
      */
-    public UserPanelService(GameReportDAO gameReportDAO, UserDAO userDAO, DocumentDAO documentDAO, StopWordDAO stopWordDAO, AppContext appContext) {
+    public UserPanelService(GameReportDAO gameReportDAO, UserDAO userDAO, DocumentDAO documentDAO, StopWordDAO stopWordDAO, WdmDAO wdmDAO, AppContext appContext) {
         this.gameReportDAO = gameReportDAO;
         this.userDAO = userDAO;
         this.documentDAO = documentDAO;
         this.stopWordDAO = stopWordDAO;
         this.appContext = appContext;
+        this.wdmDao = wdmDAO;
     }
 
     /**
@@ -152,40 +151,24 @@ public class UserPanelService {
      * @param tempFile il file da caricare
      * @return il documento aggiunto o null se già esiste
      */
-    public Document addDocument(File tempFile) {
+    public Task<WDM> addDocument(File tempFile) {
         try {
-            // Copio il file in una cartella dedicata disponibile esternamente al jar
             Path docsDir = Paths.get("uploads/documents");
             String title = tempFile.getName();
-
             Path targetPath = docsDir.resolve(title);
             Files.copy(tempFile.toPath(), targetPath, StandardCopyOption.REPLACE_EXISTING);
-            File copiedFile = targetPath.toFile();  // file copiato nella cartella uploads/documents
 
-            // Leggo il file e calcolo il numero di parole
-            List<String> lines = Files.readAllLines(copiedFile.toPath());
-            String content = String.join(" ", lines);
-            int wordCount = content.trim().split("\\s+").length;
+            Set<String> stopWords = stopWordDAO.selectAll();
 
-            boolean alreadyExists = documentDAO.selectAll().stream()
-                    .anyMatch(d -> d.getTitle().equals(title) && d.getPath().equals(targetPath.toString()));
-
-            if (alreadyExists) {
-                return null;
-            }
-
-            Document doc = new Document(0, title, targetPath.toString(), wordCount);
-            documentDAO.insert(doc);
-            return documentDAO.selectAll().stream()
-                    .filter(d -> d.getTitle().equals(title) && d.getPath().equals(targetPath.toString()))
-                    .max(Comparator.comparingLong(Document::getId))
-                    .orElseThrow(() -> new RuntimeException("Documento non trovato dopo inserimento."));
-
+            Task<WDM> task = new DocumentAnalysisTask(targetPath, documentDAO, wdmDao, stopWords);
+            new Thread(task).start();
+            return task;
         } catch (IOException e) {
-            SystemLogger.log("Errore lettura file", e);
-            throw new RuntimeException("Errore nella lettura del file");
+            SystemLogger.log("Errore copia file", e);
+            throw new RuntimeException("Errore nella copia del file");
         }
     }
+
 
     /**
      * Elimina un documento dal sistema.
@@ -201,7 +184,7 @@ public class UserPanelService {
      *
      * @return lista di stringhe con le stopwords
      */
-    public List<String> getAllStopwords() {
+    public Set<String> getAllStopwords() {
         return stopWordDAO.selectAll();
     }
 
