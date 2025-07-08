@@ -25,7 +25,7 @@ public class SystemLogger {
             }
 
             // Crea un FileHandler che scrive su "error.log"
-            FileHandler fileHandler = new FileHandler("error.log");
+            FileHandler fileHandler = new FileHandler("logs/error.log");
             fileHandler.setLevel(Level.SEVERE);
 
             // Formatter semplice per scrivere solo stacktrace

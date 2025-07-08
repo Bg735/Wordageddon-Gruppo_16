@@ -128,6 +128,7 @@ public class UserPanelService {
             while ((line = bf.readLine()) != null) {
                 String word = line.trim();
                 if (!word.isEmpty()) {
+                    // le stopwords sono salvate soltanto a livello db
                     stopWordDAO.insert(word);
                 }
             }
