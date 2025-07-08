@@ -10,6 +10,9 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -145,28 +148,35 @@ public class UserPanelService {
     /**
      * Aggiunge un nuovo documento al db, se non è già presente.
      *
-     * @param file il file da caricare
+     * @param tempFile il file da caricare
      * @return il documento aggiunto o null se già esiste
      */
-    public Document addDocument(File file) {
+    public Document addDocument(File tempFile) {
         try {
-            List<String> lines = Files.readAllLines(file.toPath());
+            // Copio il file in una cartella dedicata disponibile esternamente al jar
+            Path docsDir = Paths.get("uploads/documents");
+            String title = tempFile.getName();
+
+            Path targetPath = docsDir.resolve(title);
+            Files.copy(tempFile.toPath(), targetPath, StandardCopyOption.REPLACE_EXISTING);
+            File copiedFile = targetPath.toFile();  // file copiato nella cartella uploads/documents
+
+            // Leggo il file e calcolo il numero di parole
+            List<String> lines = Files.readAllLines(copiedFile.toPath());
             String content = String.join(" ", lines);
             int wordCount = content.trim().split("\\s+").length;
-            String title = file.getName();
-            String path = file.getAbsolutePath();
 
             boolean alreadyExists = documentDAO.selectAll().stream()
-                    .anyMatch(d -> d.getTitle().equals(title) && d.getPath().equals(path));
+                    .anyMatch(d -> d.getTitle().equals(title) && d.getPath().equals(targetPath.toString()));
 
             if (alreadyExists) {
                 return null;
             }
 
-            Document doc = new Document(0, title, path, wordCount);
+            Document doc = new Document(0, title, targetPath.toString(), wordCount);
             documentDAO.insert(doc);
             return documentDAO.selectAll().stream()
-                    .filter(d -> d.getTitle().equals(title) && d.getPath().equals(path))
+                    .filter(d -> d.getTitle().equals(title) && d.getPath().equals(targetPath.toString()))
                     .max(Comparator.comparingLong(Document::getId))
                     .orElseThrow(() -> new RuntimeException("Documento non trovato dopo inserimento."));
 
