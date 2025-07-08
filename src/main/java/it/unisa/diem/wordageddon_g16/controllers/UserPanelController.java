@@ -188,7 +188,7 @@ public class UserPanelController {
                 if (empty || doc == null) {
                     setGraphic(null);
                 } else {
-                    label.setText(doc.getTitle());
+                    label.setText(doc.title());
                     label.setStyle("-fx-text-fill:black");
                     removeBtn.setOnAction(e -> {
                         service.deleteDocument(doc);

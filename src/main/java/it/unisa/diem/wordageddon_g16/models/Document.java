@@ -39,4 +39,24 @@ public record Document(long id, String title, String filename, int wordCount) {
     public int hashCode() {
         return Objects.hashCode(id);
     }
+
+    @Override
+    public long id() {
+        return id;
+    }
+
+    @Override
+    public String title() {
+        return title;
+    }
+
+    @Override
+    public String filename() {
+        return filename;
+    }
+
+    @Override
+    public int wordCount() {
+        return wordCount;
+    }
 }

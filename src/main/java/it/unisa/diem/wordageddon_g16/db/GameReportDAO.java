@@ -1,5 +1,7 @@
 package it.unisa.diem.wordageddon_g16.db;
 
+import it.unisa.diem.wordageddon_g16.db.exceptions.QueryFailedException;
+import it.unisa.diem.wordageddon_g16.db.exceptions.UpdateFailedException;
 import it.unisa.diem.wordageddon_g16.models.*;
 import it.unisa.diem.wordageddon_g16.services.SystemLogger;
 import javafx.util.Callback;
@@ -116,7 +118,7 @@ public class GameReportDAO extends JdbcDAO<GameReport> {
                 gameReport.getScore()
             );              // Insert on GameReport must be done first to ensure the foreign key constraint is satisfied
             for (Document document : gameReport.getDocuments()) {
-                executeUpdate(updateOnContent, gameReport.getId(), document.getId());
+                executeUpdate(updateOnContent, gameReport.getId(), document.id());
             }
 
         } catch (SQLException e) {
