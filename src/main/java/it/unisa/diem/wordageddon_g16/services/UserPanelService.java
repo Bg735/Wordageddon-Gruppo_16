@@ -1,10 +1,10 @@
 package it.unisa.diem.wordageddon_g16.services;
 
 import it.unisa.diem.wordageddon_g16.db.*;
-import it.unisa.diem.wordageddon_g16.models.AppContext;
-import it.unisa.diem.wordageddon_g16.models.Document;
-import it.unisa.diem.wordageddon_g16.models.GameReport;
-import it.unisa.diem.wordageddon_g16.models.User;
+import it.unisa.diem.wordageddon_g16.models.*;
+import it.unisa.diem.wordageddon_g16.services.tasks.DocumentAnalysisTask;
+import javafx.concurrent.Task;
+
 import java.nio.file.Files;
 import java.io.BufferedReader;
 import java.io.File;
@@ -152,40 +152,23 @@ public class UserPanelService {
      * @param tempFile il file da caricare
      * @return il documento aggiunto o null se già esiste
      */
-    public Document addDocument(File tempFile) {
+    public Task<WDM> addDocument(File tempFile) {
         try {
-            // Copio il file in una cartella dedicata disponibile esternamente al jar
             Path docsDir = Paths.get("uploads/documents");
             String title = tempFile.getName();
-
             Path targetPath = docsDir.resolve(title);
             Files.copy(tempFile.toPath(), targetPath, StandardCopyOption.REPLACE_EXISTING);
-            File copiedFile = targetPath.toFile();  // file copiato nella cartella uploads/documents
 
-            // Leggo il file e calcolo il numero di parole
-            List<String> lines = Files.readAllLines(copiedFile.toPath());
-            String content = String.join(" ", lines);
-            int wordCount = content.trim().split("\\s+").length;
-
-            boolean alreadyExists = documentDAO.selectAll().stream()
-                    .anyMatch(d -> d.title().equals(title) && d.filename().equals(targetPath.toString()));
-
-            if (alreadyExists) {
-                return null;
-            }
-
-            Document doc = new Document(0, title, targetPath.toString(), wordCount);
-            documentDAO.insert(doc);
-            return documentDAO.selectAll().stream()
-                    .filter(d -> d.title().equals(title) && d.filename().equals(targetPath.toString()))
-                    .max(Comparator.comparingLong(Document::id))
-                    .orElseThrow(() -> new RuntimeException("Documento non trovato dopo inserimento."));
-
+            List<String> stopWords = stopWordDAO.selectAll();
+            Task<WDM> task = new DocumentAnalysisTask(targetPath, title, documentDAO, stopWords);
+            new Thread(task).start();
+            return task;
         } catch (IOException e) {
-            SystemLogger.log("Errore lettura file", e);
-            throw new RuntimeException("Errore nella lettura del file");
+            SystemLogger.log("Errore copia file", e);
+            throw new RuntimeException("Errore nella copia del file");
         }
     }
+
 
     /**
      * Elimina un documento dal sistema.

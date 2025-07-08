@@ -1,10 +1,7 @@
 package it.unisa.diem.wordageddon_g16.controllers;
 
 
-import it.unisa.diem.wordageddon_g16.models.AppContext;
-import it.unisa.diem.wordageddon_g16.models.Document;
-import it.unisa.diem.wordageddon_g16.models.GameReport;
-import it.unisa.diem.wordageddon_g16.models.User;
+import it.unisa.diem.wordageddon_g16.models.*;
 import it.unisa.diem.wordageddon_g16.services.Resources;
 import it.unisa.diem.wordageddon_g16.services.SystemLogger;
 import it.unisa.diem.wordageddon_g16.services.UserPanelService;
@@ -14,6 +11,7 @@ import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
@@ -218,22 +216,41 @@ public class UserPanelController {
             File file = fileChooser.showOpenDialog(popup.getStage());
             if (file != null) {
                 try {
-                    Document newDoc = service.addDocument(file);
-                    if (newDoc != null) {
-                        documentList.setAll(service.getAllDocuments());
-                        feedbackLabel.setText("Documento caricato con successo!");
-                        feedbackLabel.setStyle("-fx-text-fill: white;");
-                    } else {
-                        feedbackLabel.setText("Il documento è già presente.");
-                    }
+                    Task<WDM> task = service.addDocument(file);
+
+                    task.setOnSucceeded(taskEvent -> {
+                        WDM wdm = task.getValue();
+                        Platform.runLater(() -> {
+                            if (wdm != null) {
+                                documentList.setAll(service.getAllDocuments());
+                                feedbackLabel.setText("Documento caricato con successo!");
+                                feedbackLabel.setStyle("-fx-text-fill: white;");
+                            } else {
+                                feedbackLabel.setText("Il documento è già presente.");
+                            }
+                            feedbackLabel.setVisible(true);
+                            pause.playFromStart();
+                        });
+                    });
+
+                    task.setOnFailed(taskEvent -> {
+                        Throwable ex = task.getException();
+                        Platform.runLater(() -> {
+                            SystemLogger.log("Errore durante il caricamento di un documento", ex);
+                            feedbackLabel.setText("Errore durante il caricamento.");
+                            feedbackLabel.setVisible(true);
+                            pause.playFromStart();
+                        });
+                    });
+
                 } catch (Exception ex) {
                     SystemLogger.log("Errore durante il caricamento di un documento", ex);
                     feedbackLabel.setText("Errore durante il caricamento.");
+                    feedbackLabel.setVisible(true);
+                    pause.playFromStart();
                 }
-
-                feedbackLabel.setVisible(true);
-                pause.playFromStart();
             }
+
         });
 
 
