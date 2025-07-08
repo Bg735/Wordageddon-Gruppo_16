@@ -1,0 +1,23 @@
+@startuml
+actor Utente
+participant "InterfacciaUtente" as UI
+participant "ControllerLivelli" as Controller
+participant "GestoreDocumenti" as Gestore
+participant "Timer" as Timer
+
+
+Utente -> UI : apre l'applicazione
+UI -> Controller : mostra i livelli di difficoltà
+Utente -> UI : seleziona il livello
+UI -> Controller : livello selezionato
+Controller -> Gestore : carica il documento
+
+alt Documento disponibile
+    Gestore --> Controller : documento
+    Controller -> UI : mostra il documento per il gioco
+    UI -> Timer : avvia il timer
+else Documento non disponibile
+    Gestore --> Controller : messaggio d'errore
+    Controller -> UI : mostra messaggio d'errore
+end
+@enduml

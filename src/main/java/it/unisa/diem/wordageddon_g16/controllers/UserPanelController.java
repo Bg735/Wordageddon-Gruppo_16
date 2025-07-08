@@ -236,7 +236,7 @@ public class UserPanelController {
                     task.setOnFailed(taskEvent -> {
                         Throwable ex = task.getException();
                         Platform.runLater(() -> {
-                            SystemLogger.log("Task Execution Error:", ex);
+                            SystemLogger.log("["+getClass().getName()+"]Task Execution Error:", ex);
                             feedbackLabel.setText("Task Execution Error");
                             feedbackLabel.setVisible(true);
                             pause.playFromStart();

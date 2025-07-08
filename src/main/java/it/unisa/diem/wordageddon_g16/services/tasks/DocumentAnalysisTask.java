@@ -56,10 +56,15 @@ public class DocumentAnalysisTask extends Task<WDM> {
         Document doc = new Document(title, filePath.toString(), wordCount);
         documentDAO.insert(doc);
 
-        // Calcola la matrice delle parole significative
-        WDM wdm = new WDM(doc, stopWords);
-        wdmDAO.insert(wdm);
+        // Usando chiavi con autoincremento su sqlite, devo prelevare nuovamente il documento inserito per ottenere l'id corretto
+        Document insertedDoc = documentDAO.selectAll().stream()
+                .filter(d -> d.title().equals(title) && d.path().equals(filePath.toString()))
+                .max(Comparator.comparingLong(Document::id))
+                .orElseThrow(() -> new RuntimeException("Document not found after insertion"));
 
+        // Calcola la matrice delle parole significative
+        WDM wdm = new WDM(insertedDoc, stopWords);
+        wdmDAO.insert(wdm);
         return wdm;
     }
 

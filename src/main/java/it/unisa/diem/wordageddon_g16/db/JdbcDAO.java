@@ -18,7 +18,7 @@ import java.sql.SQLException;
 public abstract class JdbcDAO<T> implements DAO<T>{
 
     /**
-     * Connessione al database utilizzata dal DAO.
+     * Connessione persistente al database utilizzata dal DAO.
      */
     protected final Connection connection;
 

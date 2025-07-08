@@ -1,0 +1,30 @@
+@startuml
+actor Utente
+
+participant "Interfaccia" as UI
+participant "Controller" as Controller
+database "Database" as DB
+
+== Flusso Principale ==
+Utente -> UI : apre applicazione
+UI -> Utente : mostra form di registrazione
+Utente -> UI : inserisce username e password
+Utente -> UI : seleziona il pulsante "Registrati"
+
+UI -> Controller : invia dati di registrazione
+Controller -> DB : controlla se username già esistente
+DB --> Controller : username disponibile
+Controller -> DB : salva nuovo utente
+DB --> Controller : conferma registrazione
+Controller --> UI : registrazione riuscita
+UI -> Utente : accesso al menù
+
+== Flusso Alternativo ==
+group Username già esistente
+Controller -> DB : controlla se username già esistente
+DB --> Controller : username già in uso
+Controller --> UI : mostra errore
+UI -> Utente : messaggio di errore
+end
+
+@enduml
