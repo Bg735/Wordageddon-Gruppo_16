@@ -1,5 +1,6 @@
 package it.unisa.diem.wordageddon_g16.models;
 
+import java.nio.file.Path;
 import java.util.Objects;
 
 /**
@@ -11,10 +12,15 @@ import java.util.Objects;
  *
  * @param id        identificativo univoco del documento
  * @param title     titolo del documento
- * @param filename  nome del file sorgente associato al documento
+ * @param path  nome del file sorgente associato al documento
  * @param wordCount numero di parole presenti nel documento
  */
-public record Document(long id, String title, String filename, int wordCount) {
+public record Document(long id, String title, String path, int wordCount) {
+
+    // Costruttore non canonico: imposta 0 l'id
+    public Document(String title, String path, int wordCount){
+        this(0, title, path, wordCount);
+    }
 
     /**
      * Determina se questo documento è uguale a un altro oggetto.
@@ -51,8 +57,8 @@ public record Document(long id, String title, String filename, int wordCount) {
     }
 
     @Override
-    public String filename() {
-        return filename;
+    public String path() {
+        return path;
     }
 
     @Override

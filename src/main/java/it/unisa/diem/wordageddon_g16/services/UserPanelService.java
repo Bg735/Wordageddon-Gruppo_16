@@ -157,6 +157,7 @@ public class UserPanelService {
             Files.copy(tempFile.toPath(), targetPath, StandardCopyOption.REPLACE_EXISTING);
 
             Set<String> stopWords = stopWordDAO.selectAll();
+
             Task<WDM> task = new DocumentAnalysisTask(targetPath, title, documentDAO, stopWords);
             new Thread(task).start();
             return task;

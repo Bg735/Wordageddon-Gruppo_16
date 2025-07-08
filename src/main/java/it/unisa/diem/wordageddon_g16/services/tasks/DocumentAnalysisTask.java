@@ -29,23 +29,24 @@ public class DocumentAnalysisTask extends Task<WDM> {
     @Override
     protected WDM call() {
         try {
-            // Leggi il file e calcola il numero di parole
+            // Verifico se il documento esiste già
+            boolean alreadyExists = documentDAO.selectAll().stream()
+                    .anyMatch(d -> d.title().equals(title) && d.path().equals(filePath.toString()));
+            if (alreadyExists) {
+                // se esiste non analizzo nuovamente
+                return null;
+            }
+
+            // Leggo il file e conto le parole
             List<String> lines = Files.readAllLines(filePath);
             String content = String.join(" ", lines);
             int wordCount = content.trim().split("\\s+").length;
 
-            // Verifica se il documento esiste già
-            boolean alreadyExists = documentDAO.selectAll().stream()
-                    .anyMatch(d -> d.title().equals(title) && d.filename().equals(filePath.toString()));
-            if (alreadyExists) {
-                return null;
-            }
-
             // Crea e inserisci il documento
-            Document doc = new Document(0, title, filePath.toString(), wordCount);
+            Document doc = new Document(title, filePath.toString(), wordCount);
             documentDAO.insert(doc);
             Document insertedDoc = documentDAO.selectAll().stream()
-                    .filter(d -> d.title().equals(title) && d.filename().equals(filePath.toString()))
+                    .filter(d -> d.title().equals(title) && d.path().equals(filePath.toString()))
                     .max(Comparator.comparingLong(Document::id))
                     .orElseThrow(() -> new RuntimeException("Documento non trovato dopo inserimento."));
 
@@ -54,9 +55,8 @@ public class DocumentAnalysisTask extends Task<WDM> {
 
         } catch (IOException e) {
             // Gestione dell'eccezione: log, rilancio o azione custom
-            SystemLogger.log("Errore nella lettura del file:", e);
-            System.out.println("Errore nella lettura del file: " + e.getMessage());
-            throw new RuntimeException("Errore nella lettura del file", e);
+            SystemLogger.log("File analysis error:", e);
+            return null;
         }
     }
 

@@ -102,7 +102,7 @@ public class DocumentDAO extends JdbcDAO<Document> {
     public void insert(Document document) {
         String query = "INSERT INTO Document (title, path, word_count) VALUES (?, ?, ?)";
         try {
-            executeUpdate(query, document.title(), document.filename(), document.wordCount());
+            executeUpdate(query, document.title(), document.path(), document.wordCount());
         } catch (Exception e) {
             SystemLogger.log("Error trying to insert document: " + document, e);
             throw new QueryFailedException(e.getMessage());
@@ -119,7 +119,7 @@ public class DocumentDAO extends JdbcDAO<Document> {
     public void update(Document document) {
         String query = "UPDATE Document SET title = ?, path = ?, word_count = ? WHERE id = ?";
         try {
-            executeUpdate(query, document.title(), document.filename(), document.wordCount(), document.id());
+            executeUpdate(query, document.title(), document.path(), document.wordCount(), document.id());
         } catch (Exception e) {
             SystemLogger.log("Error trying to update document: " + document, e);
             throw new UpdateFailedException(e.getMessage());
