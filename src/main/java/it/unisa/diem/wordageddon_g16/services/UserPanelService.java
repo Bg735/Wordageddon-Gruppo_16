@@ -5,6 +5,8 @@ import it.unisa.diem.wordageddon_g16.models.AppContext;
 import it.unisa.diem.wordageddon_g16.models.Document;
 import it.unisa.diem.wordageddon_g16.models.GameReport;
 import it.unisa.diem.wordageddon_g16.models.User;
+import it.unisa.diem.wordageddon_g16.services.tasks.DocumentAnalysisTask;
+
 import java.nio.file.Files;
 import java.io.BufferedReader;
 import java.io.File;
@@ -162,11 +164,6 @@ public class UserPanelService {
             Files.copy(tempFile.toPath(), targetPath, StandardCopyOption.REPLACE_EXISTING);
             File copiedFile = targetPath.toFile();  // file copiato nella cartella uploads/documents
 
-            // Leggo il file e calcolo il numero di parole
-            List<String> lines = Files.readAllLines(copiedFile.toPath());
-            String content = String.join(" ", lines);
-            int wordCount = content.trim().split("\\s+").length;
-
             boolean alreadyExists = documentDAO.selectAll().stream()
                     .anyMatch(d -> d.getTitle().equals(title) && d.getPath().equals(targetPath.toString()));
 
@@ -176,6 +173,9 @@ public class UserPanelService {
 
             Document doc = new Document(0, title, targetPath.toString(), wordCount);
             documentDAO.insert(doc);
+
+            DocumentAnalysisTask analysisTask = new DocumentAnalysisTask(targetPath, documentDAO);
+            analysis
             return documentDAO.selectAll().stream()
                     .filter(d -> d.getTitle().equals(title) && d.getPath().equals(targetPath.toString()))
                     .max(Comparator.comparingLong(Document::getId))
