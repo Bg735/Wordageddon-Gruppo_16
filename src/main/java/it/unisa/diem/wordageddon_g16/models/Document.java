@@ -2,20 +2,27 @@ package it.unisa.diem.wordageddon_g16.models;
 
 import java.util.Objects;
 
-public class Document {
+/**
+ * Rappresenta un documento testuale caricato nel sistema Wordageddon.
+ * <p>
+ * Ogni documento è identificato da un id univoco e contiene informazioni
+ * quali titolo, nome file sorgente e numero di parole.
+ * L'uguaglianza tra documenti è definita esclusivamente sull'id.
+ *
+ * @param id        identificativo univoco del documento
+ * @param title     titolo del documento
+ * @param filename  nome del file sorgente associato al documento
+ * @param wordCount numero di parole presenti nel documento
+ */
+public record Document(long id, String title, String filename, int wordCount) {
 
-    private long id;
-    private String title;
-    private String path;
-    private int wordCount;
-
-    public Document(long id, String title, String path, int wordCount) {
-        this.id = id;
-        this.title = title;
-        this.path = path;
-        this.wordCount = wordCount;
-    }
-
+    /**
+     * Determina se questo documento è uguale a un altro oggetto.
+     * Due documenti sono considerati uguali se hanno lo stesso id.
+     *
+     * @param o l'oggetto da confrontare
+     * @return true se l'oggetto è un Document con lo stesso id, false altrimenti
+     */
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
@@ -23,24 +30,13 @@ public class Document {
         return id == document.id;
     }
 
+    /**
+     * Restituisce il codice hash di questo documento, basato sull'id.
+     *
+     * @return il codice hash calcolato sull'id
+     */
     @Override
     public int hashCode() {
         return Objects.hashCode(id);
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public String getPath() {
-        return path;
-    }
-
-    public int getWordCount() {
-        return wordCount;
     }
 }
