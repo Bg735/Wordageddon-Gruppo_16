@@ -13,10 +13,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @class UserPanelService
@@ -159,7 +156,7 @@ public class UserPanelService {
             Path targetPath = docsDir.resolve(title);
             Files.copy(tempFile.toPath(), targetPath, StandardCopyOption.REPLACE_EXISTING);
 
-            List<String> stopWords = stopWordDAO.selectAll();
+            Set<String> stopWords = stopWordDAO.selectAll();
             Task<WDM> task = new DocumentAnalysisTask(targetPath, title, documentDAO, stopWords);
             new Thread(task).start();
             return task;
@@ -184,7 +181,7 @@ public class UserPanelService {
      *
      * @return lista di stringhe con le stopwords
      */
-    public List<String> getAllStopwords() {
+    public Set<String> getAllStopwords() {
         return stopWordDAO.selectAll();
     }
 

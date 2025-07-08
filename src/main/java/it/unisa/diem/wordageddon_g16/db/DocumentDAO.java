@@ -46,7 +46,7 @@ public class DocumentDAO extends JdbcDAO<Document> {
                             res.getInt("id"),
                             res.getString("title"),
                             res.getString("path"),
-                            res.getInt("wordCount")
+                            res.getInt("word_count")
                     );
                     return Optional.of(document);
                 }
@@ -80,7 +80,7 @@ public class DocumentDAO extends JdbcDAO<Document> {
                             res.getInt("id"),
                             res.getString("title"),
                             res.getString("path"),
-                            res.getInt("wordCount")
+                            res.getInt("word_count")
                     ));
                 }
                 return result;
@@ -100,7 +100,7 @@ public class DocumentDAO extends JdbcDAO<Document> {
      */
     @Override
     public void insert(Document document) {
-        String query = "INSERT INTO Document (title, path, wordCount) VALUES (?, ?, ?)";
+        String query = "INSERT INTO Document (title, path, word_count) VALUES (?, ?, ?)";
         try {
             executeUpdate(query, document.title(), document.filename(), document.wordCount());
         } catch (Exception e) {
@@ -117,7 +117,7 @@ public class DocumentDAO extends JdbcDAO<Document> {
      */
     @Override
     public void update(Document document) {
-        String query = "UPDATE Document SET title = ?, path = ?, wordCount = ? WHERE id = ?";
+        String query = "UPDATE Document SET title = ?, path = ?, word_count = ? WHERE id = ?";
         try {
             executeUpdate(query, document.title(), document.filename(), document.wordCount(), document.id());
         } catch (Exception e) {

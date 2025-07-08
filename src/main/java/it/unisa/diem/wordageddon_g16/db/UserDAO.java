@@ -28,9 +28,9 @@ public class UserDAO extends JdbcDAO<User> {
                 try{
                     if (res != null && res.next()) {
                         User user = new User(
-                            res.getString("name"),
-                            res.getString("password"),
-                            res.getBoolean("isAdmin")
+                                res.getString("name"),
+                                res.getString("password"),
+                                res.getBoolean("isAdmin")
                         );
                         return Optional.of(user);
                     }
