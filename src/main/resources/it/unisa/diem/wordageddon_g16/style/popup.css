@@ -1,0 +1,26 @@
+.root{
+    -fx-background-color: linear-gradient(to right, #6A0DAD, #5C1B8B);
+    -fx-padding: 17;
+}
+
+.button, .toggle-button{
+    -fx-background-color: linear-gradient(to right, #00E6FF, #0053B7);
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+}
+
+.button:hover{
+    -fx-effect: dropshadow(gaussian, rgba(255, 255, 255, 0.66), 3, 0.3, 0, 1);
+}
+
+.label{
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+}
+
+.list-cell:filled:focused, .list-cell:filled:selected:hover {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
