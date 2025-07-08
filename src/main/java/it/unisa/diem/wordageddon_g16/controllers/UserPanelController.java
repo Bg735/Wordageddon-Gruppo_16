@@ -236,8 +236,8 @@ public class UserPanelController {
                     task.setOnFailed(taskEvent -> {
                         Throwable ex = task.getException();
                         Platform.runLater(() -> {
-                            SystemLogger.log("Errore durante il caricamento di un documento", ex);
-                            feedbackLabel.setText("Errore durante il caricamento.");
+                            SystemLogger.log("Task Execution Error:", ex);
+                            feedbackLabel.setText("Task Execution Error");
                             feedbackLabel.setVisible(true);
                             pause.playFromStart();
                         });

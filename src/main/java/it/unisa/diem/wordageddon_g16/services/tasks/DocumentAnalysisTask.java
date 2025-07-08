@@ -1,9 +1,12 @@
 package it.unisa.diem.wordageddon_g16.services.tasks;
 
 import it.unisa.diem.wordageddon_g16.db.DocumentDAO;
+import it.unisa.diem.wordageddon_g16.services.SystemLogger;
 import javafx.concurrent.Task;
 import it.unisa.diem.wordageddon_g16.models.Document;
 import it.unisa.diem.wordageddon_g16.models.WDM;
+
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
@@ -24,28 +27,37 @@ public class DocumentAnalysisTask extends Task<WDM> {
     }
 
     @Override
-    protected WDM call() throws Exception {
-        // Leggi il file e calcola il numero di parole
-        List<String> lines = Files.readAllLines(filePath);
-        String content = String.join(" ", lines);
-        int wordCount = content.trim().split("\\s+").length;
+    protected WDM call() {
+        try {
+            // Leggi il file e calcola il numero di parole
+            List<String> lines = Files.readAllLines(filePath);
+            String content = String.join(" ", lines);
+            int wordCount = content.trim().split("\\s+").length;
 
-        // Verifica se il documento esiste già
-        boolean alreadyExists = documentDAO.selectAll().stream()
-                .anyMatch(d -> d.title().equals(title) && d.filename().equals(filePath.toString()));
-        if (alreadyExists) {
-            return null;
+            // Verifica se il documento esiste già
+            boolean alreadyExists = documentDAO.selectAll().stream()
+                    .anyMatch(d -> d.title().equals(title) && d.filename().equals(filePath.toString()));
+            if (alreadyExists) {
+                return null;
+            }
+
+            // Crea e inserisci il documento
+            Document doc = new Document(0, title, filePath.toString(), wordCount);
+            documentDAO.insert(doc);
+            Document insertedDoc = documentDAO.selectAll().stream()
+                    .filter(d -> d.title().equals(title) && d.filename().equals(filePath.toString()))
+                    .max(Comparator.comparingLong(Document::id))
+                    .orElseThrow(() -> new RuntimeException("Documento non trovato dopo inserimento."));
+
+            // Analizza e crea la WDM
+            return new WDM(insertedDoc, stopWords);
+
+        } catch (IOException e) {
+            // Gestione dell'eccezione: log, rilancio o azione custom
+            SystemLogger.log("Errore nella lettura del file:", e);
+            System.out.println("Errore nella lettura del file: " + e.getMessage());
+            throw new RuntimeException("Errore nella lettura del file", e);
         }
-
-        // Crea e inserisci il documento
-        Document doc = new Document(0, title, filePath.toString(), wordCount);
-        documentDAO.insert(doc);
-        Document insertedDoc = documentDAO.selectAll().stream()
-                .filter(d -> d.title().equals(title) && d.filename().equals(filePath.toString()))
-                .max(Comparator.comparingLong(Document::id))
-                .orElseThrow(() -> new RuntimeException("Documento non trovato dopo inserimento."));
-
-        // Analizza e crea la WDM
-        return new WDM(insertedDoc, stopWords);
     }
+
 }
