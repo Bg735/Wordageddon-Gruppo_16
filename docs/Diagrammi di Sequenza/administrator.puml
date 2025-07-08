@@ -1,0 +1,31 @@
+@startuml
+actor Amministratore
+participant "InterfacciaAdmin" as UI
+participant "Controller" as Controller
+participant "GestoreUtenti" as Gestore
+participant "Database" as DB
+
+== Flusso normale ==
+Amministratore -> UI : clicca "Gestione Admin"
+UI -> Controller : richiesta elenco degli utenti
+Controller -> Gestore : recupera la lista utenti
+DB --> Gestore : mostra la lista degli utenti con ruoli
+Gestore --> Controller : lista utenti
+Controller -> UI : mostra il popup
+
+Amministratore -> UI : clic sul bottone
+UI -> Controller : richiesta cambio ruolo dell'utente
+Controller -> Gestore : aggiorna ruolo dell'utente
+Gestore -> DB : update ruolo
+DB --> Gestore : conferma aggiornamento
+Controller -> UI : mostra conferma dell'aggiornamento
+UI -> Amministratore : ruolo aggiornato
+
+== Flusso alternativo ==
+alt Errore durante aggiornamento ruolo
+    DB --> Gestore : errore nell'aggiornamento
+    Gestore --> Controller : errore
+    Controller -> UI : mostra un messaggio di errore
+    UI -> Amministratore : errore durante l'aggiornamento
+end
+@enduml
