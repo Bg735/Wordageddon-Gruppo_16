@@ -14,9 +14,8 @@ public class DocumentAnalysisTask extends Task<Document> {
     private final Path filePath;
     private final DocumentDAO documentDAO;
 
-    public DocumentAnalysisTask(Path filePath, DocumentDAO documentDAO) {
+    public DocumentAnalysisTask(Path filePath) {
         this.filePath = filePath;
-        this.documentDAO = documentDAO;
     }
 
     @Override

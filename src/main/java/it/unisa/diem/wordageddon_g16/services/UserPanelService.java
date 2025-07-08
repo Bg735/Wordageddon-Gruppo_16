@@ -174,8 +174,15 @@ public class UserPanelService {
             Document doc = new Document(0, title, targetPath.toString(), wordCount);
             documentDAO.insert(doc);
 
-            DocumentAnalysisTask analysisTask = new DocumentAnalysisTask(targetPath, documentDAO);
-            analysis
+            DocumentAnalysisTask analysisTask = new DocumentAnalysisTask(targetPath);
+            analysisTask.setOnSucceeded(event -> {
+                Document analyzedDocument = analysisTask.getValue();
+            });
+
+            analysisTask.setOnFailed(event -> {
+                SystemLogger.log("Errore nell'analisi del documento", analysisTask.getException());
+            });
+
             return documentDAO.selectAll().stream()
                     .filter(d -> d.getTitle().equals(title) && d.getPath().equals(targetPath.toString()))
                     .max(Comparator.comparingLong(Document::getId))
