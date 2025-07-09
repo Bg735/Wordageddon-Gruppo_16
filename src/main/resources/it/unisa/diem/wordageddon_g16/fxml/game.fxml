@@ -13,7 +13,7 @@
 
 <StackPane prefHeight="832.0" prefWidth="1280.0" stylesheets="@../style/game.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unisa.diem.wordageddon_g16.controllers.GameSessionController">
 
-    <AnchorPane fx:id="readingPane" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="867.0" prefWidth="1322.0" stylesheets="@../style/readingSession.css" visible="false">
+    <AnchorPane fx:id="readingPane" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="867.0" prefWidth="1322.0" stylesheets="@../style/readingSession.css" >
         <children>
             <VBox alignment="TOP_CENTER" spacing="30.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                 <children>

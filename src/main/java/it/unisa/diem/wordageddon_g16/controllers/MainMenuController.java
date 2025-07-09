@@ -1,7 +1,9 @@
 package it.unisa.diem.wordageddon_g16.controllers;
 
 import it.unisa.diem.wordageddon_g16.models.AppContext;
+import it.unisa.diem.wordageddon_g16.models.Difficulty;
 import it.unisa.diem.wordageddon_g16.models.User;
+import it.unisa.diem.wordageddon_g16.services.GameService;
 import it.unisa.diem.wordageddon_g16.services.ViewLoader;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -13,6 +15,8 @@ import javafx.scene.layout.AnchorPane;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+
+
 
 public class MainMenuController implements Initializable {
 
@@ -42,6 +46,8 @@ public class MainMenuController implements Initializable {
 
     @FXML
     void onMenuRequested(ActionEvent event) {
+        GameService gameService= context.getGameService();
+        gameService.init(Difficulty.EASY);
         ViewLoader.load(ViewLoader.View.GAME);
     }
 
