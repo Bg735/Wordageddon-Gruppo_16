@@ -3,6 +3,7 @@ package it.unisa.diem.wordageddon_g16.services.tasks;
 import it.unisa.diem.wordageddon_g16.db.DocumentDAO;
 import it.unisa.diem.wordageddon_g16.db.StopWordDAO;
 import it.unisa.diem.wordageddon_g16.db.WdmDAO;
+import it.unisa.diem.wordageddon_g16.services.Resources;
 import it.unisa.diem.wordageddon_g16.services.SystemLogger;
 import javafx.concurrent.Task;
 import it.unisa.diem.wordageddon_g16.models.Document;
@@ -12,10 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
@@ -61,16 +59,19 @@ public class DocumentAnalysisTask extends Task<WDM> {
         // prelevo le stopwords dal database
         Set<String> stopWords = stopWordDAO.selectAll();
 
-        Path docsDir = Paths.get("uploads/documents");
-        String title = tempFile.getName();
-        Path filePath = docsDir.resolve(title);
+        Path docsDir = Resources.getDocsPath();
+        String filename = tempFile.getName();
+        Path filePath = docsDir.resolve(filename);
 
         // Controllo se il documento é giá presente nel database
         boolean alreadyExists = documentDAO.selectById(filePath).isPresent();
         if (alreadyExists) {
-            SystemLogger.log("Documento già presente: " + title, null);
-            throw new RuntimeException("Documento già presente: " + title);
+            SystemLogger.log("Documento già presente: " + filename, null);
+            throw new RuntimeException("Documento già presente: " + filename);
         }
+
+        // Creo un nome simbolico per il documento
+        String title = toSymbolicTitle(filename);
 
         // Creo la cartella e copia il file
         try {
@@ -101,6 +102,33 @@ public class DocumentAnalysisTask extends Task<WDM> {
         WDM wdm = new WDM(doc, stopWords);
         wdmDAO.insert(wdm);
         return wdm;
+    }
+
+    /**
+     * Converte un nome file in un titolo simbolico con la prima lettera maiuscola di ogni parola.
+     * Esempio: "mario_rossi.txt" -> "Mario Rossi"
+     *
+     * @param filename il nome del file (può contenere estensione e underscore)
+     * @return il titolo simbolico
+     */
+    private String toSymbolicTitle(String filename) {
+        // Rimuovo l'estensione, se presente
+        int dotIndex = filename.lastIndexOf('.');
+        String baseName = (dotIndex == -1) ? filename : filename.substring(0, dotIndex);
+
+        // Sostituisco _ o - con spazio
+        String[] words = baseName.replaceAll("[_-]", " ").toLowerCase().split(" ");
+        StringBuffer sb = new StringBuffer();
+
+        // Capitalizza la prima lettera di ogni parola
+        for (String word : words) {
+            if (!word.isEmpty()) {
+                sb.append(Character.toUpperCase(word.charAt(0)))
+                        .append(word.substring(1))
+                        .append(" ");
+            }
+        }
+        return sb.toString().trim();
     }
 
 }

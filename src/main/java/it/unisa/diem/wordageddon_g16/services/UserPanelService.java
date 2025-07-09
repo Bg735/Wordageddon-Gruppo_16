@@ -5,19 +5,15 @@ import it.unisa.diem.wordageddon_g16.models.*;
 import it.unisa.diem.wordageddon_g16.services.tasks.DocumentAnalysisTask;
 import javafx.concurrent.Task;
 
-import java.nio.file.Files;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+import java.nio.file.Files;
 import java.util.*;
 
 /**
- * @class UserPanelService
- *
+/**
  * Service per la gestione delle funzionalità accessibili dal pannello utente.
  * Fornisce metodi per informazioni sui report di gioco, gestione documenti, stopwords e admin.
  */
@@ -166,6 +162,17 @@ public class UserPanelService {
      */
     public void deleteDocument(Document doc) {
         documentDAO.delete(doc);
+
+        // Se il documento non è più presente nel database, elimino il file fisico
+        if(documentDAO.selectById(doc.path()).isEmpty()) {
+            try {
+                Files.deleteIfExists(doc.path());
+            } catch (IOException e) {
+                SystemLogger.log("Error during file deletion " + doc.path(), e);
+                throw new RuntimeException("Error during file deletion " + doc.path(), e);
+            }
+        }
+
     }
 
     /**

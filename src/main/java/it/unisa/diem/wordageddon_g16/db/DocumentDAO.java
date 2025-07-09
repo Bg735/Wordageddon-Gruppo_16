@@ -117,9 +117,9 @@ public class DocumentDAO extends JdbcDAO<Document> {
      */
     @Override
     public void update(Document document) {
-        String query = "UPDATE Document SET title = ?, path = ?, word_count = ? WHERE id = ?";
+        String query = "UPDATE Document SET title = ?, word_count = ? WHERE path = ?";
         try {
-            executeUpdate(query, document.title(), document.path().toString(), document.wordCount());
+            executeUpdate(query, document.title(), document.wordCount(), document.path().toString());
         } catch (Exception e) {
             SystemLogger.log("Error trying to update document: " + document, e);
             throw new UpdateFailedException(e.getMessage());
