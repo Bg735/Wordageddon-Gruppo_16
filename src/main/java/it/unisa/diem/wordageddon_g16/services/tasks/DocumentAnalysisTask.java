@@ -82,7 +82,7 @@ public class DocumentAnalysisTask extends Task<WDM> {
             throw new RuntimeException("Errore durante la copia del file: " + e.getMessage(), e);
         }
 
-        // 3. Leggi il file e conta le parole
+        // Leggo il file e conto le parole
         List<String> lines;
         try {
             lines = Files.readAllLines(filePath);
@@ -95,7 +95,7 @@ public class DocumentAnalysisTask extends Task<WDM> {
         String cleanContent = content.replaceAll("\\p{Punct}", "");
         int wordCount = cleanContent.trim().split("\\s+").length;
 
-        // 4. Inserisci il documento e la matrice WDM
+        // Inserisco nel db il documento e la matrice WDM
         Document doc = new Document(title, filePath, wordCount);
         documentDAO.insert(doc);
 
