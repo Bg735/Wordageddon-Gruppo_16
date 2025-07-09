@@ -10,14 +10,14 @@ import java.util.List;
 /**
  * Task JavaFX per generare le domande in background senza bloccare l'interfaccia.
  */
-public class QuestionGenerationTask extends Task<List<Question>> {
+public class GenerateQuestionsTask extends Task<List<Question>> {
     private final GameService gameService;
 
     /**
      * Costruttore del task.
      * @param gameService servizio di gioco da cui ottenere le domande
      */
-    public QuestionGenerationTask(GameService gameService) {
+    public GenerateQuestionsTask(GameService gameService) {
         this.gameService = gameService;
     }
 
