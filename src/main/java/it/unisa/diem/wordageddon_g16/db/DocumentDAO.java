@@ -6,6 +6,7 @@ import it.unisa.diem.wordageddon_g16.models.Document;
 import it.unisa.diem.wordageddon_g16.services.SystemLogger;
 import javafx.util.Callback;
 
+import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -31,34 +32,34 @@ public class DocumentDAO extends JdbcDAO<Document> {
     /**
      * Recupera un documento dal database tramite il suo identificativo.
      *
-     * @param oid l'identificativo del documento da recuperare
+     * @param oPath l'identificativo del documento da recuperare
      * @return un Optional contenente il documento trovato, o vuoto se non esiste
      * @throws QueryFailedException se si verifica un errore durante la query
      */
     @Override
-    public Optional<Document> selectById(Object oid) {
-        Long id = (long) oid;
-        String query = "SELECT * FROM Document WHERE id = ?";
-        Callback<ResultSet,Optional<Document>> callback = res -> {
+    public Optional<Document> selectById(Object oPath) {
+        Path path = (Path) oPath;
+        String query = "SELECT * FROM Document WHERE path = ?";
+        Callback<ResultSet, Optional<Document>> callback = res -> {
             try {
                 if (res != null && res.next()) {
                     Document document = new Document(
-                            res.getInt("id"),
                             res.getString("title"),
-                            res.getString("path"),
+                            Path.of(res.getString("path")),
                             res.getInt("word_count")
                     );
                     return Optional.of(document);
                 }
             } catch (SQLException e) {
-                SystemLogger.log("Error trying to get all documents", e);
+                SystemLogger.log("Error trying to get document by path", e);
                 throw new QueryFailedException(e.getMessage());
             }
             return Optional.empty();
         };
 
-        return executeQuery(query, callback, id);
+        return executeQuery(query, callback, path.toString());
     }
+
 
     /**
      * Recupera tutti i documenti presenti nella tabella Document.
@@ -77,9 +78,8 @@ public class DocumentDAO extends JdbcDAO<Document> {
                 var result = new java.util.ArrayList<Document>();
                 while (res.next()) {
                     result.add(new Document(
-                            res.getInt("id"),
                             res.getString("title"),
-                            res.getString("path"),
+                            Path.of(res.getString("path")),
                             res.getInt("word_count")
                     ));
                 }
@@ -119,7 +119,7 @@ public class DocumentDAO extends JdbcDAO<Document> {
     public void update(Document document) {
         String query = "UPDATE Document SET title = ?, path = ?, word_count = ? WHERE id = ?";
         try {
-            executeUpdate(query, document.title(), document.path(), document.wordCount(), document.id());
+            executeUpdate(query, document.title(), document.path().toString(), document.wordCount());
         } catch (Exception e) {
             SystemLogger.log("Error trying to update document: " + document, e);
             throw new UpdateFailedException(e.getMessage());
@@ -136,9 +136,9 @@ public class DocumentDAO extends JdbcDAO<Document> {
      */
     @Override
     public void delete(Document document) {
-        String query = "DELETE FROM Document WHERE id = ?";
+        String query = "DELETE FROM Document WHERE path = ?";
         try {
-            executeUpdate(query, document.id());
+            executeUpdate(query, document.path().toString());
         } catch (Exception e) {
             SystemLogger.log("Error trying to delete document: " + document, e);
             throw new UpdateFailedException(e.getMessage());

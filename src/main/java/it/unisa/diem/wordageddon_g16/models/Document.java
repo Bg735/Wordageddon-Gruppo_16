@@ -4,63 +4,64 @@ import java.nio.file.Path;
 import java.util.Objects;
 
 /**
- * Rappresenta un documento testuale caricato nel sistema Wordageddon.
+ * Rappresenta un documento testuale con titolo, percorso e numero di parole.
  * <p>
- * Ogni documento è identificato da un id univoco e contiene informazioni
- * quali titolo, nome file sorgente e numero di parole.
- * L'uguaglianza tra documenti è definita esclusivamente sull'id.
+ * Due documenti sono considerati uguali se hanno lo stesso percorso.
  *
- * @param id        identificativo univoco del documento
- * @param title     titolo del documento
- * @param path  nome del file sorgente associato al documento
- * @param wordCount numero di parole presenti nel documento
+ * @param title     il titolo del documento
+ * @param path      il percorso del file del documento
+ * @param wordCount il numero di parole nel documento
  */
-public record Document(long id, String title, String path, int wordCount) {
-
-    // Costruttore non canonico: imposta 0 l'id
-    public Document(String title, String path, int wordCount){
-        this(0, title, path, wordCount);
-    }
+public record Document(String title, Path path, int wordCount) {
 
     /**
-     * Determina se questo documento è uguale a un altro oggetto.
-     * Due documenti sono considerati uguali se hanno lo stesso id.
+     * Verifica l'uguaglianza tra questo documento e un altro oggetto.
+     * Due documenti sono uguali se hanno lo stesso percorso.
      *
      * @param o l'oggetto da confrontare
-     * @return true se l'oggetto è un Document con lo stesso id, false altrimenti
+     * @return {@code true} se i percorsi coincidono, {@code false} altrimenti
      */
     @Override
     public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        Document document = (Document) o;
-        return id == document.id;
+        if (!(o instanceof Document document)) return false;
+        return Objects.equals(path, document.path);
     }
 
     /**
-     * Restituisce il codice hash di questo documento, basato sull'id.
+     * Restituisce l'hash code del documento, calcolato sul percorso.
      *
-     * @return il codice hash calcolato sull'id
+     * @return l'hash code basato sul percorso
      */
     @Override
     public int hashCode() {
-        return Objects.hashCode(id);
+        return Objects.hashCode(path);
     }
 
-    @Override
-    public long id() {
-        return id;
-    }
-
+    /**
+     * Restituisce il titolo del documento.
+     *
+     * @return il titolo
+     */
     @Override
     public String title() {
         return title;
     }
 
+    /**
+     * Restituisce il percorso del documento.
+     *
+     * @return il percorso come {@link Path}
+     */
     @Override
-    public String path() {
+    public Path path() {
         return path;
     }
 
+    /**
+     * Restituisce il numero di parole del documento.
+     *
+     * @return il conteggio delle parole
+     */
     @Override
     public int wordCount() {
         return wordCount;

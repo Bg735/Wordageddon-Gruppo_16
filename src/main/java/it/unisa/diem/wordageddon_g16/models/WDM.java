@@ -5,7 +5,6 @@ import it.unisa.diem.wordageddon_g16.services.SystemLogger;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 
 /**
@@ -60,7 +59,7 @@ public class WDM {
     private Map<String,Integer> calculateWordMatrix(Document document, Collection<String> stopWords) {
         Map<String, Integer> wordMap = new HashMap<>();
         // I documenti sono salvati nella cartella "uploads/documents"
-        Path path = Paths.get(document.path());
+        Path path = document.path();
 
         try (Scanner scanner = new Scanner(Files.newBufferedReader(path))) {
             scanner.useDelimiter("\\s+");

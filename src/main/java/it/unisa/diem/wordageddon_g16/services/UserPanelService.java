@@ -152,22 +152,11 @@ public class UserPanelService {
      * @return il documento aggiunto o null se già esiste
      */
     public Task<WDM> addDocument(File tempFile) {
-        try {
-            Path docsDir = Paths.get("uploads/documents");
-            String title = tempFile.getName();
-            Path targetPath = docsDir.resolve(title);
-            Files.copy(tempFile.toPath(), targetPath, StandardCopyOption.REPLACE_EXISTING);
-
-            Set<String> stopWords = stopWordDAO.selectAll();
-
-            Task<WDM> task = new DocumentAnalysisTask(targetPath, documentDAO, wdmDao, stopWords);
-            new Thread(task).start();
-            return task;
-        } catch (IOException e) {
-            SystemLogger.log("Errore copia file", e);
-            throw new RuntimeException("Errore nella copia del file");
-        }
+        Task<WDM> task = new DocumentAnalysisTask(tempFile, documentDAO, wdmDao, stopWordDAO);
+        new Thread(task).start();
+        return task;
     }
+
 
 
     /**

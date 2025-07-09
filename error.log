@@ -1,8 +1,16 @@
+[SEVERE] it.unisa.diem.wordageddon_g16.services.SystemLogger: Documento già presente: gatto.txt
 [SEVERE] it.unisa.diem.wordageddon_g16.services.SystemLogger: [it.unisa.diem.wordageddon_g16.controllers.UserPanelController]Task Execution Error:
-it.unisa.diem.wordageddon_g16.db.exceptions.QueryFailedException: [SQLITE_CONSTRAINT_PRIMARYKEY] A PRIMARY KEY constraint failed (UNIQUE constraint failed: WDM.document, WDM.word)
-	at it.unisa.diem.wordageddongruppo_16@1.0-SNAPSHOT/it.unisa.diem.wordageddon_g16.db.WdmDAO.insert(WdmDAO.java:149)
-	at it.unisa.diem.wordageddongruppo_16@1.0-SNAPSHOT/it.unisa.diem.wordageddon_g16.services.tasks.DocumentAnalysisTask.call(DocumentAnalysisTask.java:65)
-	at it.unisa.diem.wordageddongruppo_16@1.0-SNAPSHOT/it.unisa.diem.wordageddon_g16.services.tasks.DocumentAnalysisTask.call(DocumentAnalysisTask.java:17)
+java.lang.RuntimeException: Documento già presente: gatto.txt
+	at it.unisa.diem.wordageddongruppo_16@1.0-SNAPSHOT/it.unisa.diem.wordageddon_g16.services.tasks.DocumentAnalysisTask.call(DocumentAnalysisTask.java:72)
+	at it.unisa.diem.wordageddongruppo_16@1.0-SNAPSHOT/it.unisa.diem.wordageddon_g16.services.tasks.DocumentAnalysisTask.call(DocumentAnalysisTask.java:35)
+	at javafx.graphics@21.0.2/javafx.concurrent.Task$TaskCallable.call(Task.java:1399)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:328)
+	at java.base/java.lang.Thread.run(Thread.java:1447)
+[SEVERE] it.unisa.diem.wordageddon_g16.services.SystemLogger: Documento già presente: tecnologia.txt
+[SEVERE] it.unisa.diem.wordageddon_g16.services.SystemLogger: [it.unisa.diem.wordageddon_g16.controllers.UserPanelController]Task Execution Error:
+java.lang.RuntimeException: Documento già presente: tecnologia.txt
+	at it.unisa.diem.wordageddongruppo_16@1.0-SNAPSHOT/it.unisa.diem.wordageddon_g16.services.tasks.DocumentAnalysisTask.call(DocumentAnalysisTask.java:72)
+	at it.unisa.diem.wordageddongruppo_16@1.0-SNAPSHOT/it.unisa.diem.wordageddon_g16.services.tasks.DocumentAnalysisTask.call(DocumentAnalysisTask.java:35)
 	at javafx.graphics@21.0.2/javafx.concurrent.Task$TaskCallable.call(Task.java:1399)
 	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:328)
 	at java.base/java.lang.Thread.run(Thread.java:1447)

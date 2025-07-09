@@ -43,7 +43,7 @@ public class WdmDAO extends JdbcDAO<WDM> {
      */
     @Override
     public Optional<WDM> selectById(Object document) {
-        return selectWhere("document = ?", ((Document)document).id()).stream().findFirst();
+        return selectWhere("document = ?", ((Document)document).path()).stream().findFirst();
     }
 
     /**
@@ -108,7 +108,7 @@ public class WdmDAO extends JdbcDAO<WDM> {
     public void delete(WDM wdm) {
         String query = "DELETE FROM WDM WHERE document = ?";
         try {
-            executeUpdate(query, wdm.getDocument().id());
+            executeUpdate(query, wdm.getDocument().path());
         } catch (Exception e) {
             throw new QueryFailedException(e.getMessage());
         }
@@ -125,7 +125,7 @@ public class WdmDAO extends JdbcDAO<WDM> {
         String query = "UPDATE WDM SET occurrences = ? WHERE document = ? AND word = ?";
         try {
             for (Map.Entry<String, Integer> entry : wdm.getWords().entrySet()) {
-                executeUpdate(query, entry.getValue(), wdm.getDocument().id(), entry.getKey());
+                executeUpdate(query, entry.getValue(), wdm.getDocument().path(), entry.getKey());
             }
         } catch (Exception e) {
             throw new QueryFailedException(e.getMessage());
@@ -143,7 +143,7 @@ public class WdmDAO extends JdbcDAO<WDM> {
         String query = "INSERT INTO WDM (document, word, occurrences) VALUES (?, ?, ?)";
         try{
             for (Map.Entry<String, Integer> entry : wdm.getWords().entrySet()) {
-                executeUpdate(query, wdm.getDocument().id(), entry.getKey(), entry.getValue());
+                executeUpdate(query, wdm.getDocument().path(), entry.getKey(), entry.getValue());
             }
         } catch (Exception e) {
             throw new QueryFailedException(e.getMessage());
