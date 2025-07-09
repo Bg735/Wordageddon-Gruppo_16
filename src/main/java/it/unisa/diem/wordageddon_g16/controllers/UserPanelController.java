@@ -28,14 +28,12 @@ import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import java.io.File;
-import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
- * @class UserPanelController
- * @brief Controller della schermata dedicata all' utente.
  *
  * Gestisce la logica della vista associata al pannello utente, inclusa la visualizzazione delle statistiche
  * personali,la gestione dei documenti, delle stopwords e degli utenti con privilegi amministrativi.
@@ -297,9 +295,8 @@ public class UserPanelController {
         PopupBuilder popup = new PopupBuilder("Gestione Documenti", 400, 500);
         VBox root = popup.getRoot();
 
-        //permetto di aggiungere una stopword
-        TextField wordInput = new TextField();
-        wordInput.setPromptText("Inserisci una nuova stopword");
+        TextField tf = new TextField();
+        tf.setPromptText("Inserisci una nuova stopword");
 
         //le inserisco in una lista di sw
         ListView<String> sw = new ListView<>();
@@ -307,39 +304,33 @@ public class UserPanelController {
 
         //aggiunta manuale sw
         Button btnAdd = new Button("Aggiungi");
-        btnAdd.setOnAction(e -> {
-            String word = wordInput.getText().trim().toLowerCase();
-            if (!word.isEmpty() && !sw.getItems().contains(word)) {
-                try {
-                    service.addStopWords(word);
-                    sw.getItems().add(word);
-                    wordInput.clear();
-                } catch (Exception ex) {
-                    SystemLogger.log("Errore durante l'aggiunta di una stopword", ex);
-                }
-            }
+
+        btnAdd.setOnAction(_ -> {
+            service.addStopWords(tf.getText());
+            sw.getItems().setAll(service.getAllStopwords()); // Aggiorna la ListView senza duplicati
+            tf.clear();
         });
 
         //carico file
         Button btnFile = new Button("Carica da file");
-        btnFile.setOnAction(e -> {
+
+        btnFile.setOnAction(_ -> {
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Seleziona file di stopwords");
             FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("File di testo (*.txt)", "*.txt");
             fileChooser.getExtensionFilters().add(extFilter);
             File file = fileChooser.showOpenDialog(popup.getStage());
-            if (file != null) {
-                try {
-                    service.addStopwordsFromFile(file);
-                    sw.getItems().setAll(service.getAllStopwords());
-                } catch (RuntimeException ex) {
-                    SystemLogger.log("Errore di stopwords", ex);
-                    ex.printStackTrace();
-                } catch (IOException ex) {
-                    SystemLogger.log("Errore nella chiusura del file di testo", ex);
-                    throw new RuntimeException(ex);
-                }
+            if (file == null) {
+                return;
             }
+            Task<Set<String>> task = service.addStopwordsFromFile(file);
+            task.setOnSucceeded(_ -> {
+                Platform.runLater(() -> {
+                    sw.getItems().setAll(service.getAllStopwords());
+                });
+            });
+            new Thread(task).start();
+
         });
         Button removeButton = new Button("Rimuovi selezionata");
         removeButton.setOnAction(e -> {
@@ -355,7 +346,7 @@ public class UserPanelController {
         });
         root.getChildren().addAll(
                 new Label("Inserisci una nuova stopword:"),
-                wordInput,
+                tf,
                 btnAdd,
                 new Label("Oppure caricala da file:"),
                 btnFile,
