@@ -308,7 +308,7 @@ public class UserPanelController {
 
         btnAdd.setOnAction(_ -> {
             Set<String> tempSWSet = service.addStopWords(tf.getText());
-            sw.getItems().addAll(tempSWSet);
+            sw.getItems().setAll(service.getAllStopwords()); // Aggiorna la ListView senza duplicati
             tf.clear();
         });
 

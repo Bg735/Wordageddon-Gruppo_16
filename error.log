@@ -10,7 +10,7 @@ org.sqlite.SQLiteException: [SQLITE_CONSTRAINT_PRIMARYKEY] A PRIMARY KEY constra
 	at org.sqlite.jdbc3.JDBC3PreparedStatement.executeUpdate(JDBC3PreparedStatement.java:105)
 	at it.unisa.diem.wordageddongruppo_16@1.0-SNAPSHOT/it.unisa.diem.wordageddon_g16.db.JdbcDAO.executeUpdate(JdbcDAO.java:86)
 	at it.unisa.diem.wordageddongruppo_16@1.0-SNAPSHOT/it.unisa.diem.wordageddon_g16.db.StopWordDAO.insert(StopWordDAO.java:74)
-	at it.unisa.diem.wordageddongruppo_16@1.0-SNAPSHOT/it.unisa.diem.wordageddon_g16.services.UserPanelService.addStopWords(UserPanelService.java:212)
+	at it.unisa.diem.wordageddongruppo_16@1.0-SNAPSHOT/it.unisa.diem.wordageddon_g16.services.UserPanelService.addStopWords(UserPanelService.java:211)
 	at it.unisa.diem.wordageddongruppo_16@1.0-SNAPSHOT/it.unisa.diem.wordageddon_g16.controllers.UserPanelController.lambda$handleStopWords$0(UserPanelController.java:310)
 	at javafx.base@21.0.2/com.sun.javafx.event.CompositeEventHandler.dispatchBubblingEvent(CompositeEventHandler.java:86)
 	at javafx.base@21.0.2/com.sun.javafx.event.EventHandlerManager.dispatchBubblingEvent(EventHandlerManager.java:232)

@@ -206,12 +206,13 @@ public class UserPanelService {
             }
         }
 
-        // Aggiungo le nuove stopword al database
+        // Aggiungo le nuove stopword al database. Il conrollo sui duplicati è gestito dal database stesso
         for(String stopWord : stopWordsSet) {
-            // Aggiungo le nuove stopword al database
             stopWordDAO.insert(stopWord);
         }
-        return stopWordDAO.selectAll();
+
+        // Ritorno le stopword appena aggiunte
+        return stopWordsSet;
     }
 
 

@@ -69,7 +69,7 @@ public class StopWordDAO extends JdbcDAO<String> {
      */
     @Override
     public void insert(String s) {
-        String query = "INSERT INTO StopWord (word) VALUES (?)";
+        String query = "INSERT OR IGNORE INTO StopWord (word) VALUES (?)";
         try {
             executeUpdate(query, s);
         } catch (SQLException e) {
