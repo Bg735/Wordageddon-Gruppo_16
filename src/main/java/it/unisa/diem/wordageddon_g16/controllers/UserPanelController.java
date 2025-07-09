@@ -292,6 +292,9 @@ public class UserPanelController {
      */
     @FXML
     void handleStopWords(ActionEvent event) {
+        /*
+         * Caricamento manuale
+         */
         PopupBuilder popup = new PopupBuilder("Gestione Documenti", 400, 500);
         VBox root = popup.getRoot();
 
@@ -311,7 +314,9 @@ public class UserPanelController {
             tf.clear();
         });
 
-        //carico file
+        /*
+         * Caricamento da file di stopwords
+         */
         Button btnFile = new Button("Carica da file");
 
         btnFile.setOnAction(_ -> {
@@ -332,6 +337,10 @@ public class UserPanelController {
             new Thread(task).start();
 
         });
+
+        /*
+         *  Rimozione di una stopword selezionata
+         */
         Button removeButton = new Button("Rimuovi selezionata");
         removeButton.setOnAction(e -> {
             String selected = sw.getSelectionModel().getSelectedItem();
