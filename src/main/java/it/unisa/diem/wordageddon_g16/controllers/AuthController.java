@@ -63,8 +63,8 @@ public class AuthController  {
 
     @FXML
     void handleLoginBtn(ActionEvent event) {
-        String username = usernameField.getText();
-        String password = passwordPF.getText();
+        String username = usernameField.getText().trim();
+        String password = passwordPF.getText().trim();
         if (username.isEmpty() || password.isEmpty()) {
             showDialog(Alert.AlertType.ERROR, "Campi incompleti", "Inserisci username e password.");
             return;

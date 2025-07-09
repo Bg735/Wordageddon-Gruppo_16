@@ -20,7 +20,11 @@
     -fx-font-size: 14px;
 }
 
-.list-cell:filled:focused, .list-cell:filled:selected:hover {
+.list-cell:filled:selected{
+   -fx-border-color: black;
+    -fx-text-fill: black;
+}
+.list-cell{
     -fx-background-color: transparent;
-    -fx-border-color: transparent;
+    -fx-text-fill: black;
 }
