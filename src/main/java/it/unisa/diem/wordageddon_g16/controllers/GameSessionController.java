@@ -28,6 +28,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import it.unisa.diem.wordageddon_g16.services.tasks.GenerateQuestionsTask;
+import it.unisa.diem.wordageddon_g16.services.GameService;
+import it.unisa.diem.wordageddon_g16.services.GameService.Question;
+
 
 /**
  * @class GameSessionController
@@ -71,7 +75,20 @@ public class GameSessionController {
         readingPane.setVisible(true);
         questionPane.setVisible(false);
         setupReadingPhase();
-        generateQuestionsInBackground();
+        generateQuestionsAsync();
+    }
+
+    private void generateQuestionsAsync() {
+        Service<List<Question>> service = new Service<>() {
+            @Override
+            protected Task<List<Question>> createTask() {
+                return new GenerateQuestionsTask(gameService);
+            }
+        };
+
+        service.setOnSucceeded(e -> questions = service.getValue());
+        service.setOnFailed(e -> SystemLogger.log("Errore generazione domande", service.getException()));
+        service.start();
     }
 
     /**
@@ -105,20 +122,6 @@ public class GameSessionController {
         readTimer.play();
     }
 
-    /**
-     * @brief Crea le domande in un thread separato per non bloccare l'interfaccia utente.
-     */
-    private void generateQuestionsInBackground() {
-        Task<List<Question>> task = new Task<>() {
-            @Override
-            protected List<Question> call() {
-                return gameService.getQuestions();
-            }
-        };
-        task.setOnSucceeded(e -> questions = task.getValue());
-        task.setOnFailed(e -> SystemLogger.log("Errore generazione domande", task.getException()));
-        new Thread(task).start();
-    }
 
     /**
      * @brief Passa dalla fase di lettura a quella delle domande.
