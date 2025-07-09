@@ -13,7 +13,7 @@ import java.nio.file.Files;
 import java.util.*;
 
 /**
-/**
+ * /**
  * Service per la gestione delle funzionalità accessibili dal pannello utente.
  * Fornisce metodi per informazioni sui report di gioco, gestione documenti, stopwords e admin.
  */
@@ -29,10 +29,10 @@ public class UserPanelService {
      * Costruttore del servizio.
      *
      * @param gameReportDAO DAO per i report di gioco
-     * @param userDAO DAO per gli utenti
-     * @param documentDAO DAO per i documenti
-     * @param stopWordDAO DAO per le stopword
-     * @param appContext Contesto applicativo
+     * @param userDAO       DAO per gli utenti
+     * @param documentDAO   DAO per i documenti
+     * @param stopWordDAO   DAO per le stopword
+     * @param appContext    Contesto applicativo
      */
     public UserPanelService(GameReportDAO gameReportDAO, UserDAO userDAO, DocumentDAO documentDAO, StopWordDAO stopWordDAO, WdmDAO wdmDAO, AppContext appContext) {
         this.gameReportDAO = gameReportDAO;
@@ -117,19 +117,26 @@ public class UserPanelService {
      *
      * @param file file .txt contenente le stopwords
      */
-    public void addStopwordsFromFile(File file) throws IOException {
-        try (BufferedReader bf = new BufferedReader(new FileReader(file))) {
-            String line;
-            while ((line = bf.readLine()) != null) {
-                String word = line.trim();
-                if (!word.isEmpty()) {
-                    // le stopwords sono salvate soltanto a livello db
-                    stopWordDAO.insert(word);
+    public Task<Set<String>> addStopwordsFromFile(File file) {
+        return new Task<>() {
+            @Override
+            protected Set<String> call() {
+                Set<String> stopWordsSet = new HashSet<>();
+                try (BufferedReader bf = new BufferedReader(new FileReader(file))) {
+                    String line;
+                    while ((line = bf.readLine()) != null) {
+                        stopWordsSet.addAll(stopWordsParser(line));
+                    }
+                } catch (IOException e) {
+                    SystemLogger.log("Error during stopwords file reading", e);
+                    throw new RuntimeException("Error during stopwords file reading", e);
                 }
+                for (String stopWord : stopWordsSet) {
+                    stopWordDAO.insert(stopWord);
+                }
+                return stopWordsSet;
             }
-        } catch (IOException e) {
-            SystemLogger.log("Errore della lettura di stopwords", e);
-        }
+        };
     }
 
     /**
@@ -162,7 +169,7 @@ public class UserPanelService {
         documentDAO.delete(doc);
 
         // Se il documento non è più presente nel database, elimino il file fisico
-        if(documentDAO.selectById(doc.path()).isEmpty()) {
+        if (documentDAO.selectById(doc.path()).isEmpty()) {
             try {
                 Files.deleteIfExists(doc.path());
             } catch (IOException e) {
@@ -188,33 +195,16 @@ public class UserPanelService {
      * @param tfRaw rappresenta il valore grezzo del campo di testo in cui sono inserite le stopwords
      */
     public Set<String> addStopWords(String tfRaw) {
-        Set<String> stopWordsSet = new HashSet<>();
-        String input = tfRaw.trim().toLowerCase();
+        Set<String> stopWordsSet = stopWordsParser(tfRaw);
 
-        // Prelevo soltanto le parole
-        String[] stopWords = input.split("[\\p{Punct}\\s]+");
-        for (String word : stopWords) {
-            if (!word.isEmpty()) {
-                stopWordsSet.add(word);
-            }
-        }
-
-        // Prelevo la punteggiatura
-        for (char c : input.toCharArray()) {
-            if (String.valueOf(c).matches("\\p{Punct}")) {
-                stopWordsSet.add(String.valueOf(c));
-            }
-        }
-
-        // Aggiungo le nuove stopword al database. Il conrollo sui duplicati è gestito dal database stesso
-        for(String stopWord : stopWordsSet) {
+        // Inserisce le nuove stopword nel database (il controllo duplicati è gestito dal DB)
+        for (String stopWord : stopWordsSet) {
             stopWordDAO.insert(stopWord);
         }
 
-        // Ritorno le stopword appena aggiunte
+        // Ritorna le stopword appena aggiunte
         return stopWordsSet;
     }
-
 
     /**
      * Rimuove una stopword dal sistema.
@@ -224,4 +214,42 @@ public class UserPanelService {
     public void deleteStopword(String word) {
         stopWordDAO.delete(word);
     }
+
+    /**
+     * Estrae tutte le stopword (parole e simboli di punteggiatura) da una singola riga di testo.
+     * <p>
+     * Il metodo effettua il parsing della stringa fornita, estraendo:
+     * <ul>
+     *   <li>Le parole (sequenze di caratteri alfabetici) separate da spazi o punteggiatura</li>
+     *   <li>Tutti i simboli di punteggiatura presenti</li>
+     * </ul>
+     * Tutti i token vengono inseriti in un {@code Set<String>} per garantire l’unicità.
+     * La stringa viene convertita in minuscolo e ripulita da spazi iniziali/finali.
+     *
+     * @param tfRaw la riga di testo da analizzare (può contenere parole e simboli)
+     * @return un insieme di stopword estratte dalla riga (parole e simboli di punteggiatura)
+     */
+    private Set<String> stopWordsParser(String tfRaw) {
+        Set<String> stopWordsSet = new HashSet<>();
+        String input = tfRaw.trim().toLowerCase();
+
+        // Estrae le parole
+        String[] stopWords = input.split("[\\p{Punct}\\s]+");
+        for (String word : stopWords) {
+            if (!word.isEmpty()) {
+                stopWordsSet.add(word);
+            }
+        }
+
+        // Estrae i simboli di punteggiatura
+        for (char c : input.toCharArray()) {
+            if (String.valueOf(c).matches("\\p{Punct}")) {
+                stopWordsSet.add(String.valueOf(c));
+            }
+        }
+
+        return stopWordsSet;
+    }
+
+
 }

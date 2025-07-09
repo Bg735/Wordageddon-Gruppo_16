@@ -28,7 +28,6 @@ import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import java.io.File;
-import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
@@ -307,31 +306,31 @@ public class UserPanelController {
         Button btnAdd = new Button("Aggiungi");
 
         btnAdd.setOnAction(_ -> {
-            Set<String> tempSWSet = service.addStopWords(tf.getText());
+            service.addStopWords(tf.getText());
             sw.getItems().setAll(service.getAllStopwords()); // Aggiorna la ListView senza duplicati
             tf.clear();
         });
 
         //carico file
         Button btnFile = new Button("Carica da file");
-        btnFile.setOnAction(e -> {
+
+        btnFile.setOnAction(_ -> {
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Seleziona file di stopwords");
             FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("File di testo (*.txt)", "*.txt");
             fileChooser.getExtensionFilters().add(extFilter);
             File file = fileChooser.showOpenDialog(popup.getStage());
-            if (file != null) {
-                try {
-                    service.addStopwordsFromFile(file);
-                    sw.getItems().setAll(service.getAllStopwords());
-                } catch (RuntimeException ex) {
-                    SystemLogger.log("Errore di stopwords", ex);
-                    ex.printStackTrace();
-                } catch (IOException ex) {
-                    SystemLogger.log("Errore nella chiusura del file di testo", ex);
-                    throw new RuntimeException(ex);
-                }
+            if (file == null) {
+                return;
             }
+            Task<Set<String>> task = service.addStopwordsFromFile(file);
+            task.setOnSucceeded(_ -> {
+                Platform.runLater(() -> {
+                    sw.getItems().setAll(service.getAllStopwords());
+                });
+            });
+            new Thread(task).start();
+
         });
         Button removeButton = new Button("Rimuovi selezionata");
         removeButton.setOnAction(e -> {
