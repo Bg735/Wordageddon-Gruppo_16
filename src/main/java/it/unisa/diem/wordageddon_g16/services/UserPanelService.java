@@ -153,8 +153,6 @@ public class UserPanelService {
         return task;
     }
 
-
-
     /**
      * Elimina un documento dal sistema.
      *
@@ -185,13 +183,37 @@ public class UserPanelService {
     }
 
     /**
-     * Aggiunge una singola stopword.
+     * Aggiunge le stopwords al sistema. Il valore di ritorno consente l'aggiunta delle stopwords alla lista visualizzata a schermo
      *
-     * @param word la parola da aggiungere
+     * @param tfRaw rappresenta il valore grezzo del campo di testo in cui sono inserite le stopwords
      */
-    public void addStopWords(String word) {
-        stopWordDAO.insert(word);
+    public Set<String> addStopWords(String tfRaw) {
+        Set<String> stopWordsSet = new HashSet<>();
+        String input = tfRaw.trim().toLowerCase();
+
+        // Prelevo soltanto le parole
+        String[] stopWords = input.split("[\\p{Punct}\\s]+");
+        for (String word : stopWords) {
+            if (!word.isEmpty()) {
+                stopWordsSet.add(word);
+            }
+        }
+
+        // Prelevo la punteggiatura
+        for (char c : input.toCharArray()) {
+            if (String.valueOf(c).matches("\\p{Punct}")) {
+                stopWordsSet.add(String.valueOf(c));
+            }
+        }
+
+        // Aggiungo le nuove stopword al database
+        for(String stopWord : stopWordsSet) {
+            // Aggiungo le nuove stopword al database
+            stopWordDAO.insert(stopWord);
+        }
+        return stopWordDAO.selectAll();
     }
+
 
     /**
      * Rimuove una stopword dal sistema.

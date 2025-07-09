@@ -32,10 +32,9 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
- * @class UserPanelController
- * @brief Controller della schermata dedicata all' utente.
  *
  * Gestisce la logica della vista associata al pannello utente, inclusa la visualizzazione delle statistiche
  * personali,la gestione dei documenti, delle stopwords e degli utenti con privilegi amministrativi.
@@ -297,9 +296,8 @@ public class UserPanelController {
         PopupBuilder popup = new PopupBuilder("Gestione Documenti", 400, 500);
         VBox root = popup.getRoot();
 
-        //permetto di aggiungere una stopword
-        TextField wordInput = new TextField();
-        wordInput.setPromptText("Inserisci una nuova stopword");
+        TextField tf = new TextField();
+        tf.setPromptText("Inserisci una nuova stopword");
 
         //le inserisco in una lista di sw
         ListView<String> sw = new ListView<>();
@@ -307,17 +305,11 @@ public class UserPanelController {
 
         //aggiunta manuale sw
         Button btnAdd = new Button("Aggiungi");
-        btnAdd.setOnAction(e -> {
-            String word = wordInput.getText().trim().toLowerCase();
-            if (!word.isEmpty() && !sw.getItems().contains(word)) {
-                try {
-                    service.addStopWords(word);
-                    sw.getItems().add(word);
-                    wordInput.clear();
-                } catch (Exception ex) {
-                    SystemLogger.log("Errore durante l'aggiunta di una stopword", ex);
-                }
-            }
+
+        btnAdd.setOnAction(_ -> {
+            Set<String> tempSWSet = service.addStopWords(tf.getText());
+            sw.getItems().addAll(tempSWSet);
+            tf.clear();
         });
 
         //carico file
@@ -355,7 +347,7 @@ public class UserPanelController {
         });
         root.getChildren().addAll(
                 new Label("Inserisci una nuova stopword:"),
-                wordInput,
+                tf,
                 btnAdd,
                 new Label("Oppure caricala da file:"),
                 btnFile,
