@@ -22,6 +22,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+//import it.unisa.diem.wordageddon_g16.services.tasks.GenerateQuestionsTask;
+
+
 
 /**
  * @class GameSessionController
@@ -84,7 +87,6 @@ public class GameSessionController {
      *
      * @note Deve essere invocato prima della visualizzazione delle domande (prima di `switchToQuestions()`).
      */
-
    /* private void generateQuestionsAsync() {
         Service<List<Question>> service = new Service<>() {
             @Override
@@ -219,25 +221,4 @@ public class GameSessionController {
         return timer;
     }
 
-    private void loadPane(Node pane) {
-        for(Node p : stackPane.getChildren()) {
-            p.setVisible(false);
-        }
-        switch(pane.getId()){
-            case "readingPane" -> setupReadingPhase();
-            case "questionPane" -> switchToQuestions();
-            default -> {}
-        }
-        pane.setVisible(true);
-    }
-
-    public void onDifficultySelected(ActionEvent event) {
-        switch (((Button) event.getSource()).getId()){
-            case "diffEasyBTN" -> gameService.init(Difficulty.EASY);
-            case "diffMediumBTN" -> gameService.init(Difficulty.MEDIUM);
-            case "diffHardBTN" -> gameService.init(Difficulty.HARD);
-            default -> throw new IllegalArgumentException("Difficoltà non riconosciuta");
-        }
-
-    }
 }
