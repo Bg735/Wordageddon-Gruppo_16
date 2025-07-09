@@ -27,7 +27,7 @@ public class WordageddonApp extends Application {
         Callback<Class<?>,Object> controllerFactory = clazz -> switch (clazz.getSimpleName()) {
             case "AuthController" -> new AuthController(context);
             case "MainMenuController" -> new MainMenuController(context);
-            case "GameSessionController" -> new GameSessionController();
+            case "GameSessionController" -> new GameSessionController(context);
             case "LeaderboardController" -> new LeaderboardController(context);
             case "UserPanelController" -> new UserPanelController(context);
 
