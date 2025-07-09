@@ -16,6 +16,7 @@ import it.unisa.diem.wordageddon_g16.services.GameService.Question;
 import javafx.animation.KeyFrame;
 import javafx.animation.PauseTransition;
 import javafx.animation.Timeline;
+import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -29,8 +30,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import it.unisa.diem.wordageddon_g16.services.tasks.GenerateQuestionsTask;
-import it.unisa.diem.wordageddon_g16.services.GameService;
-import it.unisa.diem.wordageddon_g16.services.GameService.Question;
+
 
 
 /**
