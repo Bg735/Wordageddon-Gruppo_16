@@ -21,7 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import it.unisa.diem.wordageddon_g16.services.tasks.GenerateQuestionsTask;
+//import it.unisa.diem.wordageddon_g16.services.tasks.GenerateQuestionsTask;
 
 
 
@@ -85,7 +85,7 @@ public class GameSessionController {
      *
      * @note Deve essere invocato prima della visualizzazione delle domande (prima di `switchToQuestions()`).
      */
-    private void generateQuestionsAsync() {
+   /* private void generateQuestionsAsync() {
         Service<List<Question>> service = new Service<>() {
             @Override
             protected Task<List<Question>> createTask() {
@@ -96,7 +96,7 @@ public class GameSessionController {
         service.setOnFailed(e -> SystemLogger.log("Errore generazione domande", service.getException()));
         service.start();
     }
-
+*/
     /**
      * @brief Mostra il testo dei documenti e avvia il timer della fase di lettura.
      */
