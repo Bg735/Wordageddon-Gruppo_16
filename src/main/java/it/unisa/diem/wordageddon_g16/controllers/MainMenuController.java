@@ -31,6 +31,7 @@ public class MainMenuController implements Initializable {
 
     @FXML
     private Label usernameLabel;
+
     private final AppContext context;
 
     @FXML

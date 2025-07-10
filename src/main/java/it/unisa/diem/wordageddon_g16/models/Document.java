@@ -12,7 +12,7 @@ import java.util.Objects;
  * @param path      il percorso del file del documento
  * @param wordCount il numero di parole nel documento
  */
-public record Document(Integer id, String title, Path path, int wordCount) {
+public record Document(Long id, String title, Path path, int wordCount) {
 
     // Costruttore non canonico: imposta a null l'id
     public Document(String title, Path path, int wordCount){
@@ -42,7 +42,7 @@ public record Document(Integer id, String title, Path path, int wordCount) {
     }
 
     @Override
-    public Integer id() {
+    public Long id() {
         return id;
     }
 
