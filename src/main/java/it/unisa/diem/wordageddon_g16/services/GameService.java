@@ -9,6 +9,9 @@ import it.unisa.diem.wordageddon_g16.models.Difficulty;
 import it.unisa.diem.wordageddon_g16.models.Document;
 import it.unisa.diem.wordageddon_g16.models.WDM;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.util.*;
 
@@ -532,5 +535,22 @@ public class GameService {
 
             return (int) (minQuestions + (maxQuestions - minQuestions) * influence);
         }
+    }
+
+    /**
+     * @brief Task per il parsing dei documenti prima della fase di lettura
+     */
+    public StringBuffer setupReadingPhase() {
+        StringBuffer text = new StringBuffer();
+        for (Document doc : getDocuments()) {
+            Path path = Path.of(Config.get(Config.Props.DOCUMENTS_DIR) + doc.filename());
+            try {
+                text.append(Files.readString(path)).append("\n");
+                System.out.println(text);
+            } catch (IOException e) {
+                SystemLogger.log("Errore nella lettura del documento", e);
+            }
+        }
+        return text;
     }
 }

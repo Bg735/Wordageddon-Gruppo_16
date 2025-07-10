@@ -39,7 +39,7 @@ public class DocumentDAO extends JdbcDAO<Document> {
     @Override
     public Optional<Document> selectById(Object oPath) {
         Path path = (Path) oPath;
-        String query = "SELECT * FROM Document WHERE path = ?";
+        String query = "SELECT * FROM Document WHERE id = ?";
         Callback<ResultSet, Optional<Document>> callback = res -> {
             try {
                 if (res != null && res.next()) {
@@ -78,8 +78,8 @@ public class DocumentDAO extends JdbcDAO<Document> {
                 var result = new java.util.ArrayList<Document>();
                 while (res.next()) {
                     result.add(new Document(
+                            res.getString("id"),
                             res.getString("title"),
-                            Path.of(res.getString("path")),
                             res.getInt("word_count")
                     ));
                 }
@@ -100,9 +100,9 @@ public class DocumentDAO extends JdbcDAO<Document> {
      */
     @Override
     public void insert(Document document) {
-        String query = "INSERT INTO Document (title, path, word_count) VALUES (?, ?, ?)";
+        String query = "INSERT INTO Document (title, id, word_count) VALUES (?, ?, ?)";
         try {
-            executeUpdate(query, document.title(), document.path(), document.wordCount());
+            executeUpdate(query, document.title(), document.filename(), document.wordCount());
         } catch (Exception e) {
             SystemLogger.log("Error trying to insert document: " + document, e);
             throw new QueryFailedException(e.getMessage());
@@ -117,9 +117,9 @@ public class DocumentDAO extends JdbcDAO<Document> {
      */
     @Override
     public void update(Document document) {
-        String query = "UPDATE Document SET title = ?, word_count = ? WHERE path = ?";
+        String query = "UPDATE Document SET title = ?, word_count = ? WHERE id = ?";
         try {
-            executeUpdate(query, document.title(), document.wordCount(), document.path().toString());
+            executeUpdate(query, document.title(), document.wordCount(), document.filename());
         } catch (Exception e) {
             SystemLogger.log("Error trying to update document: " + document, e);
             throw new UpdateFailedException(e.getMessage());
@@ -136,9 +136,9 @@ public class DocumentDAO extends JdbcDAO<Document> {
      */
     @Override
     public void delete(Document document) {
-        String query = "DELETE FROM Document WHERE path = ?";
+        String query = "DELETE FROM Document WHERE id = ?";
         try {
-            executeUpdate(query, document.path().toString());
+            executeUpdate(query, document.filename());
         } catch (Exception e) {
             SystemLogger.log("Error trying to delete document: " + document, e);
             throw new UpdateFailedException(e.getMessage());

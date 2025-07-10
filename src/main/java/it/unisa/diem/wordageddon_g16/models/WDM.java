@@ -72,7 +72,7 @@ public class WDM {
                 }
             }
         } catch(IOException e) {
-            SystemLogger.log("Error reading document " + path.toString(), e);
+            SystemLogger.log("Error reading document " + path, e);
         }
         return wordMap;
     }

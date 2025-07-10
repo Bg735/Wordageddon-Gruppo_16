@@ -2,13 +2,14 @@ package it.unisa.diem.wordageddon_g16.controllers;
 
 import it.unisa.diem.wordageddon_g16.models.AppContext;
 import it.unisa.diem.wordageddon_g16.models.Difficulty;
-import it.unisa.diem.wordageddon_g16.models.Document;
 import it.unisa.diem.wordageddon_g16.services.GameService;
-import it.unisa.diem.wordageddon_g16.services.SystemLogger;
 import it.unisa.diem.wordageddon_g16.services.GameService.Question;
 import javafx.animation.KeyFrame;
 import javafx.animation.PauseTransition;
 import javafx.animation.Timeline;
+import javafx.application.Platform;
+import javafx.concurrent.Service;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -18,10 +19,6 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 //import it.unisa.diem.wordageddon_g16.services.tasks.GenerateQuestionsTask;
 
@@ -67,6 +64,7 @@ public class GameSessionController {
      */
     public GameSessionController(AppContext appContext) {
         this.gameService = appContext.getGameService();
+
     }
 
     /**
@@ -75,8 +73,34 @@ public class GameSessionController {
      */
     @FXML
     public void initialize() {
+
+        readingSetupService = new Service<>() {
+            @Override
+            protected Task<StringBuffer> createTask() {
+                Task<StringBuffer> task= new Task<>() {
+                    @Override
+                    protected StringBuffer call() {
+                        return gameService.setupReadingPhase();
+                    }
+                };
+                task.setOnSucceeded(_ -> {
+                    StringBuffer text = task.getValue();
+                    Platform.runLater(
+                        () -> {
+                            textDisplayArea.setText(text.toString());
+                        }
+                    );
+                    gameService.getQuestions();
+                    int seconds = (int) gameService.getTimeLimit().getSeconds();
+                    // alla fine del timer mostra questionPane
+                    startTimer(seconds, timerLabelRead, timerBar, () -> loadPane(questionPane));
+                });
+                task.setOnFailed(_ -> endGame());
+                return task;
+            }
+        };
+
         loadPane(diffSelectionPane);
-        //generateQuestionsAsync();
     }
 
     /**
@@ -166,6 +190,7 @@ public class GameSessionController {
      * @brief Metodo chiamato al termine della sessione di gioco.
      */
     private void endGame() {
+        System.out.println("Game over");
     }
 
     /**
@@ -217,6 +242,7 @@ public class GameSessionController {
         pane.setVisible(true);
     }
 
+    @FXML
     public void onDifficultySelected(ActionEvent event) {
         switch (((Button) event.getSource()).getId()){
             case "diffEasyBTN" -> gameService.init(Difficulty.EASY);
