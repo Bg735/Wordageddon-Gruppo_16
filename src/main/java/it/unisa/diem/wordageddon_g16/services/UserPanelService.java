@@ -169,12 +169,12 @@ public class UserPanelService {
         documentDAO.delete(doc);
 
         // Se il documento non è più presente nel database, elimino il file fisico
-        if (documentDAO.selectById(doc.path()).isEmpty()) {
+        if (documentDAO.selectById(doc.filename()).isEmpty()) {
             try {
-                Files.deleteIfExists(doc.path());
+                Files.deleteIfExists(Path.of(Config.get(Config.Props.DOCUMENTS_DIR) + doc.filename()));
             } catch (IOException e) {
-                SystemLogger.log("Error during file deletion " + doc.path(), e);
-                throw new RuntimeException("Error during file deletion " + doc.path(), e);
+                SystemLogger.log("Error during file deletion " + doc.filename(), e);
+                throw new RuntimeException("Error during file deletion " + doc.filename(), e);
             }
         }
 

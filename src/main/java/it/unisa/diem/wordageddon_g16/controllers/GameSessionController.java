@@ -53,9 +53,13 @@ public class GameSessionController {
     @FXML private Button nextButton;
 
     private final GameService gameService;
-    private List<Question> questions= new ArrayList<>();
+    private List<Question> questions;
     private int currentQuestionIndex = 0;
     private Timeline questionTimer;
+
+    private Service<StringBuffer> readingSetupService;
+    private Service<StringBuffer> questionSetupService;
+
 
     /**
      * @brief Costruttore.
@@ -99,27 +103,7 @@ public class GameSessionController {
         service.start();
     }
 */
-    /**
-     * @brief Mostra il testo dei documenti e avvia il timer della fase di lettura.
-     */
-    private void setupReadingPhase() {
-        //Viene unito in un unico testo tutti i documenti generati in base alla difficoltà
-        // dal metodo generateDocuments(float influence) del GameService
-        StringBuilder text = new StringBuilder();
-        for (Document doc : gameService.getDocuments()) {
-            Path path = doc.path();
-            try {
-                text.append(Files.readString(path)).append("\n\n");
-            } catch (IOException e) {
-                SystemLogger.log("Errore nella lettura del documento", e);
-            }
-        }
-        textDisplayArea.setText(text.toString());
 
-        // Si trasforma il timer calcolato dal metodo generateTimer(float influence) del GameService in secondi
-        int seconds = (int) gameService.getTimeLimit().getSeconds();
-        startTimer(seconds, timerLabelRead, timerBar, ()->loadPane(questionPane));
-    }
 
 
     /**
@@ -226,7 +210,7 @@ public class GameSessionController {
             p.setVisible(false);
         }
         switch(pane.getId()){
-            case "readingPane" -> setupReadingPhase();
+            case "readingPane" -> readingSetupService.start();
             case "questionPane" -> switchToQuestions();
             default -> {}
         }
@@ -240,6 +224,6 @@ public class GameSessionController {
             case "diffHardBTN" -> gameService.init(Difficulty.HARD);
             default -> throw new IllegalArgumentException("Difficoltà non riconosciuta");
         }
-
+        loadPane(readingPane);
     }
 }

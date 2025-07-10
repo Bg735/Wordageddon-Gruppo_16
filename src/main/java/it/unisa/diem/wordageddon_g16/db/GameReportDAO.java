@@ -158,7 +158,7 @@ public class GameReportDAO extends JdbcDAO<GameReport> {
                     gameReport.getScore()
             );
             for (Document document : gameReport.getDocuments()) {
-                executeUpdate(updateOnContent, gameReport.getId(), document.path());
+                executeUpdate(updateOnContent, gameReport.getId(), document.filename());
             }
         } catch (SQLException e) {
             SystemLogger.log("Error trying to insert game report", e);

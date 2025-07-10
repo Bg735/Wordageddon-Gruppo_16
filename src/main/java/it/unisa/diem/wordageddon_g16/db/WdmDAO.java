@@ -5,6 +5,7 @@ import it.unisa.diem.wordageddon_g16.models.Document;
 import it.unisa.diem.wordageddon_g16.models.WDM;
 import javafx.util.Callback;
 
+import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.util.HashMap;
@@ -43,7 +44,7 @@ public class WdmDAO extends JdbcDAO<WDM> {
      */
     @Override
     public Optional<WDM> selectById(Object document) {
-        return selectWhere("document = ?", ((Document)document).path()).stream().findFirst();
+        return selectWhere("document = ?", ((Document)document).filename()).stream().findFirst();
     }
 
     /**
@@ -81,9 +82,9 @@ public class WdmDAO extends JdbcDAO<WDM> {
                 if (res == null) {
                     return List.of();
                 }
-                Map<Long, WDM> wdmMap = new HashMap<>();
+                Map<Path, WDM> wdmMap = new HashMap<>();
                 while (res.next()) {
-                    Long docId = res.getLong("document");
+                    Path docId = Path.of(res.getString("document"));
                     var document = documentDAO.selectById(docId);
                     if (document.isPresent()) {
                         WDM wdm = wdmMap.computeIfAbsent(docId, k -> new WDM(document.get(), new HashMap<>()));
@@ -108,7 +109,7 @@ public class WdmDAO extends JdbcDAO<WDM> {
     public void delete(WDM wdm) {
         String query = "DELETE FROM WDM WHERE document = ?";
         try {
-            executeUpdate(query, wdm.getDocument().path());
+            executeUpdate(query, wdm.getDocument().filename());
         } catch (Exception e) {
             throw new QueryFailedException(e.getMessage());
         }
@@ -125,7 +126,7 @@ public class WdmDAO extends JdbcDAO<WDM> {
         String query = "UPDATE WDM SET occurrences = ? WHERE document = ? AND word = ?";
         try {
             for (Map.Entry<String, Integer> entry : wdm.getWords().entrySet()) {
-                executeUpdate(query, entry.getValue(), wdm.getDocument().path(), entry.getKey());
+                executeUpdate(query, entry.getValue(), wdm.getDocument().filename(), entry.getKey());
             }
         } catch (Exception e) {
             throw new QueryFailedException(e.getMessage());
@@ -143,7 +144,7 @@ public class WdmDAO extends JdbcDAO<WDM> {
         String query = "INSERT INTO WDM (document, word, occurrences) VALUES (?, ?, ?)";
         try{
             for (Map.Entry<String, Integer> entry : wdm.getWords().entrySet()) {
-                executeUpdate(query, wdm.getDocument().id(), entry.getKey(), entry.getValue());
+                executeUpdate(query, wdm.getDocument().filename(), entry.getKey(), entry.getValue());
             }
         } catch (Exception e) {
             throw new QueryFailedException(e.getMessage());

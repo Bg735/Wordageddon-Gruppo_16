@@ -22,7 +22,7 @@ import java.util.Set;
  * <p>
  * Questo task esegue le seguenti operazioni:
  * <ul>
- *   <li>Verifica se il documento è già presente nel database (tramite titolo e path).</li>
+ *   <li>Verifica se il documento è già presente nel database (tramite titolo e filename).</li>
  *   <li>Se il documento non esiste, legge il file dal file system e conta il numero di parole (escludendo la punteggiatura).</li>
  *   <li>Crea e inserisce il documento nel database. Poiché l'id viene generato automaticamente dal database (autoincremento), il documento viene recuperato nuovamente per ottenere l'id assegnato.</li>
  *   <li>Costruisce la matrice delle parole significative (WDM) per il documento e la inserisce nel database.</li>

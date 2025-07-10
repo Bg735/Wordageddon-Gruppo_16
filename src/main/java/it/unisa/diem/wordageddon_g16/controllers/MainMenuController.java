@@ -41,7 +41,6 @@ public class MainMenuController implements Initializable {
 
     @FXML
     void onUserPanelRequested(MouseEvent event) {
-        System.out.println(event.getSource());
         ViewLoader.load(ViewLoader.View.USER_PANEL);
     }
 

@@ -27,9 +27,8 @@ CREATE TABLE GameReport(
 );
 
 CREATE TABLE Document(
-                         id INTEGER PRIMARY KEY AUTOINCREMENT,
-                         title TEXT NOT NULL DEFAULT path,
-                         path TEXT,
+                         id TEXT PRIMARY KEY,
+                         title TEXT NOT NULL DEFAULT id,
                          word_count INTEGER NOT NULL CHECK (word_count > 0)
 );
 
@@ -40,7 +39,7 @@ CREATE TABLE Content(
 );
 
 CREATE TABLE WDM(
-                    document INTEGER REFERENCES Document(id) ON DELETE CASCADE,
+                    document TEXT REFERENCES Document(id) ON DELETE CASCADE,
                     word TEXT NOT NULL CHECK (LENGTH(word) > 0),
                     occurrences INTEGER NOT NULL CHECK (occurrences >= 0),
                     PRIMARY KEY (document, word)

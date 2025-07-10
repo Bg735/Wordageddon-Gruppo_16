@@ -47,7 +47,6 @@ public class WordageddonApp extends Application {
             ViewLoader.load(ViewLoader.View.AUTH);
         }
 
-        System.out.println(Font.loadFont(getClass().getResourceAsStream("/it/unisa/diem/wordageddon_g16/fonts/Alata-Regular.ttf"), 12));
         stage.setOnCloseRequest(_ -> repo.close());
         stage.setTitle("Wordageddon");
         stage.show();

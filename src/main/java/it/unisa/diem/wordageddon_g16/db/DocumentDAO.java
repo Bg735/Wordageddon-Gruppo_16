@@ -44,14 +44,14 @@ public class DocumentDAO extends JdbcDAO<Document> {
             try {
                 if (res != null && res.next()) {
                     Document document = new Document(
+                            res.getString("id"),
                             res.getString("title"),
-                            Path.of(res.getString("path")),
                             res.getInt("word_count")
                     );
                     return Optional.of(document);
                 }
             } catch (SQLException e) {
-                SystemLogger.log("Error trying to get document by path", e);
+                SystemLogger.log("Error trying to get document by filename", e);
                 throw new QueryFailedException(e.getMessage());
             }
             return Optional.empty();

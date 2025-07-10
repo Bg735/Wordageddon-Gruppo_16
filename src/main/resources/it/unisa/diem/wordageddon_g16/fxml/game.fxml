@@ -1,17 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ProgressBar?>
-<?import javafx.scene.control.TextArea?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.StackPane?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
-
-<StackPane id="stackPane" fx:id="stackPane" prefHeight="832.0" prefWidth="1280.0" stylesheets="@../style/game.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unisa.diem.wordageddon_g16.controllers.GameSessionController">
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<StackPane id="stackPane" fx:id="stackPane" prefHeight="832.0" prefWidth="1280.0" stylesheets="@../style/game.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unisa.diem.wordageddon_g16.controllers.GameSessionController">
    <children>
        <AnchorPane id="diffSelectionPane" fx:id="diffSelectionPane" prefHeight="200.0" prefWidth="200.0">
            <children>
@@ -25,17 +18,17 @@
 
                        <VBox fx:id="difficultyButtonsBox" alignment="CENTER" spacing="30.0" VBox.vgrow="ALWAYS">
                            <children>
-                               <Button fx:id="diffEasyBTN" maxWidth="600" minWidth="200" prefWidth="305" style="-fx-background-color: #37db4d;" styleClass="buttonDiff" text="Facile" textFill="WHITE">
+                               <Button fx:id="diffEasyBTN" maxWidth="600" minWidth="200" onAction="#onDifficultySelected" prefWidth="305" style="-fx-background-color: #37db4d;" styleClass="buttonDiff" text="Facile" textFill="WHITE">
                                    <font>
                                        <Font size="24.0" />
                                    </font>
                                </Button>
-                               <Button fx:id="diffMediumBTN" maxWidth="600" minWidth="200" prefWidth="305" style="-fx-background-color: #ffbf00;" styleClass="buttonDiff" text="Media" textFill="WHITE">
+                               <Button fx:id="diffMediumBTN" maxWidth="600" minWidth="200" onAction="#onDifficultySelected" prefWidth="305" style="-fx-background-color: #ffbf00;" styleClass="buttonDiff" text="Media" textFill="WHITE">
                                    <font>
                                        <Font size="24.0" />
                                    </font>
                                </Button>
-                               <Button fx:id="diffHardBTN" maxWidth="600" minWidth="200" prefWidth="305" style="-fx-background-color: #e02d0d;" styleClass="buttonDiff" text="Difficile" textFill="WHITE">
+                               <Button fx:id="diffHardBTN" maxWidth="600" minWidth="200" onAction="#onDifficultySelected" prefWidth="305" style="-fx-background-color: #e02d0d;" styleClass="buttonDiff" text="Difficile" textFill="WHITE">
                                    <font>
                                        <Font size="24.0" />
                                    </font>

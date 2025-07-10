@@ -109,7 +109,7 @@ if $cygwin ; then
   [ -n "$JAVA_HOME" ] &&
     JAVA_HOME=`cygpath --unix "$JAVA_HOME"`
   [ -n "$CLASSPATH" ] &&
-    CLASSPATH=`cygpath --path --unix "$CLASSPATH"`
+    CLASSPATH=`cygpath --filename --unix "$CLASSPATH"`
 fi
 
 # For Mingw, ensure paths are in UNIX format before anything is touched
@@ -229,7 +229,7 @@ else
     fi
     wrapperJarPath="$BASE_DIR/.mvn/wrapper/maven-wrapper.jar"
     if $cygwin; then
-      wrapperJarPath=`cygpath --path --windows "$wrapperJarPath"`
+      wrapperJarPath=`cygpath --filename --windows "$wrapperJarPath"`
     fi
 
     if command -v wget > /dev/null; then
@@ -258,7 +258,7 @@ else
         javaClass="$BASE_DIR/.mvn/wrapper/MavenWrapperDownloader.java"
         # For Cygwin, switch paths to Windows format before running javac
         if $cygwin; then
-          javaClass=`cygpath --path --windows "$javaClass"`
+          javaClass=`cygpath --filename --windows "$javaClass"`
         fi
         if [ -e "$javaClass" ]; then
             if [ ! -e "$BASE_DIR/.mvn/wrapper/MavenWrapperDownloader.class" ]; then
@@ -291,13 +291,13 @@ MAVEN_OPTS="$(concat_lines "$MAVEN_PROJECTBASEDIR/.mvn/jvm.config") $MAVEN_OPTS"
 # For Cygwin, switch paths to Windows format before running java
 if $cygwin; then
   [ -n "$M2_HOME" ] &&
-    M2_HOME=`cygpath --path --windows "$M2_HOME"`
+    M2_HOME=`cygpath --filename --windows "$M2_HOME"`
   [ -n "$JAVA_HOME" ] &&
-    JAVA_HOME=`cygpath --path --windows "$JAVA_HOME"`
+    JAVA_HOME=`cygpath --filename --windows "$JAVA_HOME"`
   [ -n "$CLASSPATH" ] &&
-    CLASSPATH=`cygpath --path --windows "$CLASSPATH"`
+    CLASSPATH=`cygpath --filename --windows "$CLASSPATH"`
   [ -n "$MAVEN_PROJECTBASEDIR" ] &&
-    MAVEN_PROJECTBASEDIR=`cygpath --path --windows "$MAVEN_PROJECTBASEDIR"`
+    MAVEN_PROJECTBASEDIR=`cygpath --filename --windows "$MAVEN_PROJECTBASEDIR"`
 fi
 
 # Provide a "standardized" way to retrieve the CLI args that will

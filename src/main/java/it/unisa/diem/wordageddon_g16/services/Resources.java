@@ -1,6 +1,10 @@
 package it.unisa.diem.wordageddon_g16.services;
 
+import it.unisa.diem.wordageddon_g16.models.Document;
+
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
 
@@ -39,15 +43,6 @@ public class Resources {
      */
     public static String getStyle(String name) {
         return Objects.requireNonNull(Resources.class.getResource(RES_PATH + "style/" + name + ".css")).toExternalForm();
-    }
-
-    /**
-     * Restituisce il percorso base della cartella di upload.
-     *
-     * @return il {@link Path} relativo alla cartella "uploads/"
-     */
-    public static Path getUploadsPath() {
-        return UPLOADS_PATH;
     }
 
     /**

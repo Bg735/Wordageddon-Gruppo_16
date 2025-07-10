@@ -9,15 +9,11 @@ import java.util.Objects;
  * Due documenti sono considerati uguali se hanno lo stesso percorso.
  *
  * @param title     il titolo del documento
- * @param path      il percorso del file del documento
+ * @param filename      il percorso del file del documento
  * @param wordCount il numero di parole nel documento
  */
-public record Document(Long id, String title, Path path, int wordCount) {
+public record Document(String filename, String title, int wordCount) {
 
-    // Costruttore non canonico: imposta a null l'id
-    public Document(String title, Path path, int wordCount){
-        this(null, title, path, wordCount);
-    }
     /**
      * Verifica l'uguaglianza tra questo documento e un altro oggetto.
      * Due documenti sono uguali se hanno lo stesso percorso.
@@ -28,7 +24,7 @@ public record Document(Long id, String title, Path path, int wordCount) {
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof Document document)) return false;
-        return Objects.equals(path, document.path);
+        return Objects.equals(filename, document.filename);
     }
 
     /**
@@ -38,12 +34,7 @@ public record Document(Long id, String title, Path path, int wordCount) {
      */
     @Override
     public int hashCode() {
-        return Objects.hashCode(path);
-    }
-
-    @Override
-    public Long id() {
-        return id;
+        return Objects.hashCode(filename);
     }
 
     /**
@@ -62,8 +53,8 @@ public record Document(Long id, String title, Path path, int wordCount) {
      * @return il percorso come {@link Path}
      */
     @Override
-    public Path path() {
-        return path;
+    public String filename() {
+        return filename;
     }
 
     /**
