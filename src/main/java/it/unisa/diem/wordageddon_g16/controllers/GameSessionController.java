@@ -1,6 +1,7 @@
 package it.unisa.diem.wordageddon_g16.controllers;
 
 import it.unisa.diem.wordageddon_g16.models.AppContext;
+import it.unisa.diem.wordageddon_g16.models.Difficulty;
 import it.unisa.diem.wordageddon_g16.models.Document;
 import it.unisa.diem.wordageddon_g16.services.GameService;
 import it.unisa.diem.wordageddon_g16.services.SystemLogger;
@@ -8,16 +9,18 @@ import it.unisa.diem.wordageddon_g16.services.GameService.Question;
 import javafx.animation.KeyFrame;
 import javafx.animation.PauseTransition;
 import javafx.animation.Timeline;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -25,8 +28,14 @@ import java.util.List;
  * @brief Gestisce la sessione di gioco, mostrando il documento da leggere e le domande successive.
  */
 public class GameSessionController {
+    @FXML private StackPane stackPane;
     @FXML private AnchorPane readingPane;
     @FXML private AnchorPane questionPane;
+    @FXML private AnchorPane diffSelectionPane;
+
+    @FXML private Button diffEasyBTN;
+    @FXML private Button diffMediumBTN;
+    @FXML private Button diffHardBTN;
 
     @FXML private TextArea textDisplayArea;
     @FXML private ProgressBar timerBar;
@@ -50,21 +59,16 @@ public class GameSessionController {
      */
     public GameSessionController(AppContext appContext) {
         this.gameService = appContext.getGameService();
-        this.questions = new ArrayList<>();
-        questions=gameService.getQuestions();
-
+        this.questions = gameService.getQuestions();
     }
 
     /**
      * @brief Metodo chiamato automaticamente all'inizializzazione del controller.
      * Rende visibile inizialmente lo StackPane che si occupa della visualizzazione del testo da leggere con il timer.
-     * A
      */
     @FXML
     public void initialize() {
-        readingPane.setVisible(true);
-        questionPane.setVisible(false);
-        setupReadingPhase();
+        loadPane(diffSelectionPane);
         //generateQuestionsAsync();
     }
 
@@ -112,7 +116,7 @@ public class GameSessionController {
 
         // Si trasforma il timer calcolato dal metodo generateTimer(float influence) del GameService in secondi
         int seconds = (int) gameService.getTimeLimit().getSeconds();
-        startTimer(seconds, timerLabelRead, timerBar, this::switchToQuestions);
+        startTimer(seconds, timerLabelRead, timerBar, ()->loadPane(questionPane));
     }
 
 
@@ -127,8 +131,6 @@ public class GameSessionController {
             wait.play();
             return;
         }
-        readingPane.setVisible(false);
-        questionPane.setVisible(true);
         showQuestion(currentQuestionIndex);
     }
 
@@ -217,4 +219,25 @@ public class GameSessionController {
         return timer;
     }
 
+    private void loadPane(Node pane) {
+        for(Node p : stackPane.getChildren()) {
+            p.setVisible(false);
+        }
+        switch(pane.getId()){
+            case "readingPane" -> setupReadingPhase();
+            case "questionPane" -> switchToQuestions();
+            default -> {}
+        }
+        pane.setVisible(true);
+    }
+
+    public void onDifficultySelected(ActionEvent event) {
+        switch (((Button) event.getSource()).getId()){
+            case "diffEasyBTN" -> gameService.init(Difficulty.EASY);
+            case "diffMediumBTN" -> gameService.init(Difficulty.MEDIUM);
+            case "diffHardBTN" -> gameService.init(Difficulty.HARD);
+            default -> throw new IllegalArgumentException("Difficoltà non riconosciuta");
+        }
+
+    }
 }
