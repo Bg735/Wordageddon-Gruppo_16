@@ -221,4 +221,25 @@ public class GameSessionController {
         return timer;
     }
 
+    private void loadPane(Node pane) {
+        for(Node p : stackPane.getChildren()) {
+            p.setVisible(false);
+        }
+        switch(pane.getId()){
+            case "readingPane" -> setupReadingPhase();
+            case "questionPane" -> switchToQuestions();
+            default -> {}
+        }
+        pane.setVisible(true);
+    }
+
+    public void onDifficultySelected(ActionEvent event) {
+        switch (((Button) event.getSource()).getId()){
+            case "diffEasyBTN" -> gameService.init(Difficulty.EASY);
+            case "diffMediumBTN" -> gameService.init(Difficulty.MEDIUM);
+            case "diffHardBTN" -> gameService.init(Difficulty.HARD);
+            default -> throw new IllegalArgumentException("Difficoltà non riconosciuta");
+        }
+
+    }
 }
