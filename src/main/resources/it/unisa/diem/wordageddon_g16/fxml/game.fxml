@@ -18,35 +18,48 @@
 
 <StackPane prefHeight="832.0" prefWidth="1280.0" stylesheets="@../style/game.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unisa.diem.wordageddon_g16.controllers.GameSessionController">
    <children>
-      <AnchorPane fx:id="diffSelectionPane" id="diffSelectionPane" prefHeight="200.0" prefWidth="200.0">
-         <children>
-            <VBox alignment="CENTER" layoutX="420.0" layoutY="305.0" prefHeight="427.0" prefWidth="450.0" spacing="100.0" AnchorPane.bottomAnchor="100.0" AnchorPane.leftAnchor="420.0" AnchorPane.rightAnchor="420.0">
-               <children>
-                  <Button id="diffEasyBTN" fx:id="diffEasyBTN" mnemonicParsing="false" onAction="#onDifficultySelected" prefHeight="72.0" prefWidth="305.0" style="-fx-background-color: #37db4d;" text="Facile" textFill="WHITE">
-                     <font>
-                        <Font size="46.0" />
-                     </font>
-                  </Button>
-                  <Button id="diffMediumBTN" fx:id="diffMediumBTN" mnemonicParsing="false" onAction="#onDifficultySelected" prefHeight="72.0" prefWidth="305.0" style="-fx-background-color: #ffbf00;" text="Media" textFill="WHITE">
-                     <font>
-                        <Font size="46.0" />
-                     </font>
-                  </Button>
-                  <Button id="diffHardBTN" fx:id="diffHardBTN" mnemonicParsing="false" onAction="#onDifficultySelected" prefHeight="72.0" prefWidth="305.0" style="-fx-background-color: #e02d0d;" text="Difficile" textFill="WHITE">
-                     <font>
-                        <Font size="46.0" />
-                     </font>
-                  </Button>
-               </children>
-            </VBox>
-            <Label layoutX="282.0" layoutY="98.0" prefHeight="69.0" prefWidth="717.0" text="Seleziona la difficoltà della partita.">
-               <font>
-                  <Font size="47.0" />
-               </font>
-            </Label>
-         </children>
-      </AnchorPane>
-   
+       <AnchorPane fx:id="diffSelectionPane" id="diffSelectionPane" prefHeight="200.0" prefWidth="200.0">
+           <children>
+               <VBox alignment="TOP_CENTER" spacing="40.0"
+                     AnchorPane.topAnchor="100.0" AnchorPane.leftAnchor="100.0"
+                     AnchorPane.rightAnchor="100.0" AnchorPane.bottomAnchor="100.0">
+                   <children>
+                       <Label text="Seleziona la difficoltà della partita.">
+                           <font>
+                               <Font size="36.0" />
+                           </font>
+                       </Label>
+
+                       <VBox fx:id="difficultyButtonsBox" alignment="CENTER" spacing="30.0">
+                           <children>
+                               <Button fx:id="diffEasyBTN" text="Facile" textFill="WHITE"
+                                       prefWidth="305" minWidth="200" maxWidth="600"
+                                       style="-fx-background-color: #37db4d;">
+                                   <font>
+                                       <Font size="24.0" />
+                                   </font>
+                               </Button>
+                               <Button fx:id="diffMediumBTN" text="Media" textFill="WHITE"
+                                       prefWidth="305" minWidth="200" maxWidth="600"
+                                       style="-fx-background-color: #ffbf00;">
+                                   <font>
+                                       <Font size="24.0" />
+                                   </font>
+                               </Button>
+                               <Button fx:id="diffHardBTN" text="Difficile" textFill="WHITE"
+                                       prefWidth="305" minWidth="200" maxWidth="600"
+                                       style="-fx-background-color: #e02d0d;">
+                                   <font>
+                                       <Font size="24.0" />
+                                   </font>
+                               </Button>
+                           </children>
+                       </VBox>
+                   </children>
+               </VBox>
+           </children>
+       </AnchorPane>
+
        <AnchorPane fx:id="readingPane" id="readingPane" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="867.0" prefWidth="1322.0" stylesheets="@../style/readingSession.css" visible="false">
            <children>
                <VBox alignment="TOP_CENTER" spacing="30.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
