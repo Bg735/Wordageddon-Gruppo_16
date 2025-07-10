@@ -64,7 +64,7 @@ public class DocumentAnalysisTask extends Task<WDM> {
         Path filePath = docsDir.resolve(filename);
 
         // Controllo se il documento é giá presente nel database
-        boolean alreadyExists = documentDAO.selectById(filePath).isPresent();
+        boolean alreadyExists = documentDAO.selectById(filename).isPresent();
         if (alreadyExists) {
             SystemLogger.log("Documento già presente: " + filename, null);
             throw new RuntimeException("Documento già presente: " + filename);

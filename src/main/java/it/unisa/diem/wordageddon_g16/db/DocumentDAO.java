@@ -6,7 +6,6 @@ import it.unisa.diem.wordageddon_g16.models.Document;
 import it.unisa.diem.wordageddon_g16.services.SystemLogger;
 import javafx.util.Callback;
 
-import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -32,13 +31,15 @@ public class DocumentDAO extends JdbcDAO<Document> {
     /**
      * Recupera un documento dal database tramite il suo identificativo.
      *
-     * @param oPath l'identificativo del documento da recuperare
+     * @param obj l'identificativo del documento da recuperare
      * @return un Optional contenente il documento trovato, o vuoto se non esiste
      * @throws QueryFailedException se si verifica un errore durante la query
      */
     @Override
-    public Optional<Document> selectById(Object oPath) {
-        Path path = (Path) oPath;
+    public Optional<Document> selectById(Object obj) {
+        if (!(obj instanceof String id)) {
+            throw new IllegalArgumentException("Expected a String as id");
+        }
         String query = "SELECT * FROM Document WHERE id = ?";
         Callback<ResultSet, Optional<Document>> callback = res -> {
             try {
@@ -51,13 +52,12 @@ public class DocumentDAO extends JdbcDAO<Document> {
                     return Optional.of(document);
                 }
             } catch (SQLException e) {
-                SystemLogger.log("Error trying to get document by filename", e);
+                SystemLogger.log("Error trying to get document by id", e);
                 throw new QueryFailedException(e.getMessage());
             }
             return Optional.empty();
         };
-
-        return executeQuery(query, callback, path.toString());
+        return executeQuery(query, callback, id);
     }
 
 
