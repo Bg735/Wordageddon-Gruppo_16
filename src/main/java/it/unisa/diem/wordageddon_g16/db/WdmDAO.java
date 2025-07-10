@@ -143,7 +143,7 @@ public class WdmDAO extends JdbcDAO<WDM> {
         String query = "INSERT INTO WDM (document, word, occurrences) VALUES (?, ?, ?)";
         try{
             for (Map.Entry<String, Integer> entry : wdm.getWords().entrySet()) {
-                executeUpdate(query, wdm.getDocument().path(), entry.getKey(), entry.getValue());
+                executeUpdate(query, wdm.getDocument().id(), entry.getKey(), entry.getValue());
             }
         } catch (Exception e) {
             throw new QueryFailedException(e.getMessage());
