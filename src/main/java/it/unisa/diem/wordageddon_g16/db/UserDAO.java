@@ -72,7 +72,7 @@ public class UserDAO extends JdbcDAO<User> {
 
     @Override
     public void insert(User user) {
-        String query = "INSERT INTO User (name, password, isAdmin) VALUES (?, ?, ?)";
+        String query = "INSERT OR IGNORE INTO User (name, password, isAdmin) VALUES (?, ?, ?)";
         try {
             executeUpdate(query, user.getName(), user.getPassword(), user.isAdmin());
         } catch (SQLException e) {

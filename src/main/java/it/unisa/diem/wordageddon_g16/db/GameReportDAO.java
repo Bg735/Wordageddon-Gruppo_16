@@ -145,8 +145,8 @@ public class GameReportDAO extends JdbcDAO<GameReport> {
      */
     @Override
     public void insert(GameReport gameReport) {
-        String updateOnReport = "INSERT INTO GameReport (user, timestamp, difficulty, max_time, used_time, question_count, score) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        String updateOnContent = "INSERT INTO Content (report, document) VALUES (?, ?)";
+        String updateOnReport = "INSERT OR IGNORE INTO GameReport (user, timestamp, difficulty, max_time, used_time, question_count, score) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String updateOnContent = "INSERT OR IGNORE INTO Content (report, document) VALUES (?, ?)";
         try {
             executeUpdate(updateOnReport,
                     gameReport.getUser().getName(),

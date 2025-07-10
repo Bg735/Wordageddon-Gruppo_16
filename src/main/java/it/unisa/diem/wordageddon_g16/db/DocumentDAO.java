@@ -100,7 +100,7 @@ public class DocumentDAO extends JdbcDAO<Document> {
      */
     @Override
     public void insert(Document document) {
-        String query = "INSERT INTO Document (title, id, word_count) VALUES (?, ?, ?)";
+        String query = "INSERT OR IGNORE INTO Document (title, id, word_count) VALUES (?, ?, ?)";
         try {
             executeUpdate(query, document.title(), document.filename(), document.wordCount());
         } catch (Exception e) {

@@ -77,18 +77,17 @@ public class WdmDAO extends JdbcDAO<WDM> {
      * @return una lista di WDM ottenute dai risultati della query
      */
     private List<WDM> selectBase(String query, Object... params) {
-        // FA CRASHARE IL THREAD PRINCIPALE
         Callback<ResultSet, List<WDM>> callback = res -> {
             try {
                 if (res == null) {
                     return List.of();
                 }
-                Map<String, WDM> wdmMap = new HashMap<>();
+                Map<Path, WDM> wdmMap = new HashMap<>();
                 while (res.next()) {
-                    String filename = res.getString("document");
-                    var document = documentDAO.selectById(filename);
+                    Path docId = Path.of(res.getString("document"));
+                    var document = documentDAO.selectById(docId);
                     if (document.isPresent()) {
-                        WDM wdm = wdmMap.computeIfAbsent(filename, k -> new WDM(document.get(), new HashMap<>()));
+                        WDM wdm = wdmMap.computeIfAbsent(docId, k -> new WDM(document.get(), new HashMap<>()));
                         wdm.getWords().put(res.getString("word"), res.getInt("occurrences"));
                     }
                 }
