@@ -4,6 +4,7 @@ import it.unisa.diem.wordageddon_g16.models.AppContext;
 import it.unisa.diem.wordageddon_g16.models.Difficulty;
 import it.unisa.diem.wordageddon_g16.services.GameService;
 import it.unisa.diem.wordageddon_g16.services.GameService.Question;
+import it.unisa.diem.wordageddon_g16.services.ViewLoader;
 import javafx.animation.KeyFrame;
 import javafx.animation.PauseTransition;
 import javafx.animation.Timeline;
@@ -48,6 +49,7 @@ public class GameSessionController {
     @FXML private ProgressBar timerBarQuestion;
     @FXML private Label timerLabelQuestion;
     @FXML private Button nextButton;
+    @FXML private Button backButton;
 
     private final GameService gameService;
     private List<Question> questions;
@@ -251,5 +253,12 @@ public class GameSessionController {
             default -> throw new IllegalArgumentException("Difficoltà non riconosciuta");
         }
         loadPane(readingPane);
+    }
+
+    @FXML
+    private void onBackPressed(ActionEvent event) {
+        //Torna al menu principale o chiudi la finestra
+        ViewLoader.load(ViewLoader.View.MENU);
+
     }
 }

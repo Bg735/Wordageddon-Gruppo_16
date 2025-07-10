@@ -4,102 +4,93 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
+
 <StackPane id="stackPane" fx:id="stackPane" prefHeight="832.0" prefWidth="1280.0" stylesheets="@../style/game.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unisa.diem.wordageddon_g16.controllers.GameSessionController">
-   <children>
-       <AnchorPane id="diffSelectionPane" fx:id="diffSelectionPane" prefHeight="200.0" prefWidth="200.0">
-           <children>
-               <VBox alignment="CENTER" spacing="40.0" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="50.0" AnchorPane.rightAnchor="50.0" AnchorPane.topAnchor="50.0">
-                   <children>
-                       <Label contentDisplay="CENTER" text="Seleziona la difficoltà della partita." textFill="WHITE" wrapText="true">
-                           <font>
-                               <Font size="30.0" />
-                           </font>
-                       </Label>
+    <children>
 
-                       <VBox fx:id="difficultyButtonsBox" alignment="CENTER" spacing="30.0" VBox.vgrow="ALWAYS">
-                           <children>
-                               <Button fx:id="diffEasyBTN" maxWidth="600" minWidth="200" onAction="#onDifficultySelected" prefWidth="305" style="-fx-background-color: #37db4d;" styleClass="buttonDiff" text="Facile" textFill="WHITE">
-                                   <font>
-                                       <Font size="24.0" />
-                                   </font>
-                               </Button>
-                               <Button fx:id="diffMediumBTN" maxWidth="600" minWidth="200" onAction="#onDifficultySelected" prefWidth="305" style="-fx-background-color: #ffbf00;" styleClass="buttonDiff" text="Media" textFill="WHITE">
-                                   <font>
-                                       <Font size="24.0" />
-                                   </font>
-                               </Button>
-                               <Button fx:id="diffHardBTN" maxWidth="600" minWidth="200" onAction="#onDifficultySelected" prefWidth="305" style="-fx-background-color: #e02d0d;" styleClass="buttonDiff" text="Difficile" textFill="WHITE">
-                                   <font>
-                                       <Font size="24.0" />
-                                   </font>
-                               </Button>
-                           </children>
-                       </VBox>
-                   </children>
-               </VBox>
-           </children>
-       </AnchorPane>
+        <!-- Schermata Selezione Difficoltà -->
+        <AnchorPane id="diffSelectionPane" fx:id="diffSelectionPane" prefHeight="200.0" prefWidth="200.0">
+            <children>
+                <Button fx:id="backButtonDiff" layoutX="10" layoutY="10" onAction="#onBackPressed" text="←" />
+                <VBox alignment="CENTER" spacing="40.0" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="50.0" AnchorPane.rightAnchor="50.0" AnchorPane.topAnchor="50.0">
+                    <children>
+                        <Label contentDisplay="CENTER" text="Seleziona la difficoltà della partita." textFill="WHITE" wrapText="true">
+                            <font><Font size="30.0" /></font>
+                        </Label>
+                        <VBox fx:id="difficultyButtonsBox" alignment="CENTER" spacing="30.0" VBox.vgrow="ALWAYS">
+                            <children>
+                                <Button fx:id="diffEasyBTN" maxWidth="600" minWidth="200" onAction="#onDifficultySelected" prefWidth="305" style="-fx-background-color: #37db4d;" styleClass="buttonDiff" text="Facile" textFill="WHITE">
+                                    <font><Font size="24.0" /></font>
+                                </Button>
+                                <Button fx:id="diffMediumBTN" maxWidth="600" minWidth="200" onAction="#onDifficultySelected" prefWidth="305" style="-fx-background-color: #ffbf00;" styleClass="buttonDiff" text="Media" textFill="WHITE">
+                                    <font><Font size="24.0" /></font>
+                                </Button>
+                                <Button fx:id="diffHardBTN" maxWidth="600" minWidth="200" onAction="#onDifficultySelected" prefWidth="305" style="-fx-background-color: #e02d0d;" styleClass="buttonDiff" text="Difficile" textFill="WHITE">
+                                    <font><Font size="24.0" /></font>
+                                </Button>
+                            </children>
+                        </VBox>
+                    </children>
+                </VBox>
+            </children>
+        </AnchorPane>
 
-       <AnchorPane id="readingPane" fx:id="readingPane" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="867.0" prefWidth="1322.0" stylesheets="@../style/readingSession.css" visible="false">
-           <children>
-               <VBox alignment="TOP_CENTER" spacing="30.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                   <children>
-                       <Label text="Focus Now" />
-                       <HBox alignment="CENTER" spacing="20.0">
-                           <children>
-                               <ProgressBar fx:id="timerBar" prefHeight="10.0" prefWidth="200.0" progress="0.7" styleClass="progress-bar" />
-                               <Label fx:id="timerLabelRead" text="timer" textFill="WHITE">
-                                   <font>
-                                       <Font name="System Bold" size="12.0" />
-                                   </font>
-                               </Label>
-                           </children>
-                       </HBox>
-                       <TextArea fx:id="textDisplayArea" editable="false" prefHeight="596.0" prefWidth="1259.0" text="Testo..." wrapText="true" />
-                   </children>
-                   <padding>
-                       <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-                   </padding>
-               </VBox>
-           </children>
-       </AnchorPane>
-   
-   
-       <AnchorPane id="questionPane" fx:id="questionPane" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="867.0" prefWidth="1322.0" stylesheets="@../style/question.css" visible="false">
-      <children>
-              <Label alignment="CENTER" text="Scegli la risposta corretta" textFill="WHITE" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="20.0">
-                  <font>
-                      <Font size="20.0" />
-                  </font>
-            </Label>
-              <HBox alignment="CENTER" spacing="10" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="60.0">
-                 <children>
-                     <ProgressBar fx:id="timerBarQuestion" prefHeight="10.0" prefWidth="200.0" progress="0.7" styleClass="progress-bar" />
-                     <Label fx:id="timerLabelQuestion" text="2:48" textFill="WHITE" />
-                 </children>
-              </HBox>
-              <VBox alignment="TOP_RIGHT" spacing="10" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="20.0">
-                 <children>
-                     <Label fx:id="questionCountLabel" styleClass="numberQuestion" text="3/12" />
-                     <Button fx:id="nextButton" styleClass="avantiBtn" text="Avanti" />
-                 </children>
-              </VBox>
-              <VBox fx:id="questionContainer" alignment="CENTER" spacing="20" AnchorPane.bottomAnchor="40.0" AnchorPane.leftAnchor="60.0" AnchorPane.rightAnchor="60.0" AnchorPane.topAnchor="120.0">
-                 <children>
-                     <Label fx:id="questionText" maxWidth="602.0" prefHeight="126.0" prefWidth="602.0" styleClass="questionLabel" textAlignment="CENTER" wrapText="true" />
-                     <VBox fx:id="answerBox" alignment="CENTER" spacing="15">
-                        <children>
-                            <Button prefHeight="46.0" prefWidth="320.0" styleClass="buttonAnswer" text="Risposta 1" />
-                            <Button prefHeight="46.0" prefWidth="320.0" styleClass="buttonAnswer" text="Risposta 2" />
-                            <Button prefHeight="46.0" prefWidth="320.0" styleClass="buttonAnswer" text="Risposta 3" />
-                            <Button prefHeight="46.0" prefWidth="320.0" styleClass="buttonAnswer" text="Risposta 4" />
-                        </children>
-                     </VBox>
-                 </children>
-              </VBox>
-      </children>
-   
-       </AnchorPane>
-   </children>
+        <!-- Schermata Lettura Documento -->
+        <AnchorPane id="readingPane" fx:id="readingPane" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="867.0" prefWidth="1322.0" stylesheets="@../style/readingSession.css" visible="false">
+            <children>
+                <VBox alignment="TOP_CENTER" spacing="30.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                    <children>
+                        <Label text="Focus Now" />
+                        <HBox alignment="CENTER" spacing="20.0">
+                            <children>
+                                <ProgressBar fx:id="timerBar" prefHeight="10.0" prefWidth="200.0" progress="0.7" styleClass="progress-bar" />
+                                <Label fx:id="timerLabelRead" text="timer" textFill="WHITE">
+                                    <font><Font name="System Bold" size="12.0" /></font>
+                                </Label>
+                            </children>
+                        </HBox>
+                        <TextArea fx:id="textDisplayArea" editable="false" prefHeight="596.0" prefWidth="1259.0" text="Testo..." wrapText="true" />
+                    </children>
+                    <padding>
+                        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                    </padding>
+                </VBox>
+            </children>
+        </AnchorPane>
 
+        <!-- Schermata Domande -->
+        <AnchorPane id="questionPane" fx:id="questionPane" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="867.0" prefWidth="1322.0" stylesheets="@../style/question.css" visible="false">
+            <children>
+                <Label alignment="CENTER" text="Scegli la risposta corretta" textFill="WHITE" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="20.0">
+                    <font><Font size="20.0" /></font>
+                </Label>
+                <HBox alignment="CENTER" spacing="10" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="60.0">
+                    <children>
+                        <ProgressBar fx:id="timerBarQuestion" prefHeight="10.0" prefWidth="200.0" progress="0.7" styleClass="progress-bar" />
+                        <Label fx:id="timerLabelQuestion" text="2:48" textFill="WHITE" />
+                    </children>
+                </HBox>
+                <VBox alignment="TOP_RIGHT" spacing="10" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="20.0">
+                    <children>
+                        <Label fx:id="questionCountLabel" styleClass="numberQuestion" text="3/12" />
+                        <Button fx:id="nextButton" styleClass="avantiBtn" text="Avanti" />
+                    </children>
+                </VBox>
+                <VBox fx:id="questionContainer" alignment="CENTER" spacing="20" AnchorPane.bottomAnchor="40.0" AnchorPane.leftAnchor="60.0" AnchorPane.rightAnchor="60.0" AnchorPane.topAnchor="120.0">
+                    <children>
+                        <Label fx:id="questionText" maxWidth="602.0" prefHeight="126.0" prefWidth="602.0" styleClass="questionLabel" textAlignment="CENTER" wrapText="true" />
+                        <VBox fx:id="answerBox" alignment="CENTER" spacing="15">
+                            <children>
+                                <Button prefHeight="46.0" prefWidth="320.0" styleClass="buttonAnswer" text="Risposta 1" />
+                                <Button prefHeight="46.0" prefWidth="320.0" styleClass="buttonAnswer" text="Risposta 2" />
+                                <Button prefHeight="46.0" prefWidth="320.0" styleClass="buttonAnswer" text="Risposta 3" />
+                                <Button prefHeight="46.0" prefWidth="320.0" styleClass="buttonAnswer" text="Risposta 4" />
+                            </children>
+                        </VBox>
+                    </children>
+                </VBox>
+            </children>
+        </AnchorPane>
+
+    </children>
 </StackPane>
