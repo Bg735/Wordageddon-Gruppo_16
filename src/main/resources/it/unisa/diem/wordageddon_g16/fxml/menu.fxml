@@ -146,7 +146,7 @@
                         <Image url="@../assets/logo.png" />
                     </image>
                 </ImageView>
-                <Button fx:id="startBtn" maxWidth="302.0" onAction="#onMenuRequested" prefHeight="54.0" prefWidth="302.0" styleClass="giocaBtn" text="GIOCA">
+                <Button fx:id="startBtn" maxWidth="302.0" onAction="#playGame" prefHeight="54.0" prefWidth="302.0" styleClass="giocaBtn" text="GIOCA">
                     <font>
                         <Font name="Alata Regular" size="54.0" />
                     </font>

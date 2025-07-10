@@ -21,6 +21,7 @@ import javafx.util.Duration;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 //import it.unisa.diem.wordageddon_g16.services.tasks.GenerateQuestionsTask;
 
@@ -52,7 +53,7 @@ public class GameSessionController {
     @FXML private Button nextButton;
 
     private final GameService gameService;
-    private List<Question> questions;
+    private List<Question> questions= new ArrayList<>();
     private int currentQuestionIndex = 0;
     private Timeline questionTimer;
 
@@ -62,7 +63,6 @@ public class GameSessionController {
      */
     public GameSessionController(AppContext appContext) {
         this.gameService = appContext.getGameService();
-        this.questions = gameService.getQuestions();
     }
 
     /**

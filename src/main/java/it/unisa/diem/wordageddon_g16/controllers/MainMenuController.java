@@ -46,9 +46,7 @@ public class MainMenuController implements Initializable {
     }
 
     @FXML
-    void onMenuRequested(ActionEvent event) {
-        GameService gameService= context.getGameService();
-        gameService.init(Difficulty.EASY);
+    void playGame(ActionEvent event) {
         ViewLoader.load(ViewLoader.View.GAME);
     }
 
