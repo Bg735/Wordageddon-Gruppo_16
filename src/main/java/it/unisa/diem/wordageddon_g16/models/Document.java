@@ -12,8 +12,12 @@ import java.util.Objects;
  * @param path      il percorso del file del documento
  * @param wordCount il numero di parole nel documento
  */
-public record Document(String title, Path path, int wordCount) {
+public record Document(Integer id, String title, Path path, int wordCount) {
 
+    // Costruttore non canonico: imposta a null l'id
+    public Document(String title, Path path, int wordCount){
+        this(null, title, path, wordCount);
+    }
     /**
      * Verifica l'uguaglianza tra questo documento e un altro oggetto.
      * Due documenti sono uguali se hanno lo stesso percorso.
@@ -35,6 +39,11 @@ public record Document(String title, Path path, int wordCount) {
     @Override
     public int hashCode() {
         return Objects.hashCode(path);
+    }
+
+    @Override
+    public Integer id() {
+        return id;
     }
 
     /**

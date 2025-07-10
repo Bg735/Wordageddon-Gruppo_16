@@ -1,9 +1,7 @@
 package it.unisa.diem.wordageddon_g16;
 
 import it.unisa.diem.wordageddon_g16.controllers.*;
-import it.unisa.diem.wordageddon_g16.db.DAO;
 import it.unisa.diem.wordageddon_g16.models.*;
-import it.unisa.diem.wordageddon_g16.models.interfaces.Repository;
 import it.unisa.diem.wordageddon_g16.services.Resources;
 import it.unisa.diem.wordageddon_g16.services.ViewLoader;
 import javafx.application.Application;
@@ -11,29 +9,24 @@ import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import javafx.util.Callback;
 import javafx.scene.image.Image;
-
-import java.io.IOException;
 
 public class WordageddonApp extends Application {
 
     @Override
-    public void start(Stage stage) throws IOException {;
+    public void start(Stage stage){
         var repo = new JdbcRepository();
         var context = new AppContext(repo);
 
         Callback<Class<?>,Object> controllerFactory = clazz -> switch (clazz.getSimpleName()) {
             case "AuthController" -> new AuthController(context);
             case "MainMenuController" -> new MainMenuController(context);
-            case "GameSessionController" -> new GameSessionController();
+            case "GameSessionController" -> new GameSessionController(context);
             case "LeaderboardController" -> new LeaderboardController(context);
             case "UserPanelController" -> new UserPanelController(context);
 
-            default -> {
-                throw new RuntimeException("Failed to create controller");
-            }
+            default -> throw new RuntimeException("Failed to create controller");
         };
 
         stage.setResizable(true);
@@ -55,9 +48,7 @@ public class WordageddonApp extends Application {
         }
 
         System.out.println(Font.loadFont(getClass().getResourceAsStream("/it/unisa/diem/wordageddon_g16/fonts/Alata-Regular.ttf"), 12));
-        stage.setOnCloseRequest(event -> {
-            repo.close();
-        });
+        stage.setOnCloseRequest(_ -> repo.close());
         stage.setTitle("Wordageddon");
         stage.show();
     }
