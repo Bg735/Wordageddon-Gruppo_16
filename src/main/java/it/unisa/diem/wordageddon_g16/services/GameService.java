@@ -402,7 +402,7 @@ public class GameService {
                 index = i;
             }
         }
-        return Question.create("In quale di questi documenti appare la parola " + word + "?", answers, index);
+        return Question.create("In quale di questi documenti appare la parola " + word.toUpperCase() + "?", answers, index);
     }
 
     private Question whichAbsentQuestion() {
@@ -441,6 +441,7 @@ public class GameService {
     }
 
     /**
+     * DA RIFARE
      * Genera una parola che sicuramente non è presente nel set delle parole.
      * Puoi personalizzare la logica per generare parole più realistiche.
      *
