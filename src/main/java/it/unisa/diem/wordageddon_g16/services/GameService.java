@@ -541,17 +541,16 @@ public class GameService {
     /**
      * @brief Task per il parsing dei documenti prima della fase di lettura
      */
-    public StringBuffer setupReadingPhase() {
-        StringBuffer text = new StringBuffer();
+    public Map<Document,String> setupReadingPhase() {
+        Map<Document,String> result = new HashMap<>();
         for (Document doc : getDocuments()) {
             Path path = Path.of(Config.get(Config.Props.DOCUMENTS_DIR) + doc.filename());
             try {
-                text.append(Files.readString(path)).append("\n");
-                System.out.println(text);
+                result.put(doc,Files.readString(path));
             } catch (IOException e) {
                 SystemLogger.log("Errore nella lettura del documento", e);
             }
         }
-        return text;
+        return result;
     }
 }
