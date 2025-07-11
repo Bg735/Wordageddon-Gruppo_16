@@ -1,11 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
-<StackPane id="stackPane" fx:id="stackPane" prefHeight="832.0" prefWidth="1280.0" stylesheets="@../style/game.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unisa.diem.wordageddon_g16.controllers.GameSessionController">
+<StackPane id="stackPane" fx:id="stackPane" prefHeight="832.0" prefWidth="1280.0" stylesheets="@../style/game.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unisa.diem.wordageddon_g16.controllers.GameSessionController">
     <children>
 
         <!-- Schermata Selezione Difficoltà -->
@@ -81,10 +87,10 @@
                         <Label fx:id="questionText" maxWidth="602.0" prefHeight="126.0" prefWidth="602.0" styleClass="questionLabel" textAlignment="CENTER" wrapText="true" />
                         <VBox fx:id="answerBox" alignment="CENTER" spacing="15">
                             <children>
-                                <Button prefHeight="46.0" prefWidth="320.0" styleClass="buttonAnswer" text="Risposta 1" />
-                                <Button prefHeight="46.0" prefWidth="320.0" styleClass="buttonAnswer" text="Risposta 2" />
-                                <Button prefHeight="46.0" prefWidth="320.0" styleClass="buttonAnswer" text="Risposta 3" />
-                                <Button prefHeight="46.0" prefWidth="320.0" styleClass="buttonAnswer" text="Risposta 4" />
+                                <Button fx:id="answer1Btn" prefHeight="46.0" prefWidth="320.0" styleClass="buttonAnswer" text="Risposta 1" />
+                                <Button fx:id="answer2Btn" prefHeight="46.0" prefWidth="320.0" styleClass="buttonAnswer" text="Risposta 2" />
+                                <Button fx:id="answer3Btn" prefHeight="46.0" prefWidth="320.0" styleClass="buttonAnswer" text="Risposta 3" />
+                                <Button fx:id="answer4Btn" prefHeight="46.0" prefWidth="320.0" styleClass="buttonAnswer" text="Risposta 4" />
                             </children>
                         </VBox>
                     </children>

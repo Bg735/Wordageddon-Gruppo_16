@@ -48,6 +48,10 @@ public class GameSessionController {
     @FXML private Label questionCountLabel;
     @FXML private ProgressBar timerBarQuestion;
     @FXML private Label timerLabelQuestion;
+    @FXML private Button answer1Btn;
+    @FXML private Button answer2Btn;
+    @FXML private Button answer3Btn;
+    @FXML private Button answer4Btn;
     @FXML private Button nextButton;
     @FXML private Button backButton;
 
@@ -57,7 +61,7 @@ public class GameSessionController {
     private Timeline questionTimer;
 
     private Service<StringBuffer> readingSetupService;
-    private Service<StringBuffer> questionSetupService;
+    private Service questionSetupService;
 
 
     /**
@@ -75,7 +79,6 @@ public class GameSessionController {
      */
     @FXML
     public void initialize() {
-
         readingSetupService = new Service<>() {
             @Override
             protected Task<StringBuffer> createTask() {
@@ -92,10 +95,30 @@ public class GameSessionController {
                             textDisplayArea.setText(text.toString());
                         }
                     );
-                    gameService.getQuestions();
+
                     int seconds = (int) gameService.getTimeLimit().getSeconds();
                     // alla fine del timer mostra questionPane
-                    startTimer(seconds, timerLabelRead, timerBar, () -> loadPane(questionPane));
+                    startTimer(3, timerLabelRead, timerBar, () -> loadPane(questionPane)); //METTI SECOND
+
+
+                    questionSetupService = new Service<List<Question>>() {
+                        @Override
+                        protected Task<List<Question>> createTask() {
+                            return new Task<>() {
+                                @Override
+                                protected List<Question> call() {
+                                    return gameService.getQuestions(); // recupera le domande
+                                }
+                            };
+                        }
+                    };
+                    questionSetupService.setOnSucceeded(e -> {
+                        questions = (List<Question>) questionSetupService.getValue();
+                    });
+                    questionSetupService.setOnFailed(_ -> endGame());
+                    questionSetupService.start();
+
+
                 });
                 task.setOnFailed(_ -> endGame());
                 return task;
@@ -105,46 +128,6 @@ public class GameSessionController {
         loadPane(diffSelectionPane);
     }
 
-    /**
-     * @brief Avvia in background la generazione delle domande per la sessione di gioco.
-     *
-     * Questo metodo crea un Service JavaFX che lancia in modo asincrono un Task
-     * per la generazione delle domande, sfruttando il metodo getQuestions() del GameService.
-     *
-     * La generazione avviene durante la fase di lettura dei documenti (readingPane), così da non bloccare l'interfaccia utente.
-     *
-     * Al completamento con successo, la lista delle domande generate viene salvata in questions.
-     *
-     * @note Deve essere invocato prima della visualizzazione delle domande (prima di `switchToQuestions()`).
-     */
-   /* private void generateQuestionsAsync() {
-        Service<List<Question>> service = new Service<>() {
-            @Override
-            protected Task<List<Question>> createTask() {
-                return new GenerateQuestionsTask(gameService);
-            }
-        };
-        service.setOnSucceeded(e -> questions = service.getValue());
-        service.setOnFailed(e -> SystemLogger.log("Errore generazione domande", service.getException()));
-        service.start();
-    }
-*/
-
-
-
-    /**
-     * @brief Passa dalla fase di lettura a quella delle domande:
-     *
-     */
-    private void switchToQuestions() {
-        if (questions.isEmpty()) {
-            PauseTransition wait = new PauseTransition(Duration.seconds(1));
-            wait.setOnFinished(e -> switchToQuestions());
-            wait.play();
-            return;
-        }
-        showQuestion(currentQuestionIndex);
-    }
 
     /**
      * @brief Mostra la domanda corrente e prepara i pulsanti delle risposte.
@@ -155,29 +138,79 @@ public class GameSessionController {
             endGame();
             return;
         }
+
         Question q = questions.get(index);
         questionText.setText(q.text());
         questionCountLabel.setText((index + 1) + "/" + questions.size());
 
-        answerBox.getChildren().clear();
         List<String> answers = q.answers();
+        Button[] buttons = { answer1Btn, answer2Btn, answer3Btn, answer4Btn };
 
-        for (int i = 0; i < answers.size(); i++) {
-            int finalI = i;
-            Button btn = new Button(answers.get(i));
-            btn.getStyleClass().add("buttonAnswer");
-            btn.setOnAction(e -> handleAnswer(finalI));
-            answerBox.getChildren().add(btn);
+        for (int i = 0; i < buttons.length; i++) {
+            Button btn = buttons[i];
+            if (i < answers.size()) {
+                btn.setText(answers.get(i));
+                btn.setDisable(false);
+                btn.setStyle("");
+                btn.setVisible(true);
+
+                final int answerIndex = i;
+                btn.setOnAction(e -> {
+                    // ✅ STOPPA IL TIMER
+                    if (questionTimer != null) {
+                        questionTimer.stop();
+                        questionTimer = null;
+                    }
+
+                    // Controlla la risposta
+                    boolean isCorrect = answerIndex == q.correctAnswerIndex();
+
+                    if (isCorrect) {
+                        btn.setStyle("-fx-background-color: #4CAF50;");
+                    } else {
+                        btn.setStyle("-fx-background-color: #F44336;");
+                        buttons[q.correctAnswerIndex()].setStyle("-fx-background-color: #4CAF50;");
+                    }
+
+                    // Disabilita tutti i bottoni
+                    for (Button b : buttons) {
+                        b.setDisable(true);
+                    }
+
+                    // ✅ Pausa di 0.5 secondi per far vedere la risposta corretta
+                    PauseTransition pause = new PauseTransition(Duration.seconds(0.5));
+                    pause.setOnFinished(ev -> {
+                        currentQuestionIndex++;
+                        showQuestion(currentQuestionIndex);
+                    });
+                    pause.play();
+                });
+            } else {
+                btn.setVisible(false);
+            }
         }
-        //BISOGNA DECIDERE IL TEMPO DELLE DOMANDE COME GESTIRLO
-        // Avvia il timer della domanda corrente. Se il tempo scade, passa automaticamente alla successiva.
-        startTimer(20, timerLabelQuestion, timerBarQuestion, () -> {
-            currentQuestionIndex++;
-            showQuestion(currentQuestionIndex);
+
+        questionTimer = startTimer(20, timerLabelQuestion, timerBarQuestion, () -> {
+            // Tempo scaduto → mostra la risposta corretta e vai avanti dopo 0.5s
+            Platform.runLater(() -> {
+                // Disabilita bottoni
+                for (Button b : buttons) {
+                    b.setDisable(true);
+                }
+
+                // Evidenzia la risposta corretta
+                buttons[q.correctAnswerIndex()].setStyle("-fx-background-color: #4CAF50;");
+
+                PauseTransition pause = new PauseTransition(Duration.seconds(0.5));
+                pause.setOnFinished(e -> {
+                    currentQuestionIndex++;
+                    showQuestion(currentQuestionIndex);
+                });
+                pause.play();
+            });
         });
-
-
     }
+
 
     /**
      * @brief Gestisce la selezione della risposta da parte dell’utente.
@@ -212,21 +245,24 @@ public class GameSessionController {
      * @return Timeline oggetto che rappresenta il timer in esecuzione.
      */
     private Timeline startTimer(int durationSeconds, Label label, ProgressBar bar, Runnable onFinished) {
-        //Imposta la label che mostra il tempo rimanente a durationSeconds
         label.setText(durationSeconds + "s");
-
         bar.setProgress(0);
 
+        final int[] remainingTime = {durationSeconds};
+        Timeline[] timelineRef = new Timeline[1]; // workaround per accedere dall’interno
+
         Timeline timer = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
-            //Viene descrementato il tempo rimanente
-            int remaining = Integer.parseInt(label.getText().replace("s", "")) - 1;
-            label.setText(remaining + "s");
-            bar.setProgress((double) (durationSeconds - remaining) / durationSeconds);
-            if (remaining <= 0) {
-                ((Timeline) e.getSource()).stop(); //Blocca la Timeline
-                onFinished.run(); // Viene eseguito il metodo passato
+            remainingTime[0]--;
+            label.setText(remainingTime[0] + "s");
+            bar.setProgress((double) (durationSeconds - remainingTime[0]) / durationSeconds);
+
+            if (remainingTime[0] <= 0) {
+                timelineRef[0].stop();
+                onFinished.run();
             }
         }));
+
+        timelineRef[0] = timer; // assegna la variabile finale
         timer.setCycleCount(durationSeconds);
         timer.play();
         return timer;
@@ -238,7 +274,7 @@ public class GameSessionController {
         }
         switch(pane.getId()){
             case "readingPane" -> readingSetupService.start();
-            case "questionPane" -> switchToQuestions();
+            case "questionPane" -> showQuestion(0);
             default -> {}
         }
         pane.setVisible(true);

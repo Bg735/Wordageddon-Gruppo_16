@@ -136,6 +136,45 @@ public class GameService {
         }
         return questions;
     }
+    public Question whichMoreQuestion() {
+        return Question.create(
+                "Quale parola appare più spesso?",
+                List.of("Mela", "Banana", "Arancia", "Pera"),
+                1 // Indice della risposta corretta
+        );
+    }
+
+    public Question whichLessQuestion() {
+        return Question.create(
+                "Quale parola appare meno frequentemente?",
+                List.of("Casa", "Auto", "Bicicletta", "Treno"),
+                3
+        );
+    }
+
+    public Question absoluteFrequencyQuestion() {
+        return Question.create(
+                "Quante volte appare la parola 'sole'?",
+                List.of("3", "5", "7", "2"),
+                0
+        );
+    }
+
+    public Question whichDocumentQuestion() {
+        return Question.create(
+                "In quale documento si trova la parola 'energia'?",
+                List.of("Documento A", "Documento B", "Documento C", "Documento D"),
+                2
+        );
+    }
+
+    public Question whichAbsentQuestion() {
+        return Question.create(
+                "Quale parola non è presente nei documenti?",
+                List.of("Luna", "Terra", "Stella", "Nebulosa"),
+                3
+        );
+    }
 
     /**
      * Carica nella mappa wdmMap le matrici parola-documento per tutti i documenti della partita.
@@ -162,32 +201,7 @@ public class GameService {
      * @return una domanda di tipo "frequenza assoluta"
      * @throws IllegalStateException se non sono disponibili parole
      */
-    private Question absoluteFrequencyQuestion() {
-        List<Document> docs = params.documents;
-        Document document = docs.get(GameParams.random.nextInt(docs.size()));
-        WDM wdm = wdmMap.get(document);
 
-        List<String> words = new ArrayList<>(wdm.getWords().keySet());
-        if (words.isEmpty()) throw new IllegalStateException("No words available");
-
-        String word = words.get(GameParams.random.nextInt(words.size()));
-        int frequency = wdm.getWords().get(word);
-
-        Set<Integer> wrongAnswers = new HashSet<>();
-        while (wrongAnswers.size() < 3) {
-            int answerIndex = frequency + GameParams.random.nextInt(5) - 2;
-            if (answerIndex != frequency && answerIndex > 0) {
-                wrongAnswers.add(answerIndex);
-            }
-        }
-        List<String> answers = new ArrayList<>();
-        for (int answerIndex : wrongAnswers) {
-            answers.add(String.valueOf(answerIndex));
-        }
-        int correctAnswerIndex = GameParams.random.nextInt(4);
-        answers.add(correctAnswerIndex, String.valueOf(frequency));
-        return Question.create("Quante volte appare la parola " + word + " nel documento " + document.title() + "?", answers, correctAnswerIndex);
-    }
 
     /**
      * Crea una domanda che chiede quale parola appare più frequentemente tra quelle proposte.
@@ -195,32 +209,7 @@ public class GameService {
      *
      * @return una domanda di tipo "quale appare di più"
      */
-    private Question whichMoreQuestion() {
-        List<Document> docs = params.documents;
-        Document document = docs.get(GameParams.random.nextInt(docs.size()));
-        WDM wdm = wdmMap.get(document);
 
-        List<Map.Entry<String, Integer>> wordFrequency = new ArrayList<>(wdm.getWords().entrySet());
-        Collections.shuffle(wordFrequency);
-
-        List<Map.Entry<String, Integer>> currentAnswer = new ArrayList<>();
-        for (int y = 0; y < 4; y++) {
-            currentAnswer.add(wordFrequency.get(y));
-        }
-
-        List<String> answers = new ArrayList<>();
-        int correctIndex = 0;
-        int maxFreq = -1;
-        for (int i = 0; i < currentAnswer.size(); i++) {
-            Map.Entry<String, Integer> entry = currentAnswer.get(i);
-            answers.add(entry.getKey());
-            if (entry.getValue() > maxFreq) {
-                maxFreq = entry.getValue();
-                correctIndex = i;
-            }
-        }
-        return Question.create("Quale di queste parole appare più frequentemente nel documento " + document.title() + "?", answers, correctIndex);
-    }
 
     /**
      * Crea una domanda che chiede quale parola appare meno frequentemente tra quelle proposte.
@@ -228,33 +217,7 @@ public class GameService {
      *
      * @return una domanda di tipo "quale appare di meno"
      */
-    private Question whichLessQuestion() {
-        List<Document> docs = params.documents;
-        Document document = docs.get(GameParams.random.nextInt(docs.size()));
-        WDM wdm = wdmMap.get(document);
 
-        List<Map.Entry<String, Integer>> wordFrequency = new ArrayList<>(wdm.getWords().entrySet());
-        Collections.shuffle(wordFrequency);
-
-        List<Map.Entry<String, Integer>> selected = new ArrayList<>();
-        for (int i = 0; i < 4; i++) {
-            selected.add(wordFrequency.get(i));
-        }
-
-        int correctIndex = 0;
-        int minFreq = Integer.MAX_VALUE;
-        for (int i = 0; i < selected.size(); i++) {
-            if (selected.get(i).getValue() < minFreq) {
-                minFreq = selected.get(i).getValue();
-                correctIndex = i;
-            }
-        }
-        List<String> answers = new ArrayList<>();
-        for (var entry : selected) {
-            answers.add(entry.getKey());
-        }
-        return Question.create("Quale delle seguenti parole appare meno frequentemente nel documento " + document.title() + "?", answers, correctIndex);
-    }
 
     /**
      * Crea una domanda che chiede in quale documento appare una determinata parola.
@@ -263,35 +226,7 @@ public class GameService {
      * @return una domanda di tipo "in quale documento"
      * @throws IllegalStateException se non sono disponibili parole
      */
-    private Question whichDocumentQuestion() {
-        List<Document> docs = params.documents;
-        Document document = docs.get(GameParams.random.nextInt(docs.size()));
-        WDM wdm = wdmMap.get(document);
 
-        List<String> words = new ArrayList<>(wdm.getWords().keySet());
-        if (words.isEmpty()) throw new IllegalStateException("No words available");
-
-        String word = words.get(GameParams.random.nextInt(words.size()));
-
-        List<Document> docAnswer = new ArrayList<>();
-        docAnswer.add(document);
-        while (docAnswer.size() < 4) {
-            Document d = docs.get(GameParams.random.nextInt(docs.size()));
-            docAnswer.add(d);
-        }
-        Collections.shuffle(docAnswer);
-
-        List<String> answers = new ArrayList<>();
-        int index = -1;
-        for (int i = 0; i < docAnswer.size(); i++) {
-            Document d = docAnswer.get(i);
-            answers.add(d.title());
-            if (d.equals(document)) {
-                index = i;
-            }
-        }
-        return Question.create("In quale di questi documenti appare la parola " + word + "?", answers, index);
-    }
 
     /**
      * Crea una domanda che chiede quale parola NON appare in nessun documento.
@@ -300,31 +235,7 @@ public class GameService {
      * @return una domanda di tipo "quale assente"
      * @throws IllegalStateException se non ci sono abbastanza parole per generare la domanda
      */
-    private Question whichAbsentQuestion() {
-        List<Document> docs = params.documents;
-        Set<String> allWords = new HashSet<>();
-        for (WDM wdm : wdmMap.values()) {
-            allWords.addAll(wdm.getWords().keySet());
-        }
-        if (allWords.size() < 3) {
-            throw new IllegalStateException("Not enough words for the question");
-        }
 
-        List<String> presentWords = new ArrayList<>(allWords);
-        Collections.shuffle(presentWords);
-        List<String> answers = new ArrayList<>();
-        answers.add(presentWords.get(0));
-        answers.add(presentWords.get(1));
-        answers.add(presentWords.get(2));
-
-        String absentWord = "rossella"; // Da migliorare: generare parola assente randomica
-        answers.add(absentWord);
-
-        Collections.shuffle(answers);
-        int correctIndex = answers.indexOf(absentWord);
-
-        return Question.create("Quale delle seguenti parole NON è presente in nessun documento?", answers, correctIndex);
-    }
 
     /**
      * Record che rappresenta una domanda del quiz.
