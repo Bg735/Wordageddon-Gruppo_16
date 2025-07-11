@@ -69,8 +69,6 @@ public class GameSessionController {
     private Service questionSetupService;
     private Timeline questionTimer;
 
-    private Service<Map<Document,String>> readingSetupService;
-    private Service<List<Question>> questionSetupService;
 
     /**
      * Costruisce il controller e inizializza il servizio di gioco.
@@ -116,9 +114,8 @@ public class GameSessionController {
                     questionSetupService.start();
                     int seconds = (int) gameService.getTimeLimit().getSeconds();
                     // alla fine del timer mostra questionPane
-                    startTimer(3, timerLabelRead, timerBar, () -> loadPane(questionPane)); //METTI SECOND
-
-
+                    startTimer(seconds, timerLabelRead, timerBar, () -> loadPane(questionPane)); //METTI SECOND
+                    
                     questionSetupService = new Service<List<Question>>() {
                         @Override
                         protected Task<List<Question>> createTask() {
@@ -250,7 +247,7 @@ public class GameSessionController {
                     // ✅ Pausa di 0.5 secondi per far vedere la risposta corretta
                     PauseTransition pause = new PauseTransition(Duration.seconds(0.5));
                     pause.setOnFinished(ev -> {
-                        currentQuestionIndex++;
+                        currentQuestionIndex.set(currentDocumentIndex.get() + 1);
                         showQuestion(currentQuestionIndex);
                     });
                     pause.play();
@@ -273,7 +270,7 @@ public class GameSessionController {
 
                 PauseTransition pause = new PauseTransition(Duration.seconds(0.5));
                 pause.setOnFinished(e -> {
-                    currentQuestionIndex++;
+                    currentQuestionIndex.set(currentDocumentIndex.get() + 1);
                     showQuestion(currentQuestionIndex);
                 });
                 pause.play();

@@ -8,14 +8,11 @@ import it.unisa.diem.wordageddon_g16.models.AppContext;
 import it.unisa.diem.wordageddon_g16.models.Difficulty;
 import it.unisa.diem.wordageddon_g16.models.Document;
 import it.unisa.diem.wordageddon_g16.models.WDM;
-import it.unisa.diem.wordageddon_g16.utility.Config;
 import it.unisa.diem.wordageddon_g16.utility.Resources;
 
 import it.unisa.diem.wordageddon_g16.utility.SystemLogger;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;

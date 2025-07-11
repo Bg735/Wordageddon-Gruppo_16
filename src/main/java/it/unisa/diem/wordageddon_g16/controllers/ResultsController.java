@@ -1,19 +1,13 @@
 package it.unisa.diem.wordageddon_g16.controllers;
-import it.unisa.diem.wordageddon_g16.models.AppContext;
-import it.unisa.diem.wordageddon_g16.services.ResultsService;
-import it.unisa.diem.wordageddon_g16.services.ViewLoader;
+import it.unisa.diem.wordageddon_g16.utility.ViewLoader;
 import javafx.event.Event;
-import javafx.fxml.Initializable;
 
-import java.net.URL;
-import java.util.ResourceBundle;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
 import javafx.scene.input.MouseEvent;
 
