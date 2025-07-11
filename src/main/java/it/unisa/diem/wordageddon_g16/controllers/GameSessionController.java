@@ -5,7 +5,7 @@ import it.unisa.diem.wordageddon_g16.models.Difficulty;
 import it.unisa.diem.wordageddon_g16.models.Document;
 import it.unisa.diem.wordageddon_g16.services.GameService;
 import it.unisa.diem.wordageddon_g16.services.GameService.Question;
-import it.unisa.diem.wordageddon_g16.services.ViewLoader;
+import it.unisa.diem.wordageddon_g16.utility.ViewLoader;
 import javafx.animation.KeyFrame;
 import javafx.animation.PauseTransition;
 import javafx.animation.Timeline;
@@ -55,7 +55,7 @@ public class GameSessionController {
 
     Map<Document,String> documentToTextMap;
     private SimpleIntegerProperty currentQuestionIndex;
-    private SimpleIntegerProperty currentDocumentIndex;
+    private final SimpleIntegerProperty currentDocumentIndex;
     private final GameService gameService;
     private List<Question> questions;
 
@@ -135,7 +135,7 @@ public class GameSessionController {
         questionSetupService.setOnSucceeded(_ -> {
             questions = questionSetupService.getValue();
             int seconds = (int) gameService.getTimeLimit().getSeconds();
-            startTimer(seconds, timerLabelRead, timerBar, () -> loadPane(questionPane));
+            startTimer(seconds, timerLabelRead, timerBar, () -> loadPane(questionPane)); //TODO questo dovrebbe caricare il Pane coi risultati, non il questionPane
         });
         questionSetupService.setOnFailed(_ -> {
             endGame();

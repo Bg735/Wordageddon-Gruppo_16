@@ -1,8 +1,13 @@
 package it.unisa.diem.wordageddon_g16.services;
 
 import it.unisa.diem.wordageddon_g16.db.*;
+import it.unisa.diem.wordageddon_g16.db.contracts.DocumentDAO;
+import it.unisa.diem.wordageddon_g16.db.contracts.GameReportDAO;
 import it.unisa.diem.wordageddon_g16.models.*;
 import it.unisa.diem.wordageddon_g16.services.tasks.DocumentAnalysisTask;
+import it.unisa.diem.wordageddon_g16.utility.Config;
+import it.unisa.diem.wordageddon_g16.utility.Resources;
+import it.unisa.diem.wordageddon_g16.utility.SystemLogger;
 import javafx.concurrent.Task;
 
 import java.io.BufferedReader;
@@ -20,11 +25,11 @@ import java.util.*;
  */
 public class UserPanelService {
     private final GameReportDAO gameReportDAO;
-    private final UserDAO userDAO;
+    private final JDBCUserDAO userDAO;
     private final DocumentDAO documentDAO;
-    private final StopWordDAO stopWordDAO;
+    private final JDBCStopWordDAO stopWordDAO;
     private final AppContext appContext;
-    private final WdmDAO wdmDao;
+    private final JDBCWdmDAO wdmDao;
 
     /**
      * Costruttore del servizio.
@@ -35,7 +40,7 @@ public class UserPanelService {
      * @param stopWordDAO   DAO per le stopword
      * @param appContext    Contesto applicativo
      */
-    public UserPanelService(GameReportDAO gameReportDAO, UserDAO userDAO, DocumentDAO documentDAO, StopWordDAO stopWordDAO, WdmDAO wdmDAO, AppContext appContext) {
+    public UserPanelService(GameReportDAO gameReportDAO, JDBCUserDAO userDAO, DocumentDAO documentDAO, JDBCStopWordDAO stopWordDAO, JDBCWdmDAO wdmDAO, AppContext appContext) {
         this.gameReportDAO = gameReportDAO;
         this.userDAO = userDAO;
         this.documentDAO = documentDAO;
@@ -51,7 +56,7 @@ public class UserPanelService {
      */
     public List<GameReport> getCurrentUserReports() {
         return gameReportDAO.selectAll().stream()
-                .filter(r -> r.getUser().getName().equals(appContext.getCurrentUser().getName()))
+                .filter(r -> r.user().getName().equals(appContext.getCurrentUser().getName()))
                 .toList();
     }
 
@@ -63,10 +68,10 @@ public class UserPanelService {
     public Map<String, Object> getUserStatsForCurrentUser() {
         List<GameReport> reports = getCurrentUserReports();
 
-        int max = reports.stream().mapToInt(GameReport::getScore)
+        int max = reports.stream().mapToInt(GameReport::score)
                 .max().orElse(0);
 
-        double average = reports.stream().mapToInt(GameReport::getScore)
+        double average = reports.stream().mapToInt(GameReport::score)
                 .average().orElse(0.0);
 
         int total = reports.size();
@@ -145,7 +150,7 @@ public class UserPanelService {
      *
      * @return lista di documenti
      */
-    public List<Document> getAllDocuments() {
+    public Collection<Document> getAllDocuments() {
         return documentDAO.selectAll();
     }
 
@@ -174,8 +179,8 @@ public class UserPanelService {
             try {
                 Files.deleteIfExists(Resources.getDocPath(doc));
             } catch (IOException e) {
-                SystemLogger.log("Error during file deletion " + doc.filename(), e);
-                throw new RuntimeException("Error during file deletion " + doc.filename(), e);
+                SystemLogger.log("Error deleting" + doc.filename(), e);
+                throw new RuntimeException("Error deleting" + doc.filename(), e);
             }
         }
 

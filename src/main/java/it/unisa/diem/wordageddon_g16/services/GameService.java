@@ -1,13 +1,16 @@
 package it.unisa.diem.wordageddon_g16.services;
 
-import it.unisa.diem.wordageddon_g16.db.DocumentDAO;
-import it.unisa.diem.wordageddon_g16.db.GameReportDAO;
-import it.unisa.diem.wordageddon_g16.db.StopWordDAO;
-import it.unisa.diem.wordageddon_g16.db.WdmDAO;
+import it.unisa.diem.wordageddon_g16.db.JDBCWdmDAO;
+import it.unisa.diem.wordageddon_g16.db.contracts.GameReportDAO;
+import it.unisa.diem.wordageddon_g16.db.contracts.DocumentDAO;
+import it.unisa.diem.wordageddon_g16.db.contracts.StopWordDAO;
 import it.unisa.diem.wordageddon_g16.models.AppContext;
 import it.unisa.diem.wordageddon_g16.models.Difficulty;
 import it.unisa.diem.wordageddon_g16.models.Document;
 import it.unisa.diem.wordageddon_g16.models.WDM;
+import it.unisa.diem.wordageddon_g16.utility.Config;
+import it.unisa.diem.wordageddon_g16.utility.Resources;
+import it.unisa.diem.wordageddon_g16.utility.SystemLogger;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -23,7 +26,7 @@ import java.util.*;
 public class GameService {
 
     private final GameReportDAO gameReportDAO;
-    private final WdmDAO wdmDAO;
+    private final JDBCWdmDAO wdmDAO;
     private final DocumentDAO documentDAO;
     private final StopWordDAO stopwordDAO;
     private final AppContext context;
@@ -40,7 +43,7 @@ public class GameService {
      * @param documentDAO   DAO per i documenti
      * @param stopwordDAO   DAO per le stopword
      */
-    public GameService(AppContext context, GameReportDAO gameReportDAO, WdmDAO wdmDAO,
+    public GameService(AppContext context, GameReportDAO gameReportDAO, JDBCWdmDAO wdmDAO,
                        DocumentDAO documentDAO, StopWordDAO stopwordDAO) {
         this.gameReportDAO = gameReportDAO;
         this.wdmDAO = wdmDAO;
@@ -165,30 +168,49 @@ public class GameService {
      */
     private Question absoluteFrequencyQuestion() {
         List<Document> docs = params.documents;
+
+        // Scegli un documento a caso dalla lista
         Document document = docs.get(GameParams.random.nextInt(docs.size()));
         WDM wdm = wdmMap.get(document);
 
+        // Ottieni la lista delle parole significative presenti nel documento
         List<String> words = new ArrayList<>(wdm.getWords().keySet());
         if (words.isEmpty()) throw new IllegalStateException("No words available");
 
+        // Scegli casualmente una parola tra quelle disponibili nel documento
         String word = words.get(GameParams.random.nextInt(words.size()));
+        // Recupera la frequenza reale della parola selezionata nel documento
         int frequency = wdm.getWords().get(word);
 
+        // Prepara un set per raccogliere 3 risposte errate (frequenze plausibili ma sbagliate)
         Set<Integer> wrongAnswers = new HashSet<>();
         while (wrongAnswers.size() < 3) {
+            // Genera una risposta errata come uno scostamento casuale tra -2 e +2 rispetto alla frequenza reale
             int answerIndex = frequency + GameParams.random.nextInt(5) - 2;
+            // Aggiungi solo se è diversa dalla risposta corretta e positiva
             if (answerIndex != frequency && answerIndex > 0) {
                 wrongAnswers.add(answerIndex);
             }
         }
+
+        // Crea la lista delle risposte (inizialmente solo quelle errate)
         List<String> answers = new ArrayList<>();
         for (int answerIndex : wrongAnswers) {
             answers.add(String.valueOf(answerIndex));
         }
+
+        // Scegli una posizione casuale per inserire la risposta corretta tra le quattro opzioni
         int correctAnswerIndex = GameParams.random.nextInt(4);
         answers.add(correctAnswerIndex, String.valueOf(frequency));
-        return Question.create("Quante volte appare la parola " + word + " nel documento " + document.title() + "?", answers, correctAnswerIndex);
+
+        // Crea e restituisce la domanda, specificando il testo, le risposte e la posizione di quella corretta
+        return Question.create(
+                "Quante volte appare la parola " + word + " nel documento " + document.title() + "?",
+                answers,
+                correctAnswerIndex
+        );
     }
+
 
     /**
      * Crea una domanda che chiede quale parola appare più frequentemente tra quelle proposte.
@@ -539,7 +561,8 @@ public class GameService {
     }
 
     /**
-     * @brief Task per il parsing dei documenti prima della fase di lettura
+     * @brief Effettua il parsing dei documenti e prepara il testo per la fase di lettura.
+     * Restituisce un StringBuffer contenente il testo di tutti i documenti
      */
     public Map<Document,String> setupReadingPhase() {
         Map<Document,String> result = new HashMap<>();

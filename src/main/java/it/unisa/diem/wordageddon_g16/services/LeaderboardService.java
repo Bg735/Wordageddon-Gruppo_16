@@ -1,16 +1,13 @@
 package it.unisa.diem.wordageddon_g16.services;
 
-import it.unisa.diem.wordageddon_g16.db.GameReportDAO;
-import it.unisa.diem.wordageddon_g16.db.UserDAO;
+import it.unisa.diem.wordageddon_g16.db.JDBCGameReportDAO;
+import it.unisa.diem.wordageddon_g16.db.contracts.UserDAO;
 import it.unisa.diem.wordageddon_g16.models.AppContext;
 import it.unisa.diem.wordageddon_g16.models.Difficulty;
 import it.unisa.diem.wordageddon_g16.models.GameReport;
 import it.unisa.diem.wordageddon_g16.models.User;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class LeaderboardService {
@@ -23,11 +20,11 @@ public class LeaderboardService {
         int gamesPlayed
     ){}
 
-    private final GameReportDAO gameReportDAO;
-    private final List<User> users;
+    private final JDBCGameReportDAO gameReportDAO;
+    private final Collection<User> users;
     private final User currentUser;
 
-    public LeaderboardService(AppContext context, GameReportDAO gameReportDAO, UserDAO userDAO) {
+    public LeaderboardService(AppContext context, JDBCGameReportDAO gameReportDAO, UserDAO userDAO) {
         this.currentUser = context.getCurrentUser();
         this.gameReportDAO = gameReportDAO;
         this.users = userDAO.selectAll();
@@ -68,14 +65,14 @@ public class LeaderboardService {
                 averageScore = 0;
             }
             else {
-                totalScore = reports.stream().mapToInt(GameReport::getScore).sum();
+                totalScore = reports.stream().mapToInt(GameReport::score).sum();
                 gamesPlayed = reports.size();
                 averageScore = totalScore / gamesPlayed;
             }
             Difficulty favouriteDifficulty = null;
             if(difficulty!=null)
                 favouriteDifficulty = reports.stream()
-                    .map(GameReport::getDifficulty)
+                    .map(GameReport::difficulty)
                     .collect(Collectors.groupingBy(d -> d,Collectors.counting()))
                     .entrySet().stream().max(Map.Entry.comparingByValue()).map(Map.Entry::getKey).orElse(null);
 

@@ -1,7 +1,8 @@
 package it.unisa.diem.wordageddon_g16.db;
 
+import it.unisa.diem.wordageddon_g16.db.contracts.DAO;
 import it.unisa.diem.wordageddon_g16.db.exceptions.QueryFailedException;
-import it.unisa.diem.wordageddon_g16.services.SystemLogger;
+import it.unisa.diem.wordageddon_g16.utility.SystemLogger;
 import javafx.util.Callback;
 
 import java.sql.Connection;
@@ -15,7 +16,7 @@ import java.sql.SQLException;
  *
  * @param <T> il tipo di oggetto gestito dal DAO
  */
-public abstract class JdbcDAO<T> implements DAO<T>{
+public abstract class JdbcDAO<T> implements DAO<T> {
 
     /**
      * Connessione persistente al database utilizzata dal DAO.
