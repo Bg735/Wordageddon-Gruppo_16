@@ -21,13 +21,14 @@ import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
 import java.util.List;
-//import it.unisa.diem.wordageddon_g16.services.tasks.GenerateQuestionsTask;
-
-
 
 /**
- * @class GameSessionController
- * @brief Gestisce la sessione di gioco, mostrando il documento da leggere e le domande successive.
+ * Controller JavaFX responsabile della gestione della sessione di gioco.
+ * <p>
+ * Coordina la visualizzazione delle varie fasi della partita:
+ * selezione difficoltà, lettura documenti, domande e risposte.
+ * Utilizza servizi asincroni per operazioni di I/O e generazione domande,
+ * per mantenere la UI reattiva.
  */
 public class GameSessionController {
     @FXML private StackPane stackPane;
@@ -59,23 +60,31 @@ public class GameSessionController {
     private Service<StringBuffer> readingSetupService;
     private Service<StringBuffer> questionSetupService;
 
-
     /**
-     * @brief Costruttore.
-     * @param appContext Contesto dell'applicazione che fornisce il GameService.
+     * Costruisce il controller e inizializza il servizio di gioco.
+     *
+     * @param appContext il contesto applicativo che fornisce il GameService da utilizzare per la sessione.
      */
     public GameSessionController(AppContext appContext) {
         this.gameService = appContext.getGameService();
-
     }
 
     /**
-     * @brief Metodo chiamato automaticamente all'inizializzazione del controller.
-     * Rende visibile inizialmente lo StackPane che si occupa della visualizzazione del testo da leggere con il timer.
+     * Inizializza il controller dopo il caricamento della view FXML.
+     * Avvia la fase di lettura e imposta la schermata iniziale sulla selezione della difficoltà.
      */
     @FXML
     public void initialize() {
+        startReadingPhase();
+        loadPane(diffSelectionPane);
+    }
 
+    /**
+     * Avvia la fase di lettura dei documenti in un servizio asincrono.
+     * Alla conclusione, aggiorna la UI con il testo letto, avvia la generazione delle domande
+     * e imposta il timer per la lettura.
+     */
+    private void startReadingPhase() {
         readingSetupService = new Service<>() {
             @Override
             protected Task<StringBuffer> createTask() {
@@ -88,26 +97,60 @@ public class GameSessionController {
                 task.setOnSucceeded(_ -> {
                     StringBuffer text = task.getValue();
                     Platform.runLater(
-                        () -> {
-                            textDisplayArea.setText(text.toString());
-                        }
+                            () -> {
+                                textDisplayArea.setText(text.toString());
+                            }
                     );
-                    gameService.getQuestions();
+                    startQuestionGeneration();
                     int seconds = (int) gameService.getTimeLimit().getSeconds();
                     // alla fine del timer mostra questionPane
                     startTimer(seconds, timerLabelRead, timerBar, () -> loadPane(questionPane));
                 });
-                task.setOnFailed(_ -> endGame());
+                task.setOnFailed(_ -> {
+                    endGame();
+                    throw new RuntimeException("Erorr during reading setup task", task.getException());
+                });
                 return task;
             }
         };
-
-        loadPane(diffSelectionPane);
     }
-    
+
     /**
-     * @brief Passa dalla fase di lettura a quella delle domande:
-     *
+     * Avvia la generazione delle domande del quiz in un servizio asincrono.
+     * Quando la generazione è completata, aggiorna la lista delle domande e imposta il timer per la lettura.
+     * In caso di errore, termina la sessione di gioco.
+     */
+    private void startQuestionGeneration() {
+        Service<List<Question>> questionGenerationService = new Service<>() {
+            @Override
+            protected Task<List<Question>> createTask() {
+                return new Task<>() {
+                    @Override
+                    protected List<Question> call() {
+                        return gameService.getQuestions();
+                    }
+                };
+            }
+        };
+
+        questionGenerationService.setOnSucceeded(_ -> {
+            questions = questionGenerationService.getValue();
+            int seconds = (int) gameService.getTimeLimit().getSeconds();
+            startTimer(seconds, timerLabelRead, timerBar, () -> loadPane(questionPane));
+        });
+
+        questionGenerationService.setOnFailed(_ -> {
+            endGame();
+            throw new RuntimeException("Erorr during reading setup task");
+        });
+
+        questionGenerationService.start();
+    }
+
+    /**
+     * Passa dalla fase di lettura a quella delle domande.
+     * Se le domande non sono ancora pronte, attende e riprova.
+     * Altrimenti, mostra la domanda corrente.
      */
     private void switchToQuestions() {
         if (questions.isEmpty()) {
@@ -120,8 +163,9 @@ public class GameSessionController {
     }
 
     /**
-     * @brief Mostra la domanda corrente e prepara i pulsanti delle risposte.
-     * @param index Indice della domanda corrente.
+     * Visualizza la domanda corrente e genera i pulsanti delle possibili risposte.
+     *
+     * @param index indice della domanda da visualizzare nella lista delle domande.
      */
     private void showQuestion(int index) {
         if (index >= questions.size()) {
@@ -148,41 +192,33 @@ public class GameSessionController {
             currentQuestionIndex++;
             showQuestion(currentQuestionIndex);
         });
-
-
     }
 
     /**
-     * @brief Gestisce la selezione della risposta da parte dell’utente.
-     * @param selectedIndex Indice della risposta scelta.
+     * Gestisce la selezione di una risposta da parte dell'utente.
+     *
+     * @param selectedIndex indice della risposta scelta dall'utente.
      */
     private void handleAnswer(int selectedIndex) {
 
     }
 
-
     /**
-     * @brief Metodo chiamato al termine della sessione di gioco.
+     * Termina la sessione di gioco e visualizza eventuali messaggi di fine partita.
      */
     private void endGame() {
         System.out.println("Game over");
     }
 
     /**
-     * @brief Avvia un timer con aggiornamento visivo e callback finale.
+     * Avvia un timer visuale che aggiorna una label e una progress bar ogni secondo.
+     * Al termine del conto alla rovescia, esegue la callback specificata.
      *
-     * Questo metodo crea e avvia un timer che decrementa ogni secondo, aggiornando:
-     * - la label del tempo residuo (`label`)
-     * - la barra di avanzamento (`bar`)
-     *
-     * Al termine del timer (quando il tempo arriva a 0), viene eseguito il codice passato tramite `onFinished`.
-     *
-     * @param durationSeconds Durata del timer in secondi.
-     * @param label Etichetta testuale da aggiornare con il tempo rimanente (es. "59s").
-     * @param bar Progress bar da aggiornare visivamente in base al tempo trascorso.
-     * @param onFinished Operazione da eseguire automaticamente al termine del timer.
-     *
-     * @return Timeline oggetto che rappresenta il timer in esecuzione.
+     * @param durationSeconds durata del timer in secondi
+     * @param label label da aggiornare con il tempo rimanente
+     * @param bar progress bar da aggiornare con l'avanzamento del tempo
+     * @param onFinished operazione da eseguire al termine del timer
+     * @return oggetto Timeline che rappresenta il timer in esecuzione
      */
     private Timeline startTimer(int durationSeconds, Label label, ProgressBar bar, Runnable onFinished) {
         //Imposta la label che mostra il tempo rimanente a durationSeconds
@@ -205,6 +241,12 @@ public class GameSessionController {
         return timer;
     }
 
+    /**
+     * Gestisce la visualizzazione dei diversi pannelli dell'interfaccia.
+     * Rende visibile il pannello specificato e avvia eventuali servizi associati.
+     *
+     * @param pane il nodo (AnchorPane) da rendere visibile nello StackPane principale.
+     */
     private void loadPane(Node pane) {
         for(Node p : stackPane.getChildren()) {
             p.setVisible(false);
@@ -217,6 +259,12 @@ public class GameSessionController {
         pane.setVisible(true);
     }
 
+    /**
+     * Gestisce la selezione della difficoltà da parte dell'utente.
+     * Inizializza la partita con la difficoltà scelta e avvia la fase di lettura.
+     *
+     * @param event evento di selezione generato dal click su uno dei bottoni di difficoltà.
+     */
     @FXML
     public void onDifficultySelected(ActionEvent event) {
         switch (((Button) event.getSource()).getId()){
@@ -228,10 +276,14 @@ public class GameSessionController {
         loadPane(readingPane);
     }
 
+    /**
+     * Gestisce il ritorno al menu principale o la chiusura della finestra corrente.
+     *
+     * @param event evento generato dalla pressione del pulsante "Back".
+     */
     @FXML
     private void onBackPressed(ActionEvent event) {
         //Torna al menu principale o chiudi la finestra
         ViewLoader.load(ViewLoader.View.MENU);
-
     }
 }
