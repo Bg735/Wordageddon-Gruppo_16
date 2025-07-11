@@ -146,7 +146,8 @@ public class GameSessionController {
         for (int i = 0; i < buttons.length; i++) {
             Button btn = buttons[i];
             if (i < answers.size()) {
-                btn.setText(answers.get(i));
+                String capitalizedAnswer = answers.get(i).substring(0, 1).toUpperCase() +answers.get(i).substring(1);
+                btn.setText(capitalizedAnswer);
                 btn.setDisable(false);
                 btn.setStyle("");
                 btn.setVisible(true);

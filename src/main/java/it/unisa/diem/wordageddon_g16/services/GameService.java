@@ -135,27 +135,55 @@ public class GameService {
         if (params == null) throw new IllegalStateException("Game not initialized");
         loadWdmMap();
         List<Question> questions = new ArrayList<>();
+        int numDocs = params.documents.size();
+
+        // Definisci i tipi di domanda consentiti in base al numero di documenti
+        List<Question.QuestionType> allowedTypes = new ArrayList<>();
+        allowedTypes.add(Question.QuestionType.ABSOLUTE_FREQUENCY);
+        allowedTypes.add(Question.QuestionType.WHICH_MORE);
+        allowedTypes.add(Question.QuestionType.WHICH_LESS);
+
+        // WHICH_DOCUMENT e WHICH_ABSENT solo se almeno 4 documenti
+        if (numDocs >= 4) {
+            allowedTypes.add(Question.QuestionType.WHICH_DOCUMENT);
+            allowedTypes.add(Question.QuestionType.WHICH_ABSENT);
+        } else {
+            System.out.println("Sono presenti meno di 4 documenti, le domande generate saranno di tipo SINGLE (riguardano un singolo documento)");
+        }
+
         for (int i = 0; i < params.questionCount; i++) {
-            var type = Question.QuestionType.getRandomType();
-            Question q = switch (type) {
-                // I metodi single generano una domanda basata su un singolo documento,
-                // mentre gli altri metodi generano domande basate su tutti i documenti.
-                case ABSOLUTE_FREQUENCY -> rand.nextBoolean()
-                        ? absoluteFrequencyQuestionSingle()
-                        : absoluteFrequencyQuestion();
-                case WHICH_MORE -> rand.nextBoolean() ?
-                        whichMoreQuestionSingle()
-                        : whichMoreQuestion();
-                case WHICH_LESS -> rand.nextBoolean()
-                        ? whichLessQuestionSingle()
-                        : whichLessQuestion();
-                case WHICH_DOCUMENT -> whichDocumentQuestion();
-                case WHICH_ABSENT -> whichAbsentQuestion();
-            };
+            var type = allowedTypes.get(rand.nextInt(allowedTypes.size()));
+            Question q;
+
+            // Se ci sono meno di 4 documenti, solo domande SINGLE
+            if (numDocs < 4) {
+                q = switch (type) {
+                    case ABSOLUTE_FREQUENCY -> absoluteFrequencyQuestionSingle();
+                    case WHICH_MORE -> whichMoreQuestionSingle();
+                    case WHICH_LESS -> whichLessQuestionSingle();
+                    default -> throw new IllegalStateException("Tipo di domanda non supportato con meno di 4 documenti: " + type);
+                };
+            } else {
+                // Se >= 4 documenti, scegli casualmente tra single e non single
+                q = switch (type) {
+                    case ABSOLUTE_FREQUENCY -> rand.nextBoolean()
+                            ? absoluteFrequencyQuestionSingle()
+                            : absoluteFrequencyQuestion();
+                    case WHICH_MORE -> rand.nextBoolean()
+                            ? whichMoreQuestionSingle()
+                            : whichMoreQuestion();
+                    case WHICH_LESS -> rand.nextBoolean()
+                            ? whichLessQuestionSingle()
+                            : whichLessQuestion();
+                    case WHICH_DOCUMENT -> whichDocumentQuestion();
+                    case WHICH_ABSENT -> whichAbsentQuestion();
+                };
+            }
             questions.add(q);
         }
         return questions;
     }
+
 
     private Question absoluteFrequencyQuestionSingle() {
         // Seleziona un documento casuale
@@ -164,8 +192,8 @@ public class GameService {
         WDM wdm = wdmMap.get(document);
 
         List<String> words = new ArrayList<>(wdm.getWords().keySet());
-        // Seleziona una parola casuale tra quelle presenti nel documento a partire dalla sua matrice WDM
 
+        // Seleziona una parola casuale tra quelle presenti nel documento a partire dalla sua matrice WDM
         String chosenWord = words.get(GameParams.random.nextInt(words.size()));
         // frequenza della parola nella WDM
         int correctFrequency = wdm.getWords().get(chosenWord);
@@ -267,12 +295,18 @@ public class GameService {
         }
 
         // Lista delle entry parola-frequenza, mischiate per selezione casuale
+        // Sostanzialmente é una lista contenente le righe della matrice parola-documento
         List<Map.Entry<String, Integer>> wordFrequency = new ArrayList<>(cumulativeFrequency.entrySet());
         Collections.shuffle(wordFrequency);
 
-        // Prendi le prime 4 parole casuali
+        // Check: almeno 4 parole disponibili
+        if (wordFrequency.size() < 4) {
+            throw new IllegalStateException("Non ci sono abbastanza parole per generare la domanda (minimo 4 richieste)");
+        }
+
+        // Prendo le prime 4 parole casuali
         List<Map.Entry<String, Integer>> currentAnswer = new ArrayList<>();
-        for (int y = 0; y < 4 && y < wordFrequency.size(); y++) {
+        for (int y = 0; y < 4; y++) {
             currentAnswer.add(wordFrequency.get(y));
         }
 
