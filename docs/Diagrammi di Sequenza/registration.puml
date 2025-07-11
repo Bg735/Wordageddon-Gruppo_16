@@ -1,17 +1,12 @@
 @startuml
 actor Utente
-participant "Interfaccia" as UI
+participant "View" as UI
 participant "AuthController" as Controller
 participant "AuthService" as Service
 database "UserDAO (Database)" as DB
 
 == Registrazione Utente ==
-
-Utente -> UI : apreApp()
-UI -> Utente : mostraFormRegistrazione()
-
-Utente -> UI : inserisciCredenziali()
-Utente -> UI : cliccaRegisterBtn()
+Utente -> UI : compila form con username e password
 
 UI -> Controller : handleRegisterBtn()
 Controller -> Service : register(username, password, noUsers)

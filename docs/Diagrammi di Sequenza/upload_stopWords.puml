@@ -1,24 +1,125 @@
-Diagramma upload documenti
 @startuml
-actor Amministratore
-participant "InterfacciaAdmin" as UI
-participant "ControllerUpload" as Controller
-participant "AnalizzatoreDocumenti" as Analizzatore
-participant "Database" as DB
+actor Utente
+participant UserPanelController
+participant UserPanelService
+participant GameReportDAO
+participant UserDAO
+participant DocumentDAO
+participant StopWordDAO
+participant PopupBuilder
+participant Database
+participant View
 
-== Flusso normale ==
-Amministratore -> UI : clicca su icona upload
-UI -> Controller : invia documento da caricare
-Controller -> Analizzatore : analizza documento
-Analizzatore -> Controller : risultati analisi
-Controller -> DB : salva documento e analisi
-DB --> Controller : conferma salvataggio
-Controller -> UI : mostra conferma caricamento
-UI -> Amministratore : conferma caricamento completato
+== Inizializzazione ==
+Utente -> UserPanelController : apertura pannello
+UserPanelController -> UserPanelService : getCurrentUserReports()
+UserPanelService -> GameReportDAO : selectAll()
+GameReportDAO -> Database : SELECT * FROM GameReport
+Database --> GameReportDAO : lista report
+GameReportDAO --> UserPanelService : lista report
+UserPanelService --> UserPanelController : report utente corrente
 
-== Flusso alternativo ==
-alt Errore nel caricamento, analisi o salvataggio
-    Controller -> UI : mostra messaggio di errore
-    UI -> Amministratore : errore nel caricamento
+UserPanelController -> UserPanelService : getUserStatsForCurrentUser()
+UserPanelService -> GameReportDAO : selectAll()
+GameReportDAO -> Database : SELECT * FROM GameReport
+Database --> GameReportDAO : lista report
+GameReportDAO --> UserPanelService : lista report
+UserPanelService --> UserPanelController : statistiche (max, media, total)
+
+UserPanelController -> View : aggiorna tabella e statistiche
+
+== Gestione Ruoli Utente ==
+Utente -> UserPanelController : click "Gestione Ruoli"
+UserPanelController -> UserPanelService : getAllUsersExceptCurrent()
+UserPanelService -> UserDAO : selectAll()
+UserDAO -> Database : SELECT * FROM User
+Database --> UserDAO : lista utenti
+UserDAO --> UserPanelService : lista utenti
+UserPanelService --> UserPanelController : lista utenti (escluso current)
+UserPanelController -> PopupBuilder : crea popup "Gestione Ruoli"
+
+alt modifica ruolo
+    UserPanelController -> UserPanelService : promoteUser(username) / demoteUser(username)
+    UserPanelService -> UserDAO : selectById(username)
+    UserDAO -> Database : SELECT * FROM User WHERE name = ?
+    Database --> UserDAO : User
+    UserDAO --> UserPanelService : User
+    UserPanelService -> UserDAO : update(User)
+    UserDAO -> Database : UPDATE User SET isAdmin = ?
+    Database --> UserDAO : OK
 end
+UserPanelController -> View : mostra feedback ruolo aggiornato
+
+== Gestione Documenti ==
+Utente -> UserPanelController : click "Gestione Documenti"
+UserPanelController -> UserPanelService : getAllDocuments()
+UserPanelService -> DocumentDAO : selectAll()
+DocumentDAO -> Database : SELECT * FROM Document
+Database --> DocumentDAO : lista documenti
+DocumentDAO --> UserPanelService : lista documenti
+UserPanelService --> UserPanelController : lista documenti
+UserPanelController -> PopupBuilder : crea popup "Gestione Documenti"
+UserPanelController -> View : mostra lista documenti
+
+alt rimozione documento
+    UserPanelController -> UserPanelService : deleteDocument(doc)
+    UserPanelService -> DocumentDAO : delete(doc)
+    DocumentDAO -> Database : DELETE FROM Document WHERE filename = ?
+    Database --> DocumentDAO : OK
+
+    UserPanelService -> DocumentDAO : selectById(doc.filename)
+    DocumentDAO -> Database : SELECT * FROM Document WHERE filename = ?
+    Database --> DocumentDAO : vuoto
+    DocumentDAO --> UserPanelService : Optional.empty
+
+    UserPanelService -> Database : Files.deleteIfExists()
+    Database --> UserPanelService : OK
+end
+
+alt caricamento documento
+    UserPanelController -> FileChooser : seleziona file.txt
+    FileChooser --> UserPanelController : file
+    UserPanelController -> UserPanelService : addDocument(file)
+    UserPanelService -> DocumentAnalysisTask : analizza file
+    DocumentAnalysisTask -> DocumentDAO : insert if not exists
+    DocumentDAO -> Database : INSERT INTO Document ...
+    Database --> DocumentDAO : OK
+    DocumentAnalysisTask -> WdmDAO : insert dati analizzati
+    WdmDAO -> Database : INSERT INTO WDM ...
+    Database --> WdmDAO : OK
+    DocumentAnalysisTask --> UserPanelService : WDM
+    UserPanelService --> UserPanelController : risultato Task
+
+    UserPanelController -> View : aggiorna lista documenti / feedback
+end
+
+== Gestione StopWords ==
+Utente -> UserPanelController : click "Gestione StopWords"
+UserPanelController -> UserPanelService : getAllStopwords()
+StopWordDAO -> Database : SELECT * FROM StopWords
+Database --> StopWordDAO : lista
+StopWordDAO --> UserPanelService : Set<String>
+UserPanelService --> UserPanelController : elenco stopwords
+UserPanelController -> PopupBuilder : crea popup "Gestione StopWords"
+
+alt aggiunta manuale
+    UserPanelController -> UserPanelService : addStopWords(text)
+    UserPanelService -> StopWordDAO : insert(word)
+    StopWordDAO -> Database : INSERT INTO StopWords ...
+end
+
+alt caricamento da file
+    UserPanelController -> FileChooser : seleziona file.txt
+    FileChooser --> UserPanelController : file
+    UserPanelController -> UserPanelService : addStopwordsFromFile(file)
+    UserPanelService -> StopWordDAO : insert(words...)
+    StopWordDAO -> Database : INSERT INTO StopWords ...
+end
+
+alt rimozione stopword
+    UserPanelController -> UserPanelService : deleteStopword(word)
+    StopWordDAO -> Database : DELETE FROM StopWords WHERE word = ?
+end
+
+UserPanelController -> View : aggiorna ListView / mostra feedback
 @enduml
