@@ -17,9 +17,14 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Service principale per la gestione della logica di gioco di Wordageddon.
- * Si occupa della generazione delle domande, della selezione dei documenti,
- * della gestione dei parametri di partita e dell'interazione con il database.
+ * Servizio principale che gestisce la logica di gioco di Wordageddon.
+ * Si occupa di:
+ * <ul>
+ *   <li>Generazione delle domande del quiz</li>
+ *   <li>Selezione e gestione dei documenti di gioco</li>
+ *   <li>Gestione dei parametri della partita in base alla difficoltà</li>
+ *   <li>Interazione con il database tramite i DAO</li>
+ * </ul>
  */
 public class GameService {
 
@@ -33,13 +38,13 @@ public class GameService {
     private Map<Document, WDM> wdmMap;
 
     /**
-     * Costruisce un nuovo GameService.
+     * Costruisce un nuovo GameService, inizializzando i DAO e il contesto applicativo.
      *
      * @param context       il contesto applicativo corrente
-     * @param gameReportDAO DAO per i report di gioco
-     * @param wdmDAO        DAO per le matrici parola-documento
-     * @param documentDAO   DAO per i documenti
-     * @param stopwordDAO   DAO per le stopword
+     * @param gameReportDAO DAO per la gestione dei report di gioco
+     * @param wdmDAO        DAO per la gestione delle matrici parola-documento
+     * @param documentDAO   DAO per la gestione dei documenti
+     * @param stopwordDAO   DAO per la gestione delle stopword
      */
     public GameService(AppContext context, GameReportDAO gameReportDAO, WdmDAO wdmDAO,
                        DocumentDAO documentDAO, StopWordDAO stopwordDAO) {
@@ -51,7 +56,8 @@ public class GameService {
     }
 
     /**
-     * Inizializza la partita con la difficoltà specificata.
+     * Inizializza una nuova partita con la difficoltà specificata.
+     * Prepara i parametri di gioco e la mappa delle matrici parola-documento.
      *
      * @param difficulty la difficoltà scelta per la partita
      */
@@ -61,9 +67,9 @@ public class GameService {
     }
 
     /**
-     * Restituisce la difficoltà della partita corrente.
+     * Restituisce la difficoltà attualmente selezionata per la partita.
      *
-     * @return la difficoltà selezionata
+     * @return la difficoltà della partita
      * @throws IllegalStateException se la partita non è stata inizializzata
      */
     public Difficulty getDifficulty() {
@@ -76,7 +82,7 @@ public class GameService {
     /**
      * Restituisce il tempo limite della partita corrente.
      *
-     * @return la durata massima concessa per la partita
+     * @return la durata massima concessa per la partita (oggetto Duration)
      * @throws IllegalStateException se la partita non è stata inizializzata
      */
     public Duration getTimeLimit() {
@@ -100,9 +106,9 @@ public class GameService {
     }
 
     /**
-     * Restituisce il numero di domande della partita corrente.
+     * Restituisce il numero di domande generate per la partita corrente.
      *
-     * @return numero di domande generate per la partita
+     * @return numero di domande del quiz
      * @throws IllegalStateException se la partita non è stata inizializzata
      */
     public int getQuestionCount() {
@@ -114,10 +120,10 @@ public class GameService {
 
     /**
      * Genera e restituisce la lista delle domande per la partita corrente.
-     * Questo metodo dovrebbe essere chiamato in modo asincrono durante la fase di visualizzazione dei documenti,
-     * poiché la generazione delle domande può richiedere tempo in caso di nuovi documenti.
+     * La generazione può essere lenta se sono presenti nuovi documenti.
+     * Da chiamare in modo asincrono durante la fase di visualizzazione dei documenti.
      *
-     * @return lista delle domande da sottoporre durante il quiz
+     * @return lista delle domande del quiz
      * @throws IllegalStateException se la partita non è stata inizializzata
      */
     public List<Question> getQuestions() {
@@ -233,7 +239,6 @@ public class GameService {
                 correctIndex
         );
     }
-
 
     private Question whichMoreQuestion() {
         // Mappa cumulativa delle frequenze di tutte le parole in tutti i documenti
@@ -370,7 +375,6 @@ public class GameService {
         return Question.create("Quale di queste parole appare meno frequentemente in tutti i documenti?", answers, correctIndex);
     }
 
-
     private Question whichDocumentQuestion() {
         List<Document> docs = params.documents;
         Document document = docs.get(GameParams.random.nextInt(docs.size()));
@@ -439,6 +443,9 @@ public class GameService {
     /**
      * Genera una parola che sicuramente non è presente nel set delle parole.
      * Puoi personalizzare la logica per generare parole più realistiche.
+     *
+     * @param presentWords insieme delle parole già presenti nei documenti
+     * @return una parola sicuramente assente
      */
     private String generateAbsentWord(Set<String> presentWords) {
         Random rand = new Random();
@@ -456,10 +463,9 @@ public class GameService {
         return absentWord;
     }
 
-
     /**
-     * Carica nella mappa wdmMap le matrici parola-documento per tutti i documenti della partita.
-     * Se la matrice non è presente nel database, viene generata e salvata.
+     * Carica nella mappa interna le matrici parola-documento (WDM) per tutti i documenti della partita.
+     * Se la matrice non esiste nel database, viene generata e salvata automaticamente.
      */
     private void loadWdmMap() {
         for (Document doc : params.documents) {
@@ -488,7 +494,7 @@ public class GameService {
             int correctAnswerIndex
     ) {
         /**
-         * Tipologie di domande disponibili nel quiz.
+         * Enumerazione delle tipologie di domande disponibili nel quiz.
          */
         public enum QuestionType {
             ABSOLUTE_FREQUENCY(1f), // Quante volte appare una parola
@@ -515,7 +521,7 @@ public class GameService {
         }
 
         /**
-         * Crea una nuova domanda.
+         * Crea una nuova domanda del quiz, validando i parametri.
          *
          * @param text               testo della domanda
          * @param answers            elenco delle possibili risposte
@@ -532,7 +538,8 @@ public class GameService {
     }
 
     /**
-     * Classe interna che incapsula i parametri di una partita.
+     * Classe interna che incapsula e gestisce i parametri di una partita,
+     * come timer, documenti selezionati, numero di domande e difficoltà.
      */
     private class GameParams {
 
@@ -621,7 +628,7 @@ public class GameService {
         /**
          * Seleziona i documenti da utilizzare per la partita in base all'influenza della difficoltà.
          *
-         * @param influence valore di influenza della difficoltà
+         * @param influence valore di influenza della difficoltà (0-1)
          * @return lista di documenti selezionati
          * @throws IllegalArgumentException se non sono disponibili documenti
          */
@@ -663,7 +670,7 @@ public class GameService {
          * Genera il timer della partita in base all'influenza della difficoltà.
          *
          * @param influence valore di influenza della difficoltà
-         * @return durata del timer
+         * @return durata del timer come oggetto Duration
          */
         private Duration generateTimer(float influence) {
             int timerMax = 10 * 60; // secondi
@@ -676,7 +683,7 @@ public class GameService {
          * Genera il numero di domande per la partita in base all'influenza della difficoltà.
          *
          * @param influence valore di influenza della difficoltà
-         * @return numero di domande
+         * @return numero di domande generate
          */
         private int generateQuestionCount(float influence) {
             int maxQuestions = 20;
@@ -687,8 +694,10 @@ public class GameService {
     }
 
     /**
-     * @brief Task per il parsing dei documenti prima della fase di lettura
-     * Probabilmente questo metodo non servirá
+     * Esegue il parsing dei documenti selezionati e restituisce il testo concatenato.
+     * Da utilizzare nella fase di lettura dei documenti prima del quiz.
+     *
+     * @return testo concatenato dei documenti selezionati
      */
     public StringBuffer setupReadingPhase() {
         StringBuffer text = new StringBuffer();
