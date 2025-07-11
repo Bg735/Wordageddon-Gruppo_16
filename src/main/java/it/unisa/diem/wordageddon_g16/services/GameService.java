@@ -9,7 +9,6 @@ import it.unisa.diem.wordageddon_g16.models.Difficulty;
 import it.unisa.diem.wordageddon_g16.models.Document;
 import it.unisa.diem.wordageddon_g16.models.WDM;
 import it.unisa.diem.wordageddon_g16.utility.Resources;
-
 import it.unisa.diem.wordageddon_g16.utility.SystemLogger;
 
 import java.io.IOException;
