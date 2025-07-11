@@ -75,16 +75,13 @@ public class GameSessionController {
      */
     @FXML
     public void initialize() {
-        startReadingPhase();
-        loadPane(diffSelectionPane);
-    }
+        //Instanziazione dei servizi per la generazione asincrona del testo e delle domande
 
-    /**
-     * Avvia la fase di lettura dei documenti in un servizio asincrono.
-     * Alla conclusione, aggiorna la UI con il testo letto, avvia la generazione delle domande
-     * e imposta il timer per la lettura.
-     */
-    private void startReadingPhase() {
+        /*
+         * Avvia la fase di lettura dei documenti in un servizio asincrono.
+         * Alla conclusione, aggiorna la UI con il testo letto, avvia la generazione delle domande
+         * e imposta il timer per la lettura.
+         */
         readingSetupService = new Service<>() {
             @Override
             protected Task<StringBuffer> createTask() {
@@ -101,7 +98,7 @@ public class GameSessionController {
                                 textDisplayArea.setText(text.toString());
                             }
                     );
-                    startQuestionGeneration();
+                    questionSetupService.start();
                     int seconds = (int) gameService.getTimeLimit().getSeconds();
                     // alla fine del timer mostra questionPane
                     startTimer(seconds, timerLabelRead, timerBar, () -> loadPane(questionPane));
@@ -113,14 +110,12 @@ public class GameSessionController {
                 return task;
             }
         };
-    }
 
-    /**
-     * Avvia la generazione delle domande del quiz in un servizio asincrono.
-     * Quando la generazione è completata, aggiorna la lista delle domande e imposta il timer per la lettura.
-     * In caso di errore, termina la sessione di gioco.
-     */
-    private void startQuestionGeneration() {
+        /*
+         * Avvia la generazione delle domande del quiz in un servizio asincrono.
+         * Quando la generazione è completata, aggiorna la lista delle domande e imposta il timer per la lettura.
+         * In caso di errore, termina la sessione di gioco.
+         */
         Service<List<Question>> questionGenerationService = new Service<>() {
             @Override
             protected Task<List<Question>> createTask() {
@@ -132,19 +127,17 @@ public class GameSessionController {
                 };
             }
         };
-
         questionGenerationService.setOnSucceeded(_ -> {
             questions = questionGenerationService.getValue();
             int seconds = (int) gameService.getTimeLimit().getSeconds();
             startTimer(seconds, timerLabelRead, timerBar, () -> loadPane(questionPane));
         });
-
         questionGenerationService.setOnFailed(_ -> {
             endGame();
             throw new RuntimeException("Erorr during reading setup task");
         });
 
-        questionGenerationService.start();
+        loadPane(diffSelectionPane);
     }
 
     /**
