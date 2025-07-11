@@ -544,9 +544,8 @@ public class GameService {
     public Map<Document,String> setupReadingPhase() {
         Map<Document,String> result = new HashMap<>();
         for (Document doc : getDocuments()) {
-            Path path = Path.of(Config.get(Config.Props.DOCUMENTS_DIR) + doc.filename());
             try {
-                result.put(doc,Files.readString(path));
+                result.put(doc, Resources.getDocumentContent(doc.filename()));
             } catch (IOException e) {
                 SystemLogger.log("Errore nella lettura del documento", e);
             }

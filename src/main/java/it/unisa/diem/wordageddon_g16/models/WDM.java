@@ -1,6 +1,7 @@
 package it.unisa.diem.wordageddon_g16.models;
 
 import it.unisa.diem.wordageddon_g16.services.Config;
+import it.unisa.diem.wordageddon_g16.services.Resources;
 import it.unisa.diem.wordageddon_g16.services.SystemLogger;
 
 import java.io.*;
@@ -61,9 +62,7 @@ public class WDM {
         Map<String, Integer> wordMap = new HashMap<>();
 
         // I documenti sono salvati nella cartella "uploads/documents"
-        Path path = Path.of(Config.get(Config.Props.DOCUMENTS_DIR) + document.filename());
-
-        try (Scanner scanner = new Scanner(Files.newBufferedReader(path))) {
+        try (Scanner scanner = new Scanner(new StringReader(Resources.getDocumentContent(document.filename())))) {
             scanner.useDelimiter("\\s+");
             while (scanner.hasNext()) {
                 String word = scanner.next().replaceAll("\\p{Punct}", "");
@@ -71,8 +70,9 @@ public class WDM {
                     wordMap.put(word, wordMap.getOrDefault(word, 0) + 1);
                 }
             }
-        } catch(IOException e) {
-            SystemLogger.log("Error reading document " + path, e);
+        } catch (IOException e) {
+            SystemLogger.log("Errore durante l'analisi del documento "+document.filename(), e);
+            throw new RuntimeException(e);
         }
         return wordMap;
     }
