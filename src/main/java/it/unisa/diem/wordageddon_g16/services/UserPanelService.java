@@ -1,21 +1,19 @@
 package it.unisa.diem.wordageddon_g16.services;
 
-import it.unisa.diem.wordageddon_g16.db.*;
+import it.unisa.diem.wordageddon_g16.db.JDBCStopWordDAO;
+import it.unisa.diem.wordageddon_g16.db.JDBCUserDAO;
+import it.unisa.diem.wordageddon_g16.db.JDBCWdmDAO;
 import it.unisa.diem.wordageddon_g16.db.contracts.DocumentDAO;
 import it.unisa.diem.wordageddon_g16.db.contracts.GameReportDAO;
 import it.unisa.diem.wordageddon_g16.models.*;
-import it.unisa.diem.wordageddon_g16.services.tasks.DocumentAnalysisTask;
-import it.unisa.diem.wordageddon_g16.utility.Config;
 import it.unisa.diem.wordageddon_g16.utility.Resources;
 import it.unisa.diem.wordageddon_g16.utility.SystemLogger;
-import javafx.concurrent.Task;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 
 /**
@@ -29,7 +27,7 @@ public class UserPanelService {
     private final DocumentDAO documentDAO;
     private final JDBCStopWordDAO stopWordDAO;
     private final AppContext appContext;
-    private final JDBCWdmDAO wdmDao;
+    private final JDBCWdmDAO wdmDAO;
 
     /**
      * Costruttore del servizio.
@@ -46,7 +44,21 @@ public class UserPanelService {
         this.documentDAO = documentDAO;
         this.stopWordDAO = stopWordDAO;
         this.appContext = appContext;
-        this.wdmDao = wdmDAO;
+        this.wdmDAO = wdmDAO;
+    }
+
+    public void loadWDM(WDM wdm) {
+        // Controllo se il documento è già presente
+        if (wdmDAO.selectById(wdm.getDocument()).isPresent()) {
+            documentDAO.update(wdm.getDocument());
+            wdmDAO.update(wdm);
+        }
+        else {
+            // Inserisco il documento nel database
+            documentDAO.insert(wdm.getDocument());
+            // Inserisco la matrice WDM
+            wdmDAO.insert(wdm);
+        }
     }
 
     /**
@@ -114,8 +126,7 @@ public class UserPanelService {
      */
     public List<User> getAllUsersExceptCurrent() {
         String currentUsername = appContext.getCurrentUser().getName();
-        return userDAO.selectAll().stream().filter(user -> !user.getName().equals(currentUsername))
-                .toList();
+        return userDAO.selectAll().stream().filter(user -> !user.getName().equals(currentUsername)).toList();
     }
 
     /**
@@ -123,26 +134,45 @@ public class UserPanelService {
      *
      * @param file file .txt contenente le stopwords
      */
-    public Task<Set<String>> addStopwordsFromFile(File file) {
-        return new Task<>() {
-            @Override
-            protected Set<String> call() {
-                Set<String> stopWordsSet = new HashSet<>();
-                try (BufferedReader bf = new BufferedReader(new FileReader(file))) {
-                    String line;
-                    while ((line = bf.readLine()) != null) {
-                        stopWordsSet.addAll(stopWordsParser(line));
-                    }
-                } catch (IOException e) {
-                    SystemLogger.log("Error during stopwords file reading", e);
-                    throw new RuntimeException("Error during stopwords file reading", e);
-                }
-                for (String stopWord : stopWordsSet) {
-                    stopWordDAO.insert(stopWord);
-                }
-                return stopWordsSet;
+    public void addStopwordsFromFile(File file) throws IOException {
+        // prelevo le stopwords dal database
+        Set<String> stopWordsSet = new HashSet<>();
+        try (BufferedReader bf = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = bf.readLine()) != null) {
+                stopWordsSet.addAll(stopWordsParser(line));
             }
-        };
+        }
+        for (String stopWord : stopWordsSet) {
+            stopWordDAO.insert(stopWord);
+        }
+    }
+
+    /**
+     * Converte un nome file in un titolo simbolico con la prima lettera maiuscola di ogni parola.
+     * Esempio: "mario_rossi.txt" -> "Mario Rossi"
+     *
+     * @param filename il nome del file (può contenere estensione e underscore)
+     * @return il titolo simbolico
+     */
+    public String symbolicNameOf(String filename) {
+        // Rimuovo l'estensione, se presente
+        int dotIndex = filename.lastIndexOf('.');
+        String baseName = (dotIndex == -1) ? filename : filename.substring(0, dotIndex);
+
+        // Sostituisco _ o - con spazio
+        String[] words = baseName.replaceAll("[_-]", " ").toLowerCase().split(" ");
+        StringBuffer sb = new StringBuffer();
+
+        // Capitalizza la prima lettera di ogni parola
+        for (String word : words) {
+            if (!word.isEmpty()) {
+                sb.append(Character.toUpperCase(word.charAt(0)))
+                        .append(word.substring(1))
+                        .append(" ");
+            }
+        }
+        return sb.toString().trim();
     }
 
     /**
@@ -160,10 +190,20 @@ public class UserPanelService {
      * @param tempFile il file da caricare
      * @return il documento aggiunto o null se già esiste
      */
-    public Task<WDM> addDocument(File tempFile) {
-        Task<WDM> task = new DocumentAnalysisTask(tempFile, documentDAO, wdmDao, stopWordDAO);
-        new Thread(task).start();
-        return task;
+    public void addDocument(File tempFile) throws IOException {
+        Path docsDir = Resources.getDocsDirPath();
+        String filename = tempFile.getName();
+        Path filePath = docsDir.resolve(filename);
+
+        // Controllo se il documento é giá presente nel database
+        if (documentDAO.selectById(filename).isPresent()) {
+            SystemLogger.log("Documento già presente: " + filename, null);
+            throw new FileAlreadyExistsException("Documento già presente: " + filename);
+        }
+
+        // Creo la cartella e copia il file
+        Files.createDirectories(docsDir);
+        Files.copy(tempFile.toPath(), filePath, StandardCopyOption.REPLACE_EXISTING);
     }
 
     /**
@@ -175,12 +215,12 @@ public class UserPanelService {
         documentDAO.delete(doc);
 
         // Se il documento non è più presente nel database, elimino il file fisico
-        if (documentDAO.selectById(doc.filename()).isEmpty()) {
+        if (documentDAO.selectById(doc).isEmpty()) {
             try {
                 Files.deleteIfExists(Resources.getDocPath(doc));
             } catch (IOException e) {
-                SystemLogger.log("Error deleting" + doc.filename(), e);
-                throw new RuntimeException("Error deleting" + doc.filename(), e);
+                SystemLogger.log("Error deleting" + doc, e);
+                throw new RuntimeException("Error deleting" + doc, e);
             }
         }
 
@@ -191,7 +231,7 @@ public class UserPanelService {
      *
      * @return lista di stringhe con le stopwords
      */
-    public Set<String> getAllStopwords() {
+    public Set<String> getStopwords() {
         return stopWordDAO.selectAll();
     }
 
@@ -200,16 +240,13 @@ public class UserPanelService {
      *
      * @param tfRaw rappresenta il valore grezzo del campo di testo in cui sono inserite le stopwords
      */
-    public Set<String> addStopWords(String tfRaw) {
+    public void addStopWords(String tfRaw) {
         Set<String> stopWordsSet = stopWordsParser(tfRaw);
 
         // Inserisce le nuove stopword nel database (il controllo duplicati è gestito dal DB)
         for (String stopWord : stopWordsSet) {
             stopWordDAO.insert(stopWord);
         }
-
-        // Ritorna le stopword appena aggiunte
-        return stopWordsSet;
     }
 
     /**
@@ -246,14 +283,6 @@ public class UserPanelService {
                 stopWordsSet.add(word);
             }
         }
-
-        // Estrae i simboli di punteggiatura
-        for (char c : input.toCharArray()) {
-            if (String.valueOf(c).matches("\\p{Punct}")) {
-                stopWordsSet.add(String.valueOf(c));
-            }
-        }
-
         return stopWordsSet;
     }
 

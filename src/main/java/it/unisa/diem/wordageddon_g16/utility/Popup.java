@@ -29,26 +29,29 @@ public class Popup {
         this.stage.setWidth(width);
         this.stage.initModality(Modality.APPLICATION_MODAL);
         this.stage.setResizable(false);
+        Scene scene = new Scene(root);
+        scene.getStylesheets().add(Resources.getStyle("popup"));
+        stage.setScene(scene);
+
+
     }
 
     public Popup(String title){
         this(title, 450, 350);
     }
 
-    public Popup add(Node... content) {
+    public Popup addAll(Node... content) {
         root.getChildren().addAll(content);
         return this;
     }
 
-    public Popup add(Node content) {
+    public Popup addAll(Node content) {
         root.getChildren().add(content);
         return this;
     }
 
     public void show() {
-        Scene scene = new Scene(root);
-        scene.getStylesheets().add(Resources.getStyle("popup"));
-        stage.setScene(scene);
+
         stage.showAndWait();
     }
 

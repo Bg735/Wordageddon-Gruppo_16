@@ -8,9 +8,11 @@ import it.unisa.diem.wordageddon_g16.services.UserPanelService;
 import it.unisa.diem.wordageddon_g16.utility.ViewLoader;
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableSet;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -26,16 +28,19 @@ import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.FileAlreadyExistsException;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
- *
  * Gestisce la logica della vista associata al pannello utente, inclusa la visualizzazione delle statistiche
  * personali,la gestione dei documenti, delle stopwords e degli utenti con privilegi amministrativi.
- *
  */
 
 public class UserPanelController {
@@ -68,9 +73,11 @@ public class UserPanelController {
     @FXML
     private Label usernameLabel;
 
-    @FXML private AnchorPane anchorSemicerchio;
+    @FXML
+    private AnchorPane anchorSemicerchio;
 
-    @FXML private StackPane stackMedio;
+    @FXML
+    private StackPane stackMedio;
 
     private final User currentUser;
     private final AppContext appContext;
@@ -82,7 +89,7 @@ public class UserPanelController {
      */
     public UserPanelController(AppContext context) {
         this.service = context.getUserPanelService();
-        currentUser=context.getCurrentUser();
+        currentUser = context.getCurrentUser();
         this.appContext = context;
     }
 
@@ -94,7 +101,7 @@ public class UserPanelController {
         if (otherUsers.isEmpty()) {
             Label noUsersLabel = new Label("Nessun altro utente disponibile.");
             noUsersLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: gray;");
-            popup.add(noUsersLabel);
+            popup.addAll(noUsersLabel);
         } else {
             for (User user : otherUsers) {
                 VBox userBox = new VBox(5);
@@ -140,7 +147,7 @@ public class UserPanelController {
 
                 userRow.getChildren().addAll(nameLabel, spacer, toggle);
                 userBox.getChildren().addAll(userRow, feedbackLabel);
-                popup.add(userBox);
+                popup.addAll(userBox);
             }
         }
         popup.show();
@@ -148,7 +155,7 @@ public class UserPanelController {
 
     /**
      * Gestisce il popup per la gestione dei documenti.
-     *
+     * <p>
      * Mostra un elenco dei documenti esistenti con possibilità di rimozione.
      * Consente anche il caricamento di un nuovo file `.txt`. Il contenuto viene sincronizzato con il database.
      *
@@ -157,14 +164,15 @@ public class UserPanelController {
     @FXML
     void handleDocumenti(ActionEvent event) {
         Popup popup = new Popup("Gestione Documenti", 400, 300);
-
         ObservableList<Document> documentList = FXCollections.observableArrayList(service.getAllDocuments());
+        Executor dbExecutor = Executors.newSingleThreadExecutor();
 
         ListView<Document> listView = new ListView<>(documentList);
         listView.setCellFactory(lv -> new ListCell<>() {
             private final HBox content = new HBox(10);
             private final Label label = new Label();
             private final Button removeBtn = new Button("Rimuovi");
+
             {
                 label.setTextFill(Color.BLACK);
                 HBox.setHgrow(label, Priority.ALWAYS);
@@ -183,7 +191,7 @@ public class UserPanelController {
                     label.setText(doc.title());
                     label.setStyle("-fx-text-fill:black");
                     removeBtn.setOnAction(e -> {
-                        service.deleteDocument(doc);
+                        dbExecutor.execute(()-> service.deleteDocument(doc));
                         documentList.remove(doc);
                     });
                     setGraphic(content);
@@ -199,56 +207,56 @@ public class UserPanelController {
         PauseTransition pause = new PauseTransition(javafx.util.Duration.seconds(1.5));
         pause.setOnFinished(e -> feedbackLabel.setVisible(false));
 
+        TextField titleTF = new TextField();
+
+        titleTF.setPromptText("Titolo del documento");
+
         Button uploadBtn = new Button("Carica nuovo documento (.txt)");
+        uploadBtn.setDefaultButton(true);
+        uploadBtn.setGraphic(titleTF);
         uploadBtn.setOnAction(e -> {
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Seleziona un file .txt");
             fileChooser.getExtensionFilters().add(
                     new FileChooser.ExtensionFilter("File di testo (*.txt)", "*.txt")
             );
-
-            File file = fileChooser.showOpenDialog(popup.getStage());
-            if (file != null) {
+            File selectedFile = fileChooser.showOpenDialog(popup.getStage());
+            if (selectedFile != null) {
                 try {
-                    Task<WDM> task = service.addDocument(file);
-
-                    task.setOnSucceeded(taskEvent -> {
-                        WDM wdm = task.getValue();
-                        Platform.runLater(() -> {
-                            if (wdm != null) {
-                                documentList.setAll(service.getAllDocuments());
-                                feedbackLabel.setText("Documento caricato con successo!");
-                                feedbackLabel.setStyle("-fx-text-fill: white;");
-                            } else {
-                                feedbackLabel.setText("Il documento è già presente.");
-                            }
-                            feedbackLabel.setVisible(true);
-                            pause.playFromStart();
-                        });
-                    });
-
+                    service.addDocument(selectedFile);
+                    documentList.add(new Document(selectedFile.getName(), (titleTF.getText().isEmpty() ? service.symbolicNameOf(selectedFile.getName()) : titleTF.getText()), null)); //non il Document completo, questo oggetto viene utilizzato solo per i confronti nella ListView
+                    Task<Void> task = new Task<>() {
+                        @Override
+                        protected Void call() {
+                            // Creo la WDM e la inserisco nel database
+                            service.loadWDM(new WDM(selectedFile.getName(), (titleTF.getText().isEmpty() ? service.symbolicNameOf(selectedFile.getName()) : titleTF.getText()), service.getStopwords()));
+                            return null;
+                        }
+                    };
                     task.setOnFailed(taskEvent -> {
                         Throwable ex = task.getException();
                         Platform.runLater(() -> {
-                            SystemLogger.log("["+getClass().getName()+"]Task Execution Error:", ex);
+                            SystemLogger.log("[" + getClass().getName() + "]Task Execution Error:", ex);
                             feedbackLabel.setText(ex.getMessage());
                             feedbackLabel.setVisible(true);
                             pause.playFromStart();
                         });
                     });
-
-                } catch (Exception ex) {
+                    dbExecutor.execute(task);
+                } catch (FileAlreadyExistsException ex){
+                    feedbackLabel.setText("Il documento è già presente.");
+                    feedbackLabel.setStyle("-fx-text-fill: yellow;");
+                } catch (IOException ex) {
                     SystemLogger.log("Errore durante il caricamento di un documento", ex);
                     feedbackLabel.setText("Errore durante il caricamento.");
+                    feedbackLabel.setStyle("-fx-text-fill: red;");
+                }finally {
                     feedbackLabel.setVisible(true);
                     pause.playFromStart();
                 }
             }
-
         });
-
-
-        popup.add(
+        popup.addAll(
                 new Label("Documenti esistenti:"),
                 listView,
                 uploadBtn,
@@ -263,7 +271,7 @@ public class UserPanelController {
      * @param event L'evento ActionEvent generato dal click sul pulsante "Logout".
      */
     @FXML
-     void handleLogOut(ActionEvent event) {
+    void handleLogOut(ActionEvent event) {
         appContext.getAuthService().logout();
         ViewLoader.load(ViewLoader.View.AUTH);
     }
@@ -280,7 +288,7 @@ public class UserPanelController {
 
     /**
      * Gestisce il popup per la gestione delle stopwords.
-     *
+     * <p>
      * Permette l'aggiunta manuale tramite TextInput, il caricamento da file `.txt` e la rimozione di stopwords.
      * Il contenuto viene sincronizzato con il database.
      *
@@ -288,34 +296,28 @@ public class UserPanelController {
      */
     @FXML
     void handleStopWords(ActionEvent event) {
-        /*
-         * Caricamento manuale
-         */
         Popup popup = new Popup("Gestione Documenti", 400, 500);
 
-
         TextField tf = new TextField();
-        tf.setPromptText("Inserisci una nuova stopword");
+        tf.setPromptText("Inserisci stopword, separate da punteggiatura");
 
         //le inserisco in una lista di sw
         ListView<String> sw = new ListView<>();
-        sw.getItems().addAll(service.getAllStopwords());
+        sw.getItems().addAll(service.getStopwords());
 
         //aggiunta manuale sw
         Button btnAdd = new Button("Aggiungi");
 
         btnAdd.setOnAction(_ -> {
             service.addStopWords(tf.getText());
-            sw.getItems().setAll(service.getAllStopwords()); // Aggiorna la ListView senza duplicati
+            sw.getItems().setAll(service.getStopwords()); // Aggiorna la ListView senza duplicati
             tf.clear();
         });
-
-        btnAdd.setDefaultButton(true);
 
         /*
          * Caricamento da file di stopwords
          */
-        Button btnFile = new Button("Carica da file");
+        Button btnFile = new Button("Aggiungi da file");
 
         btnFile.setOnAction(_ -> {
             FileChooser fileChooser = new FileChooser();
@@ -323,49 +325,55 @@ public class UserPanelController {
             FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("File di testo (*.txt)", "*.txt");
             fileChooser.getExtensionFilters().add(extFilter);
             File file = fileChooser.showOpenDialog(popup.getStage());
-            if (file == null) {
-                return;
+            if (file == null) return;
+            try {
+                service.addStopwordsFromFile(file);
+                sw.getItems().setAll(service.getStopwords());
+            } catch (IOException e) {
+                SystemLogger.log("Error reading stopwords file", e);
+                throw new RuntimeException("Error reading stopwords file", e);
             }
-            Task<Set<String>> task = service.addStopwordsFromFile(file);
-            task.setOnSucceeded(_ -> {
-                Platform.runLater(() -> {
-                    sw.getItems().setAll(service.getAllStopwords());
-                });
-            });
-            new Thread(task).start();
-
         });
 
         /*
          *  Rimozione di una stopword selezionata
          */
-        Button removeButton = new Button("Rimuovi selezionata");
-        removeButton.setOnAction(e -> {
+        Button btnRemove = new Button("Rimuovi selezionata");
+        btnRemove.setOnAction(e -> {
             String selected = sw.getSelectionModel().getSelectedItem();
             if (selected != null) {
-                try{
-                service.deleteStopword(selected);
-                sw.getItems().remove(selected);
-            } catch (Exception ex) {
+                try {
+                    service.deleteStopword(selected);
+                    sw.getItems().remove(selected);
+                } catch (Exception ex) {
                     SystemLogger.log("Errore durante la rimozione di una stopword", ex);
                 }
-                }
+            }
         });
-        popup.add(
+
+        btnAdd.defaultButtonProperty().bind(tf.focusedProperty());
+        btnRemove.defaultButtonProperty().bind(tf.focusedProperty().not());
+        tf.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            System.out.println("TextField focused: " + newValue);
+            System.out.println("Button Add default button: " + btnAdd.isDefaultButton());
+            System.out.println("Button Remove default button: " + btnRemove.isDefaultButton());
+        });
+
+        popup.addAll(
                 new Label("Inserisci una nuova stopword:"),
                 tf,
                 btnAdd,
                 new Label("Oppure caricala da file:"),
                 btnFile,
                 new Label("StopWords attuali:"),
-                sw, removeButton );
+                sw, btnRemove);
         popup.show();
     }
 
 
     /**
      * Metodo di inizializzazione automatico chiamato da JavaFX.
-     *
+     * <p>
      * Imposta le informazioni iniziali dell'interfaccia: etichetta dell'utente, visualizzazione menu per gli admin,
      * tabella dei report di gioco e statistiche, e comportamenti grafici dinamici.
      */
@@ -382,8 +390,8 @@ public class UserPanelController {
         });
 
 
-        var isAdmin= currentUser.isAdmin();
-        if(!isAdmin){
+        var isAdmin = currentUser.isAdmin();
+        if (!isAdmin) {
             adminPanel.setVisible(false);
         }
 

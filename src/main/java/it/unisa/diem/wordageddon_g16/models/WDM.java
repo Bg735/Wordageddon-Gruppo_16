@@ -38,44 +38,25 @@ public class WDM {
     }
 
     /**
-     * Costruisce un oggetto WDM analizzando il documento specificato ed escludendo le stopwords fornite.
-     * La mappa delle frequenze viene calcolata automaticamente.
-     *
-     * @param document il documento da analizzare
-     * @param stopWords la collezione di parole da escludere dall'analisi (stopwords)
+     TODO: Documentazione
      */
-    public WDM(Document document, Collection<String> stopWords) {
-        this.document = document;
-        words = calculateWordMatrix(document, stopWords);
-    }
-
-    /**
-     * Analizza il contenuto del documento, calcolando la frequenza delle parole significative
-     * (escludendo le stopwords) e restituendo una mappa parola→frequenza.
-     *
-     * @param document il documento da analizzare
-     * @param stopWords la collezione di parole da escludere dall'analisi
-     * @return una mappa contenente le parole significative e le rispettive frequenze
-     */
-    private Map<String,Integer> calculateWordMatrix(Document document, Collection<String> stopWords) {
-        Map<String, Integer> wordMap = new HashMap<>();
-
-        // I documenti sono salvati nella cartella "uploads/documents"
-        try (Scanner scanner = new Scanner(new StringReader(Resources.getDocumentContent(document.filename())))) {
+    public WDM(String filename, String title, Set<String> stopWords) {
+        words = new HashMap<>();
+        int wordCount = 0;
+        try (Scanner scanner = new Scanner(new StringReader(Resources.getDocumentContent(filename)))) {
             scanner.useDelimiter("\\s+");
             while (scanner.hasNext()) {
                 String word = scanner.next().replaceAll("\\p{Punct}", "");
                 if (!word.isEmpty() && !stopWords.contains(word.toLowerCase())) {
-                    // normalizza la parola in minuscolo per evitare duplicati
-                    String normalized = word.toLowerCase();
-                    wordMap.put(normalized, wordMap.getOrDefault(normalized, 0) + 1);
+                    words.put(word, words.getOrDefault(word, 0) + 1);
+                    wordCount++;
                 }
             }
         } catch (IOException e) {
-            SystemLogger.log("Errore durante l'analisi del documento "+document.filename(), e);
+            SystemLogger.log("Errore durante l'analisi del documento "+filename, e);
             throw new RuntimeException(e);
         }
-        return wordMap;
+        this.document = new Document(filename, title, wordCount);
     }
 
     /**
