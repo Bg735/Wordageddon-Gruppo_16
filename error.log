@@ -1,8 +1,0 @@
-[SEVERE] it.unisa.diem.wordageddon_g16.utility.SystemLogger: Documento già presente: parco.txt
-[SEVERE] it.unisa.diem.wordageddon_g16.utility.SystemLogger: [it.unisa.diem.wordageddon_g16.controllers.UserPanelController]Task Execution Error:
-java.lang.RuntimeException: Documento già presente: parco.txt
-	at it.unisa.diem.wordageddongruppo_16@1.0-SNAPSHOT/it.unisa.diem.wordageddon_g16.services.tasks.DocumentAnalysisTask.call(DocumentAnalysisTask.java:70)
-	at it.unisa.diem.wordageddongruppo_16@1.0-SNAPSHOT/it.unisa.diem.wordageddon_g16.services.tasks.DocumentAnalysisTask.call(DocumentAnalysisTask.java:33)
-	at javafx.graphics@21.0.2/javafx.concurrent.Task$TaskCallable.call(Task.java:1399)
-	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:328)
-	at java.base/java.lang.Thread.run(Thread.java:1447)
