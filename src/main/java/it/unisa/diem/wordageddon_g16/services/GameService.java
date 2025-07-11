@@ -78,6 +78,10 @@ public class GameService {
         }
         return params.difficulty;
     }
+    public int getScorePerQuestion() {
+        int totalScore = getMaxScoreByDifficulty(getDifficulty());
+        return totalScore / getQuestionCount();
+    }
 
     /**
      * Restituisce il tempo limite della partita corrente.
