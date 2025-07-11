@@ -9,34 +9,84 @@ participant StopWordDAO
 participant PopupBuilder
 participant Database
 participant View
+participant FileChooser
 
 == Gestione StopWords ==
+activate Utente
 Utente -> UserPanelController : click "Gestione StopWords"
+activate UserPanelController
+
 UserPanelController -> UserPanelService : getAllStopwords()
+activate UserPanelService
+UserPanelService -> StopWordDAO : request data
+activate StopWordDAO
 StopWordDAO -> Database : SELECT * FROM StopWords
+activate Database
 Database --> StopWordDAO : lista
+deactivate Database
 StopWordDAO --> UserPanelService : Set<String>
+deactivate StopWordDAO
 UserPanelService --> UserPanelController : elenco stopwords
+deactivate UserPanelService
+
 UserPanelController -> PopupBuilder : crea popup "Gestione StopWords"
+activate PopupBuilder
+deactivate PopupBuilder
 
 alt aggiunta manuale
     UserPanelController -> UserPanelService : addStopWords(text)
+    activate UserPanelService
     UserPanelService -> StopWordDAO : insert(word)
+    activate StopWordDAO
     StopWordDAO -> Database : INSERT INTO StopWords ...
+    activate Database
+    Database --> StopWordDAO : OK
+    deactivate Database
+    StopWordDAO --> UserPanelService : conferma
+    deactivate StopWordDAO
+    UserPanelService --> UserPanelController : conferma
+    deactivate UserPanelService
 end
 
 alt caricamento da file
     UserPanelController -> FileChooser : seleziona file.txt
+    activate FileChooser
     FileChooser --> UserPanelController : file
+    deactivate FileChooser
+
     UserPanelController -> UserPanelService : addStopwordsFromFile(file)
+    activate UserPanelService
     UserPanelService -> StopWordDAO : insert(words...)
+    activate StopWordDAO
     StopWordDAO -> Database : INSERT INTO StopWords ...
+    activate Database
+    Database --> StopWordDAO : OK
+    deactivate Database
+    StopWordDAO --> UserPanelService : conferma
+    deactivate StopWordDAO
+    UserPanelService --> UserPanelController : conferma
+    deactivate UserPanelService
 end
 
 alt rimozione stopword
     UserPanelController -> UserPanelService : deleteStopword(word)
+    activate UserPanelService
+    UserPanelService -> StopWordDAO : delete(word)
+    activate StopWordDAO
     StopWordDAO -> Database : DELETE FROM StopWords WHERE word = ?
+    activate Database
+    Database --> StopWordDAO : OK
+    deactivate Database
+    StopWordDAO --> UserPanelService : conferma
+    deactivate StopWordDAO
+    UserPanelService --> UserPanelController : conferma
+    deactivate UserPanelService
 end
 
 UserPanelController -> View : aggiorna ListView / mostra feedback
+activate View
+deactivate View
+
+deactivate UserPanelController
+deactivate Utente
 @enduml
