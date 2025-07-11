@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import javafx.geometry.*?>
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
-<StackPane id="stackPane" fx:id="stackPane" prefHeight="832.0" prefWidth="1280.0" stylesheets="@../style/game.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unisa.diem.wordageddon_g16.controllers.GameSessionController">
+<StackPane id="stackPane" fx:id="stackPane" prefHeight="832.0" prefWidth="1280.0" stylesheets="@../style/game.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unisa.diem.wordageddon_g16.controllers.GameSessionController">
     <children>
 
         <!-- Schermata Selezione Difficoltà -->
@@ -42,19 +46,28 @@
             <children>
                 <VBox alignment="TOP_CENTER" spacing="30.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                     <children>
-                        <Label fx:id="documentTitleLabel">
+                        <Label fx:id="documentTitleLabel" alignment="CENTER" contentDisplay="CENTER" textAlignment="CENTER" textFill="WHITE">
                      <font>
-                        <Font size="30.0" />
+                        <Font size="48.0" />
                      </font></Label>
                         <HBox alignment="CENTER" spacing="20.0">
                             <children>
-                                <ProgressBar fx:id="timerBar" prefHeight="10.0" prefWidth="200.0" progress="0.7" styleClass="progress-bar" />
+                                <ProgressBar fx:id="timerBar" prefHeight="10.0" prefWidth="200.0" progress="0.0" styleClass="progress-bar" />
                                 <Label fx:id="timerLabelRead" text="timer" textFill="WHITE">
                                     <font><Font name="System Bold" size="12.0" /></font>
                                 </Label>
                             </children>
                         </HBox>
-                        <TextArea fx:id="textDisplayArea" editable="false" prefHeight="624.0" prefWidth="1240.0" wrapText="true" />
+                        <TextArea fx:id="textDisplayArea" editable="false" prefHeight="624.0" prefWidth="1240.0" wrapText="true">
+                     <font>
+                        <Font size="22.0" />
+                     </font></TextArea>
+                  <HBox alignment="BOTTOM_CENTER" prefHeight="100.0" prefWidth="200.0" spacing="200.0">
+                     <children>
+                        <Button fx:id="previousDocumentButton" onAction="#onChangeDocument" prefHeight="50.0" prefWidth="52.0" text="←" />
+                        <Button fx:id="nextDocumentButton" onAction="#onChangeDocument" prefHeight="50.0" prefWidth="52.0" text="→" />
+                     </children>
+                  </HBox>
                     </children>
                     <padding>
                         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
@@ -78,7 +91,7 @@
                 <VBox alignment="TOP_RIGHT" spacing="10" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="20.0">
                     <children>
                         <Label fx:id="questionCountLabel" styleClass="numberQuestion" text="3/12" />
-                        <Button fx:id="nextButton" styleClass="avantiBtn" text="Avanti" />
+                        <Button fx:id="nextQuestionButton" styleClass="avantiBtn" text="Avanti" />
                     </children>
                 </VBox>
                 <VBox fx:id="questionContainer" alignment="CENTER" spacing="20" AnchorPane.bottomAnchor="40.0" AnchorPane.leftAnchor="60.0" AnchorPane.rightAnchor="60.0" AnchorPane.topAnchor="120.0">

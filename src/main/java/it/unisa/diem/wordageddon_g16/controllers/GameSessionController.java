@@ -2,6 +2,7 @@ package it.unisa.diem.wordageddon_g16.controllers;
 
 import it.unisa.diem.wordageddon_g16.models.AppContext;
 import it.unisa.diem.wordageddon_g16.models.Difficulty;
+import it.unisa.diem.wordageddon_g16.models.Document;
 import it.unisa.diem.wordageddon_g16.services.GameService;
 import it.unisa.diem.wordageddon_g16.services.GameService.Question;
 import it.unisa.diem.wordageddon_g16.utility.ViewLoader;
@@ -9,6 +10,7 @@ import javafx.animation.KeyFrame;
 import javafx.animation.PauseTransition;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
@@ -21,6 +23,7 @@ import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Controller JavaFX responsabile della gestione della sessione di gioco.
@@ -36,29 +39,30 @@ public class GameSessionController {
     @FXML private AnchorPane questionPane;
     @FXML private AnchorPane diffSelectionPane;
 
-    @FXML private Button diffEasyBTN;
-    @FXML private Button diffMediumBTN;
-    @FXML private Button diffHardBTN;
-
     @FXML private TextArea textDisplayArea;
     @FXML private ProgressBar timerBar;
     @FXML private Label timerLabelRead;
+    @FXML private Label documentTitleLabel;
 
     @FXML private Label questionText;
     @FXML private VBox answerBox;
     @FXML private Label questionCountLabel;
     @FXML private ProgressBar timerBarQuestion;
     @FXML private Label timerLabelQuestion;
-    @FXML private Button nextButton;
-    @FXML private Button backButton;
+    @FXML private Button nextQuestionButton;
+    @FXML private Button nextDocumentButton;
+    @FXML private Button previousDocumentButton;
 
+    Map<Document,String> documentToTextMap;
+    private SimpleIntegerProperty currentQuestionIndex;
+    private final SimpleIntegerProperty currentDocumentIndex;
     private final GameService gameService;
     private List<Question> questions;
-    private int currentQuestionIndex = 0;
+
     private Timeline questionTimer;
 
-    private Service<StringBuffer> readingSetupService;
-    private Service<List<Question>> questionGenerationService;
+    private Service<Map<Document,String>> readingSetupService;
+    private Service<List<Question>> questionSetupService;
 
     /**
      * Costruisce il controller e inizializza il servizio di gioco.
@@ -67,6 +71,7 @@ public class GameSessionController {
      */
     public GameSessionController(AppContext appContext) {
         this.gameService = appContext.getGameService();
+        currentDocumentIndex = new SimpleIntegerProperty(0);
     }
 
     /**
@@ -84,18 +89,18 @@ public class GameSessionController {
          */
         readingSetupService = new Service<>() {
             @Override
-            protected Task<StringBuffer> createTask() {
-                Task<StringBuffer> task= new Task<>() {
+            protected Task<Map<Document,String>> createTask() {
+                Task<Map<Document,String>> task= new Task<>() {
                     @Override
-                    protected StringBuffer call() {
+                    protected Map<Document,String> call() {
                         return gameService.setupReadingPhase();
                     }
                 };
                 task.setOnSucceeded(_ -> {
-                    StringBuffer text = task.getValue();
+                    documentToTextMap= task.getValue();
                     Platform.runLater(
                             () -> {
-                                textDisplayArea.setText(text.toString());
+                                setDocument(0);
                             }
                     );
                     questionGenerationService.start();
@@ -116,7 +121,7 @@ public class GameSessionController {
          * Quando la generazione è completata, aggiorna la lista delle domande e imposta il timer per la lettura.
          * In caso di errore, termina la sessione di gioco.
          */
-        questionGenerationService = new Service<>() {
+        questionSetupService = new Service<>() {
             @Override
             protected Task<List<Question>> createTask() {
                 return new Task<>() {
@@ -127,17 +132,23 @@ public class GameSessionController {
                 };
             }
         };
-        questionGenerationService.setOnSucceeded(_ -> {
-            questions = questionGenerationService.getValue();
+        questionSetupService.setOnSucceeded(_ -> {
+            questions = questionSetupService.getValue();
             int seconds = (int) gameService.getTimeLimit().getSeconds();
-            startTimer(seconds, timerLabelRead, timerBar, () -> loadPane(questionPane));
+            startTimer(seconds, timerLabelRead, timerBar, () -> loadPane(questionPane)); //TODO questo dovrebbe caricare il Pane coi risultati, non il questionPane
         });
-        questionGenerationService.setOnFailed(_ -> {
+        questionSetupService.setOnFailed(_ -> {
             endGame();
-            throw new RuntimeException("Erorr during reading setup task");
+            throw new RuntimeException("Error during reading setup task");
         });
 
         loadPane(diffSelectionPane);
+    }
+
+    private void setDocument(int i) {
+        Document doc = gameService.getDocuments().get(i);
+        documentTitleLabel.setText(doc.title());
+        textDisplayArea.setText(documentToTextMap.get(doc));
     }
 
     /**
@@ -152,7 +163,7 @@ public class GameSessionController {
             wait.play();
             return;
         }
-        showQuestion(currentQuestionIndex);
+        showQuestion(currentQuestionIndex.get());
     }
 
     /**
@@ -182,8 +193,8 @@ public class GameSessionController {
         //BISOGNA DECIDERE IL TEMPO DELLE DOMANDE COME GESTIRLO
         // Avvia il timer della domanda corrente. Se il tempo scade, passa automaticamente alla successiva.
         startTimer(20, timerLabelQuestion, timerBarQuestion, () -> {
-            currentQuestionIndex++;
-            showQuestion(currentQuestionIndex);
+            currentQuestionIndex.set(currentQuestionIndex.get() + 1);
+            showQuestion(currentQuestionIndex.get());
         });
     }
 
@@ -214,21 +225,55 @@ public class GameSessionController {
      * @return oggetto Timeline che rappresenta il timer in esecuzione
      */
     private Timeline startTimer(int durationSeconds, Label label, ProgressBar bar, Runnable onFinished) {
-        //Imposta la label che mostra il tempo rimanente a durationSeconds
-        label.setText(durationSeconds + "s");
 
-        bar.setProgress(0);
+        label.setText(String.format("%02d:%02d", durationSeconds / 60, durationSeconds % 60));
 
-        Timeline timer = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
-            //Viene descrementato il tempo rimanente
-            int remaining = Integer.parseInt(label.getText().replace("s", "")) - 1;
-            label.setText(remaining + "s");
-            bar.setProgress((double) (durationSeconds - remaining) / durationSeconds);
-            if (remaining <= 0) {
-                ((Timeline) e.getSource()).stop(); //Blocca la Timeline
-                onFinished.run(); // Viene eseguito il metodo passato
+        // Metodo interno per aggiornare lo stile della progress bar
+        Runnable updateBarStyle = () -> {
+            Platform.runLater(() -> {
+                // lookup funziona solo se il nodo è già nel scene graph
+                var barNode = bar.lookup(".bar");
+                if (barNode != null) {
+                    barNode.getStyleClass().removeAll("low", "medium", "high");
+                    double progress = bar.getProgress();
+                    if (progress < 0.3) {
+                        barNode.getStyleClass().add("high");
+                    } else if (progress < 0.7) {
+                        barNode.getStyleClass().add("medium");
+                    } else {
+                        barNode.getStyleClass().add("low");
+                    }
+                }
+            });
+        };
+
+        Timeline timer = new Timeline();
+        timer.getKeyFrames().add(new KeyFrame(Duration.seconds(1), e -> {
+            String[] parts = label.getText().split(":");
+            int minutes = Integer.parseInt(parts[0]);
+            int seconds = Integer.parseInt(parts[1]);
+            int totalSeconds = minutes * 60 + seconds - 1;
+            if (totalSeconds < 0) totalSeconds = 0;
+
+            label.setText(String.format("%02d:%02d", totalSeconds / 60, totalSeconds % 60));
+
+            double progress = (double) (durationSeconds - totalSeconds) / durationSeconds;
+            bar.setProgress(progress);
+            updateBarStyle.run();
+
+            if (totalSeconds <= 0) {
+                timer.stop(); // <-- usa direttamente la variabile locale
+                onFinished.run();
             }
         }));
+
+        // Dopo che la ProgressBar è mostrata, applica lo stile iniziale
+        bar.sceneProperty().addListener((obs, oldScene, newScene) -> {
+            if (newScene != null) {
+                Platform.runLater(updateBarStyle);
+            }
+        });
+
         timer.setCycleCount(durationSeconds);
         timer.play();
         return timer;
@@ -266,6 +311,8 @@ public class GameSessionController {
             case "diffHardBTN" -> gameService.init(Difficulty.HARD);
             default -> throw new IllegalArgumentException("Difficoltà non riconosciuta");
         }
+        nextDocumentButton.disableProperty().bind(currentDocumentIndex.isEqualTo(gameService.getDocuments().size()-1));
+        previousDocumentButton.disableProperty().bind(currentDocumentIndex.isEqualTo(0));
         loadPane(readingPane);
     }
 
@@ -278,5 +325,15 @@ public class GameSessionController {
     private void onBackPressed(ActionEvent event) {
         //Torna al menu principale o chiudi la finestra
         ViewLoader.load(ViewLoader.View.MENU);
+    }
+
+    @FXML
+    private void onChangeDocument(ActionEvent event) {
+        if (event.getSource().equals(nextDocumentButton)) {
+            currentDocumentIndex.set(currentDocumentIndex.get()+1);
+        } else { // previousDocumentButton pressed
+            currentDocumentIndex.set(currentDocumentIndex.get()-1);
+        }
+        setDocument(currentDocumentIndex.get());
     }
 }

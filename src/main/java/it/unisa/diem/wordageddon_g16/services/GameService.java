@@ -9,6 +9,8 @@ import it.unisa.diem.wordageddon_g16.models.Difficulty;
 import it.unisa.diem.wordageddon_g16.models.Document;
 import it.unisa.diem.wordageddon_g16.models.WDM;
 import it.unisa.diem.wordageddon_g16.utility.Config;
+import it.unisa.diem.wordageddon_g16.utility.Resources;
+
 import it.unisa.diem.wordageddon_g16.utility.SystemLogger;
 
 import java.io.IOException;
@@ -563,17 +565,15 @@ public class GameService {
      * @brief Effettua il parsing dei documenti e prepara il testo per la fase di lettura.
      * Restituisce un StringBuffer contenente il testo di tutti i documenti
      */
-    public StringBuffer setupReadingPhase() {
-        StringBuffer text = new StringBuffer();
+    public Map<Document,String> setupReadingPhase() {
+        Map<Document,String> result = new HashMap<>();
         for (Document doc : getDocuments()) {
-            Path path = Path.of(Config.get(Config.Props.DOCUMENTS_DIR) + doc.filename());
             try {
-                text.append(Files.readString(path)).append("\n");
-                System.out.println(text);
+                result.put(doc, Resources.getDocumentContent(doc.filename()));
             } catch (IOException e) {
                 SystemLogger.log("Errore nella lettura del documento", e);
             }
         }
-        return text;
+        return result;
     }
 }

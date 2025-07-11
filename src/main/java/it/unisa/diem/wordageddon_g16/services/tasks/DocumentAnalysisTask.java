@@ -59,7 +59,7 @@ public class DocumentAnalysisTask extends Task<WDM> {
         // prelevo le stopwords dal database
         Set<String> stopWords = stopWordDAO.selectAll();
 
-        Path docsDir = Resources.getDocsPath();
+        Path docsDir = Resources.getDocsDirPath();
         String filename = tempFile.getName();
         Path filePath = docsDir.resolve(filename);
 

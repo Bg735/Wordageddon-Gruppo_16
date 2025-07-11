@@ -17,11 +17,24 @@
     -fx-padding: 0;
 }
 .progress-bar > .bar {
-    -fx-background-color: linear-gradient(#5be179, #2cff5c); /* Verde brillante */
+
     -fx-background-radius: 20;
     -fx-padding: 0;
     -fx-background-insets: 0;
 }
+
+.progress-bar > .bar.high {
+    -fx-background-color: linear-gradient(#5be179, #2cff5c); /* Verde */
+}
+
+.progress-bar > .bar.medium {
+    -fx-background-color: linear-gradient(#f0c94c, #f0c94c); /* Giallo */
+}
+
+.progress-bar > .bar.low {
+    -fx-background-color: linear-gradient(#ff6b6b, #ff6b6b); /* Rosso */
+}
+
 .progress-bar > .track {
     -fx-background-color: rgba(255, 255, 255, 0.2);
 }

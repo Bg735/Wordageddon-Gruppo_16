@@ -6,6 +6,8 @@ import it.unisa.diem.wordageddon_g16.db.contracts.GameReportDAO;
 import it.unisa.diem.wordageddon_g16.models.*;
 import it.unisa.diem.wordageddon_g16.services.tasks.DocumentAnalysisTask;
 import it.unisa.diem.wordageddon_g16.utility.Config;
+import it.unisa.diem.wordageddon_g16.utility.Resources;
+
 import it.unisa.diem.wordageddon_g16.utility.SystemLogger;
 import javafx.concurrent.Task;
 
@@ -176,10 +178,10 @@ public class UserPanelService {
         // Se il documento non è più presente nel database, elimino il file fisico
         if (documentDAO.selectById(doc.filename()).isEmpty()) {
             try {
-                Files.deleteIfExists(Path.of(Config.get(Config.Props.DOCUMENTS_DIR) + doc.filename()));
+                Files.deleteIfExists(Resources.getDocPath(doc));
             } catch (IOException e) {
-                SystemLogger.log("Error during file deletion " + doc.filename(), e);
-                throw new RuntimeException("Error during file deletion " + doc.filename(), e);
+                SystemLogger.log("Error deleting" + doc.filename(), e);
+                throw new RuntimeException("Error deleting" + doc.filename(), e);
             }
         }
 
