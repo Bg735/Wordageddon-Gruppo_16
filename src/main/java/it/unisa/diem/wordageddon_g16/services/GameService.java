@@ -79,7 +79,7 @@ public class GameService {
         return params.difficulty;
     }
     public int getScorePerQuestion() {
-        int totalScore = getMaxScoreByDifficulty(getDifficulty());
+        int totalScore = getMaxScoreDifficulty(getDifficulty());
         return totalScore / getQuestionCount();
     }
 
