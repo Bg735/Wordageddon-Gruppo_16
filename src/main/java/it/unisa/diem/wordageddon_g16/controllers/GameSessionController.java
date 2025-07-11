@@ -224,7 +224,7 @@ public class GameSessionController {
      * @param onFinished operazione da eseguire al termine del timer
      * @return oggetto Timeline che rappresenta il timer in esecuzione
      */
-    private Timeline startTimer(int adurationSeconds, Label label, ProgressBar bar, Runnable onFinished) {
+    private Timeline startTimer(int durationSeconds, Label label, ProgressBar bar, Runnable onFinished) {
 
         label.setText(String.format("%02d:%02d", durationSeconds / 60, durationSeconds % 60));
 
