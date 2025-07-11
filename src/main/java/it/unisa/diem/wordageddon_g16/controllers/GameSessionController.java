@@ -103,7 +103,7 @@ public class GameSessionController {
                                 setDocument(0);
                             }
                     );
-                    questionSetupService.start();
+                    questionGenerationService.start();
                     int seconds = (int) gameService.getTimeLimit().getSeconds();
                     // alla fine del timer mostra questionPane
                     startTimer(seconds, timerLabelRead, timerBar, () -> loadPane(questionPane));
