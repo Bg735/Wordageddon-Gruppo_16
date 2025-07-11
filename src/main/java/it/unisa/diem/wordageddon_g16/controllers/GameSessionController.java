@@ -58,7 +58,7 @@ public class GameSessionController {
     private Timeline questionTimer;
 
     private Service<StringBuffer> readingSetupService;
-    private Service<StringBuffer> questionSetupService;
+    private Service<List<Question>> questionGenerationService;
 
     /**
      * Costruisce il controller e inizializza il servizio di gioco.
@@ -98,7 +98,7 @@ public class GameSessionController {
                                 textDisplayArea.setText(text.toString());
                             }
                     );
-                    questionSetupService.start();
+                    questionGenerationService.start();
                     int seconds = (int) gameService.getTimeLimit().getSeconds();
                     // alla fine del timer mostra questionPane
                     startTimer(seconds, timerLabelRead, timerBar, () -> loadPane(questionPane));
@@ -116,7 +116,7 @@ public class GameSessionController {
          * Quando la generazione è completata, aggiorna la lista delle domande e imposta il timer per la lettura.
          * In caso di errore, termina la sessione di gioco.
          */
-        Service<List<Question>> questionGenerationService = new Service<>() {
+        questionGenerationService = new Service<>() {
             @Override
             protected Task<List<Question>> createTask() {
                 return new Task<>() {
