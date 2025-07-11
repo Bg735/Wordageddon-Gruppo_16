@@ -716,6 +716,8 @@ public class GameService {
     }
 
     public void saveGameReport(GameReport report) {
+        System.out.println("→ Chiamato saveGameReport");
         gameReportDAO.insert(report);
+        System.out.println("→ Fine saveGameReport");
     }
 }

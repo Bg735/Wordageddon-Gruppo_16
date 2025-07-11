@@ -152,17 +152,18 @@ public class GameReportDAO extends JdbcDAO<GameReport> {
                     gameReport.getUser().getName(),
                     gameReport.getTimestamp(),
                     gameReport.getDifficulty().name(),
-                    gameReport.getMaxTime().toString(),
-                    gameReport.getUsedTime().toString(),
-                    gameReport.getQuestionCount(),
+
+                    String.format("%02d:%02d", gameReport.getMaxTime().toMinutesPart(), gameReport.getMaxTime().toSecondsPart()),
+            String.format("%02d:%02d", gameReport.getUsedTime().toMinutesPart(), gameReport.getUsedTime().toSecondsPart()),
+            gameReport.getQuestionCount(),
                     gameReport.getScore()
             );
-
+/*
             Object[] raw = gameReport.getDocuments(); // restituisce Object[]
             Document[] docs = Arrays.stream(raw).map(Document.class::cast).toArray(Document[]::new);
             for (Document document : docs) {
                 executeUpdate(updateOnContent, gameReport.getId(), document.filename());
-            }
+            }*/
 
         } catch (SQLException e) {
             SystemLogger.log("Error trying to insert game report", e);
