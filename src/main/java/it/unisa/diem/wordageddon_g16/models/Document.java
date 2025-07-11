@@ -12,7 +12,7 @@ import java.util.Objects;
  * @param filename      il percorso del file del documento
  * @param wordCount il numero di parole nel documento
  */
-public record Document(String filename, String title, int wordCount) {
+public record Document(String filename, String title, Integer wordCount) {
 
     /**
      * Verifica l'uguaglianza tra questo documento e un altro oggetto.
@@ -63,7 +63,7 @@ public record Document(String filename, String title, int wordCount) {
      * @return il conteggio delle parole
      */
     @Override
-    public int wordCount() {
+    public Integer wordCount() {
         return wordCount;
     }
 }
