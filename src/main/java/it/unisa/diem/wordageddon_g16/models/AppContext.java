@@ -8,6 +8,8 @@ import it.unisa.diem.wordageddon_g16.services.UserPanelService;
 
 
 public class AppContext {
+    private final Repository repo;
+
     private final AuthService authService;
     private final LeaderboardService leaderboardService;
     public final UserPanelService userPanelService;
@@ -16,6 +18,7 @@ public class AppContext {
     private User currentUser;
 
     public AppContext(Repository repo) {
+        this.repo = repo;
         authService = new AuthService(this, repo.getDAO("user"));
         leaderboardService = new LeaderboardService(this, repo.getDAO("gameReport"), repo.getDAO("user"));
         userPanelService = new UserPanelService(repo.getDAO("gameReport"), repo.getDAO("user"), repo.getDAO("document"), repo.getDAO("stopWord"), repo.getDAO("wdm"), this);
@@ -28,6 +31,9 @@ public class AppContext {
     public GameService getGameService() { return gameService; }
     public User getCurrentUser() {
         return currentUser;
+    }
+    public Repository getRepo() {
+        return repo;
     }
 
     public void setCurrentUser(User currentUser) {

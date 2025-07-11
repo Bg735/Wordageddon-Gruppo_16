@@ -1,4 +1,4 @@
-package it.unisa.diem.wordageddon_g16.db;
+package it.unisa.diem.wordageddon_g16.db.contracts;
 
 import java.util.Collection;
 import java.util.Optional;

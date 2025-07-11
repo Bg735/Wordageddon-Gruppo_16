@@ -1,18 +1,15 @@
 package it.unisa.diem.wordageddon_g16.controllers;
 
-import it.unisa.diem.wordageddon_g16.db.DAO;
 import it.unisa.diem.wordageddon_g16.models.AppContext;
 import it.unisa.diem.wordageddon_g16.services.AuthService;
-import it.unisa.diem.wordageddon_g16.services.Config;
-import it.unisa.diem.wordageddon_g16.services.Resources;
-import it.unisa.diem.wordageddon_g16.services.ViewLoader;
+import it.unisa.diem.wordageddon_g16.utility.Config;
+import it.unisa.diem.wordageddon_g16.utility.Resources;
+import it.unisa.diem.wordageddon_g16.utility.ViewLoader;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-
-import java.util.Objects;
 
 public class AuthController  {
 

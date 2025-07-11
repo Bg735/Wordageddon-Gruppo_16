@@ -1,0 +1,24 @@
+.dialog-pane {
+    -fx-background-color: linear-gradient(to right, #6A0DAD, #5C1B8B);
+    -fx-padding: 17;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+}
+
+.dialog-pane .label {
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+}
+
+.dialog-pane .button,
+.dialog-pane .toggle-button {
+    -fx-background-color: linear-gradient(to right, #00E6FF, #0053B7);
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+}
+
+.dialog-pane .button:hover {
+    -fx-effect: dropshadow(gaussian, rgba(255, 255, 255, 0.66), 3, 0.3, 0, 1);
+}

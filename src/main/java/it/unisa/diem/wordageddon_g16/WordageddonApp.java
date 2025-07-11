@@ -2,12 +2,11 @@ package it.unisa.diem.wordageddon_g16;
 
 import it.unisa.diem.wordageddon_g16.controllers.*;
 import it.unisa.diem.wordageddon_g16.models.*;
-import it.unisa.diem.wordageddon_g16.services.Resources;
-import it.unisa.diem.wordageddon_g16.services.ViewLoader;
+import it.unisa.diem.wordageddon_g16.utility.Resources;
+import it.unisa.diem.wordageddon_g16.utility.ViewLoader;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
-import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import javafx.scene.image.Image;
@@ -39,7 +38,6 @@ public class WordageddonApp extends Application {
         ViewLoader.setStage(stage);
         ViewLoader.setControllerFactory(controllerFactory);
         ViewLoader.load(ViewLoader.View.AUTH);
-
 
         if (context.getAuthService().loadSession()) {
             ViewLoader.load(ViewLoader.View.MENU);

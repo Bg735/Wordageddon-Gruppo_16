@@ -1,13 +1,15 @@
 package it.unisa.diem.wordageddon_g16.services;
 
-import it.unisa.diem.wordageddon_g16.db.DocumentDAO;
-import it.unisa.diem.wordageddon_g16.db.GameReportDAO;
-import it.unisa.diem.wordageddon_g16.db.StopWordDAO;
-import it.unisa.diem.wordageddon_g16.db.WdmDAO;
+import it.unisa.diem.wordageddon_g16.db.JDBCWdmDAO;
+import it.unisa.diem.wordageddon_g16.db.contracts.GameReportDAO;
+import it.unisa.diem.wordageddon_g16.db.contracts.DocumentDAO;
+import it.unisa.diem.wordageddon_g16.db.contracts.StopWordDAO;
 import it.unisa.diem.wordageddon_g16.models.AppContext;
 import it.unisa.diem.wordageddon_g16.models.Difficulty;
 import it.unisa.diem.wordageddon_g16.models.Document;
 import it.unisa.diem.wordageddon_g16.models.WDM;
+import it.unisa.diem.wordageddon_g16.utility.Config;
+import it.unisa.diem.wordageddon_g16.utility.SystemLogger;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -23,7 +25,7 @@ import java.util.*;
 public class GameService {
 
     private final GameReportDAO gameReportDAO;
-    private final WdmDAO wdmDAO;
+    private final JDBCWdmDAO wdmDAO;
     private final DocumentDAO documentDAO;
     private final StopWordDAO stopwordDAO;
     private final AppContext context;
@@ -40,7 +42,7 @@ public class GameService {
      * @param documentDAO   DAO per i documenti
      * @param stopwordDAO   DAO per le stopword
      */
-    public GameService(AppContext context, GameReportDAO gameReportDAO, WdmDAO wdmDAO,
+    public GameService(AppContext context, GameReportDAO gameReportDAO, JDBCWdmDAO wdmDAO,
                        DocumentDAO documentDAO, StopWordDAO stopwordDAO) {
         this.gameReportDAO = gameReportDAO;
         this.wdmDAO = wdmDAO;

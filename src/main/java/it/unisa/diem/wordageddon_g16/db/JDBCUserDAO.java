@@ -1,9 +1,10 @@
 package it.unisa.diem.wordageddon_g16.db;
 
+import it.unisa.diem.wordageddon_g16.db.contracts.UserDAO;
 import it.unisa.diem.wordageddon_g16.db.exceptions.QueryFailedException;
 import it.unisa.diem.wordageddon_g16.db.exceptions.UpdateFailedException;
 import it.unisa.diem.wordageddon_g16.models.User;
-import it.unisa.diem.wordageddon_g16.services.SystemLogger;
+import it.unisa.diem.wordageddon_g16.utility.SystemLogger;
 import javafx.util.Callback;
 
 import java.sql.Connection;
@@ -13,9 +14,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class UserDAO extends JdbcDAO<User> {
+public class JDBCUserDAO extends JdbcDAO<User> implements UserDAO {
 
-    public UserDAO(Connection connection) {
+    public JDBCUserDAO(Connection connection) {
         super(connection);
     }
 

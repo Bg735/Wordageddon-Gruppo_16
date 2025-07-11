@@ -1,4 +1,4 @@
-package it.unisa.diem.wordageddon_g16.services;
+package it.unisa.diem.wordageddon_g16.utility;
 
 import java.io.IOException;
 import java.util.logging.*;
