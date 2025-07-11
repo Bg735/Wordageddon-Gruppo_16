@@ -165,30 +165,49 @@ public class GameService {
      */
     private Question absoluteFrequencyQuestion() {
         List<Document> docs = params.documents;
+
+        // Scegli un documento a caso dalla lista
         Document document = docs.get(GameParams.random.nextInt(docs.size()));
         WDM wdm = wdmMap.get(document);
 
+        // Ottieni la lista delle parole significative presenti nel documento
         List<String> words = new ArrayList<>(wdm.getWords().keySet());
         if (words.isEmpty()) throw new IllegalStateException("No words available");
 
+        // Scegli casualmente una parola tra quelle disponibili nel documento
         String word = words.get(GameParams.random.nextInt(words.size()));
+        // Recupera la frequenza reale della parola selezionata nel documento
         int frequency = wdm.getWords().get(word);
 
+        // Prepara un set per raccogliere 3 risposte errate (frequenze plausibili ma sbagliate)
         Set<Integer> wrongAnswers = new HashSet<>();
         while (wrongAnswers.size() < 3) {
+            // Genera una risposta errata come uno scostamento casuale tra -2 e +2 rispetto alla frequenza reale
             int answerIndex = frequency + GameParams.random.nextInt(5) - 2;
+            // Aggiungi solo se è diversa dalla risposta corretta e positiva
             if (answerIndex != frequency && answerIndex > 0) {
                 wrongAnswers.add(answerIndex);
             }
         }
+
+        // Crea la lista delle risposte (inizialmente solo quelle errate)
         List<String> answers = new ArrayList<>();
         for (int answerIndex : wrongAnswers) {
             answers.add(String.valueOf(answerIndex));
         }
+
+        // Scegli una posizione casuale per inserire la risposta corretta tra le quattro opzioni
         int correctAnswerIndex = GameParams.random.nextInt(4);
         answers.add(correctAnswerIndex, String.valueOf(frequency));
-        return Question.create("Quante volte appare la parola " + word + " nel documento " + document.title() + "?", answers, correctAnswerIndex);
+
+        // Crea e restituisce la domanda, specificando il testo, le risposte e la posizione di quella corretta
+        return Question.create(
+                "Quante volte appare la parola " + word + " nel documento " + document.title() + "?",
+                answers,
+                correctAnswerIndex
+        );
     }
+
 
     /**
      * Crea una domanda che chiede quale parola appare più frequentemente tra quelle proposte.
@@ -539,7 +558,8 @@ public class GameService {
     }
 
     /**
-     * @brief Task per il parsing dei documenti prima della fase di lettura
+     * @brief Effettua il parsing dei documenti e prepara il testo per la fase di lettura.
+     * Restituisce un StringBuffer contenente il testo di tutti i documenti.
      */
     public StringBuffer setupReadingPhase() {
         StringBuffer text = new StringBuffer();
