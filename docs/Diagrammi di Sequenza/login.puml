@@ -3,8 +3,7 @@ actor Utente
 participant AuthController
 participant AppContext
 participant AuthService
-participant UserDAO
-database Database
+database "UserDAO (Database)" as DB
 participant View
 
 activate Utente
@@ -19,16 +18,12 @@ deactivate AppContext
 AuthController -> AuthService : login(username, password)
 activate AuthService
 
-AuthService -> UserDAO : selectById(username)
-activate UserDAO
+AuthService -> DB : selectById(username)
+activate DB
 
-UserDAO -> Database : SELECT * FROM User WHERE name = ?
-activate Database
-Database --> UserDAO : return User (o null)
-deactivate Database
 
-UserDAO --> AuthService : return User
-deactivate UserDAO
+DB --> AuthService : return User
+deactivate DB
 
 AuthService -> AuthService : verifica password
 
