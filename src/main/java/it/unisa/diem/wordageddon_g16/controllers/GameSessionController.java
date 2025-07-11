@@ -213,15 +213,6 @@ public class GameSessionController {
 
 
     /**
-     * @brief Gestisce la selezione della risposta da parte dell’utente.
-     * @param selectedIndex Indice della risposta scelta.
-     */
-    private void handleAnswer(int selectedIndex) {
-
-    }
-
-
-    /**
      * @brief Metodo chiamato al termine della sessione di gioco.
      */
     private void endGame() {
