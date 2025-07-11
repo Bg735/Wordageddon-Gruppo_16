@@ -1,24 +1,27 @@
-Diagramma upload documenti
 @startuml
 actor Amministratore
-participant "InterfacciaAdmin" as UI
-participant "ControllerUpload" as Controller
-participant "AnalizzatoreDocumenti" as Analizzatore
-participant "Database" as DB
+participant "AdminPanelController" as Controller
+participant "PopupBuilder" as UI
+participant "DocumentAnalyzer" as Analizzatore
+participant "DocumentDAO" as DB
 
 == Flusso normale ==
-Amministratore -> UI : clicca su icona upload
-UI -> Controller : invia documento da caricare
-Controller -> Analizzatore : analizza documento
-Analizzatore -> Controller : risultati analisi
-Controller -> DB : salva documento e analisi
+Amministratore -> UI : clicca su "Upload documento"
+UI -> Controller : chiama handleUpload(path)
+
+Controller -> Analizzatore : analyzeDocument(path)
+Analizzatore -> Controller : new Document(title, id, wordCount)
+
+Controller -> DB : insert(document)
 DB --> Controller : conferma salvataggio
-Controller -> UI : mostra conferma caricamento
-UI -> Amministratore : conferma caricamento completato
+
+Controller -> UI : mostra conferma "Caricamento completato"
+UI -> Amministratore : documento caricato con successo
 
 == Flusso alternativo ==
-alt Errore nel caricamento, analisi o salvataggio
-    Controller -> UI : mostra messaggio di errore
+alt Errore in analisi o salvataggio
+    Analizzatore -> Controller : eccezione
+    Controller -> UI : mostra errore "Errore nel caricamento"
     UI -> Amministratore : errore nel caricamento
 end
 @enduml

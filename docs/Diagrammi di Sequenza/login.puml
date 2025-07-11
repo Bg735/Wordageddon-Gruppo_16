@@ -1,28 +1,53 @@
 @startuml
 actor Utente
+participant AuthController
+participant AppContext
+participant AuthService
+database "UserDAO (Database)" as DB
+participant View
 
-participant "Interfaccia" as UI
-participant "Controller" as Controller
-database "Database" as DB
+activate Utente
+Utente -> AuthController : inserisce username e password
+activate AuthController
 
-== Flusso Principale ==
+AuthController -> AppContext : getAuthService()
+activate AppContext
+AppContext --> AuthController : return AuthService
+deactivate AppContext
 
-Utente -> UI : apre applicazione
-UI -> Utente : mostra form di login
-Utente -> UI : inserisce username e password
-Utente -> UI : seleziona il pulsante "Login"
+AuthController -> AuthService : login(username, password)
+activate AuthService
 
-Controller -> DB : verifica credenziali
-DB --> Controller : verifica eseguita correttamente
-Controller --> UI : login riuscito
-UI -> Utente : accesso al menù
-== Flusso Alternativo ==
+AuthService -> DB : selectById(username)
+activate DB
 
-group Credenziali errate
-Controller -> DB : verifica credenziali
-DB --> Controller : verifica non andata a buon fine
-Controller --> UI : mostra errore
-UI -> Utente : messaggio di errore
+
+DB --> AuthService : return User
+deactivate DB
+
+AuthService -> AuthService : verifica password
+
+alt login valido
+
+    AuthService -> AppContext : setCurrentUser(user)
+    activate AppContext
+    deactivate AppContext
+    AuthService->AuthService: saveSession(user)
+    AuthService --> AuthController : ritorna true
+    AuthController -> View : carica schermata MainMenu
+    activate View
+    deactivate View
+else login fallito
+    AuthService --> AuthController : return false
+    AuthController -> View :  showDialog()
+    note right of AuthController
+        Mostra messaggio di errore all'utente
+    end note
+    activate View
+    deactivate View
 end
 
+deactivate AuthService
+deactivate AuthController
+deactivate Utente
 @enduml

@@ -1,24 +1,28 @@
 @startuml
 actor Utente
-participant "InterfacciaUtente" as UI
-participant "ControllerLivelli" as Controller
-participant "GestoreDocumenti" as Gestore
+participant "UserPanelController" as Controller
+participant "PopupBuilder" as UI
+participant "GameService" as Gestore
 participant "Timer" as Timer
 
-
+== Avvio app ==
 Utente -> UI : apre l'applicazione
-UI -> Controller : mostra i livelli di difficoltà
-Utente -> UI : seleziona il livello
-UI -> Controller : livello selezionato
-Controller -> Gestore : carica il documento
+UI -> Controller : handleLivelli()
 
+== Selezione livello ==
+Utente -> UI : seleziona livello
+UI -> Controller : handleLivelliSelezionato(livello)
+
+Controller -> Gestore : getDocumentForLevel(livello)
+Gestore -> DocumentDAO : selectById(livello)
 alt Documento disponibile
-    Gestore --> Controller : documento
-    Controller -> UI : mostra il documento per il gioco
-    UI -> Timer : avvia il timer
+    DocumentDAO --> Gestore : Document
+    Gestore --> Controller : Document
+    Controller -> UI : mostra il documento
+    UI -> Timer : start()
 else Documento non disponibile
-    Gestore --> Controller : messaggio d'errore
-    Controller -> UI : mostra messaggio d'errore
+    DocumentDAO --> Gestore : Optional vuoto
+    Gestore --> Controller : Optional vuoto
+    Controller -> UI : mostra errore "Documento non trovato"
 end
 @enduml
-

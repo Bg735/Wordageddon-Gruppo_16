@@ -1,24 +1,89 @@
-Diagramma upload documenti
 @startuml
-actor Amministratore
-participant "InterfacciaAdmin" as UI
-participant "ControllerUpload" as Controller
-participant "AnalizzatoreDocumenti" as Analizzatore
-participant "Database" as DB
+actor Utente
+participant UserPanelController
+participant UserPanelService
+participant StopWordDAO
+participant PopupBuilder
+participant Database
+participant View
+participant FileChooser
 
-== Flusso normale ==
-Amministratore -> UI : clicca su icona upload
-UI -> Controller : invia documento da caricare
-Controller -> Analizzatore : analizza documento
-Analizzatore -> Controller : risultati analisi
-Controller -> DB : salva documento e analisi
-DB --> Controller : conferma salvataggio
-Controller -> UI : mostra conferma caricamento
-UI -> Amministratore : conferma caricamento completato
+== Gestione StopWords ==
+activate Utente
+Utente -> UserPanelController : click "Gestione StopWords"
+activate UserPanelController
 
-== Flusso alternativo ==
-alt Errore nel caricamento, analisi o salvataggio
-    Controller -> UI : mostra messaggio di errore
-    UI -> Amministratore : errore nel caricamento
+UserPanelController -> UserPanelService : getAllStopwords()
+activate UserPanelService
+UserPanelService -> StopWordDAO : request data
+activate StopWordDAO
+StopWordDAO -> Database : SELECT * FROM StopWords
+activate Database
+Database --> StopWordDAO : lista
+deactivate Database
+StopWordDAO --> UserPanelService : Set<String>
+deactivate StopWordDAO
+UserPanelService --> UserPanelController : elenco stopwords
+deactivate UserPanelService
+
+UserPanelController -> PopupBuilder : crea popup "Gestione StopWords"
+activate PopupBuilder
+deactivate PopupBuilder
+
+alt aggiunta manuale
+    UserPanelController -> UserPanelService : addStopWords(text)
+    activate UserPanelService
+    UserPanelService -> StopWordDAO : insert(word)
+    activate StopWordDAO
+    StopWordDAO -> Database : INSERT INTO StopWords ...
+    activate Database
+    Database --> StopWordDAO : OK
+    deactivate Database
+    StopWordDAO --> UserPanelService : conferma
+    deactivate StopWordDAO
+    UserPanelService --> UserPanelController : conferma
+    deactivate UserPanelService
 end
+
+alt caricamento da file
+    UserPanelController -> FileChooser : seleziona file.txt
+    activate FileChooser
+    FileChooser --> UserPanelController : file
+    deactivate FileChooser
+
+    UserPanelController -> UserPanelService : addStopwordsFromFile(file)
+    activate UserPanelService
+    UserPanelService -> StopWordDAO : insert(words...)
+    activate StopWordDAO
+    StopWordDAO -> Database : INSERT INTO StopWords ...
+    activate Database
+    Database --> StopWordDAO : OK
+    deactivate Database
+    StopWordDAO --> UserPanelService : conferma
+    deactivate StopWordDAO
+    UserPanelService --> UserPanelController : conferma
+    deactivate UserPanelService
+end
+
+alt rimozione stopword
+    UserPanelController -> UserPanelService : deleteStopword(word)
+    activate UserPanelService
+    UserPanelService -> StopWordDAO : delete(word)
+    activate StopWordDAO
+    StopWordDAO -> Database : DELETE FROM StopWords WHERE word = ?
+    activate Database
+    Database --> StopWordDAO : OK
+    deactivate Database
+    StopWordDAO --> UserPanelService : conferma
+    deactivate StopWordDAO
+    UserPanelService --> UserPanelController : conferma
+    deactivate UserPanelService
+end
+
+UserPanelController -> View : aggiorna ListView / mostra feedback
+activate View
+deactivate View
+
+deactivate UserPanelController
+deactivate Utente
 @enduml
