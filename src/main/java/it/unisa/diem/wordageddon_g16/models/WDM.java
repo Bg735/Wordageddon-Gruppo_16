@@ -1,7 +1,7 @@
 package it.unisa.diem.wordageddon_g16.models;
 
-import it.unisa.diem.wordageddon_g16.services.Config;
-import it.unisa.diem.wordageddon_g16.services.SystemLogger;
+import it.unisa.diem.wordageddon_g16.utility.Config;
+import it.unisa.diem.wordageddon_g16.utility.SystemLogger;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -68,9 +68,7 @@ public class WDM {
             while (scanner.hasNext()) {
                 String word = scanner.next().replaceAll("\\p{Punct}", "");
                 if (!word.isEmpty() && !stopWords.contains(word.toLowerCase())) {
-                    // normalizza la parola in minuscolo per evitare duplicati
-                    String normalized = word.toLowerCase();
-                    wordMap.put(normalized, wordMap.getOrDefault(normalized, 0) + 1);
+                    wordMap.put(word, wordMap.getOrDefault(word, 0) + 1);
                 }
             }
         } catch(IOException e) {
