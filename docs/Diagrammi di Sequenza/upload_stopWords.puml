@@ -2,9 +2,6 @@
 actor Utente
 participant UserPanelController
 participant UserPanelService
-participant GameReportDAO
-participant UserDAO
-participant DocumentDAO
 participant StopWordDAO
 participant PopupBuilder
 participant Database
