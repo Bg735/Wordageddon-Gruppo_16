@@ -13,7 +13,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
+import java.util.Arrays;
 /**
  * Data Access Object (DAO) per la gestione dei report di gioco (GameReport) nel database.
  * Consente di eseguire operazioni CRUD sulla tabella GameReport e di gestire le relazioni
@@ -157,9 +157,13 @@ public class GameReportDAO extends JdbcDAO<GameReport> {
                     gameReport.getQuestionCount(),
                     gameReport.getScore()
             );
-            for (Document document : gameReport.getDocuments()) {
+
+            Object[] raw = gameReport.getDocuments(); // restituisce Object[]
+            Document[] docs = Arrays.stream(raw).map(Document.class::cast).toArray(Document[]::new);
+            for (Document document : docs) {
                 executeUpdate(updateOnContent, gameReport.getId(), document.filename());
             }
+
         } catch (SQLException e) {
             SystemLogger.log("Error trying to insert game report", e);
             throw new QueryFailedException(e.getMessage());

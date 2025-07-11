@@ -72,7 +72,9 @@ public class GameReport {
         return score;
     }
 
-    public Document[] getDocuments() {
-        return (Document[]) documents.toArray();
-    }
+
+        public Document[] getDocuments() {
+            return documents.toArray(new Document[0]);
+        }
+
 }

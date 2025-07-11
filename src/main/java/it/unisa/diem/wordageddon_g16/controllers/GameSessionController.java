@@ -2,6 +2,8 @@ package it.unisa.diem.wordageddon_g16.controllers;
 
 import it.unisa.diem.wordageddon_g16.models.AppContext;
 import it.unisa.diem.wordageddon_g16.models.Difficulty;
+import it.unisa.diem.wordageddon_g16.models.Document;
+import it.unisa.diem.wordageddon_g16.models.GameReport;
 import it.unisa.diem.wordageddon_g16.services.GameService;
 import it.unisa.diem.wordageddon_g16.services.GameService.Question;
 import it.unisa.diem.wordageddon_g16.services.ViewLoader;
@@ -20,6 +22,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
+import java.time.LocalDateTime;
 import java.util.List;
 //import it.unisa.diem.wordageddon_g16.services.tasks.GenerateQuestionsTask;
 
@@ -63,6 +66,13 @@ public class GameSessionController {
     private Service<StringBuffer> readingSetupService;
     private Service questionSetupService;
 
+    //campo score per salvare il punteggio
+    private int score = 0;
+    private AppContext appContext;
+
+    //timer sessione delle domande
+    private LocalDateTime questionStartTime;
+
 
     /**
      * @brief Costruttore.
@@ -70,7 +80,7 @@ public class GameSessionController {
      */
     public GameSessionController(AppContext appContext) {
         this.gameService = appContext.getGameService();
-
+        this.appContext= appContext;
     }
 
     /**
@@ -138,7 +148,9 @@ public class GameSessionController {
             endGame();
             return;
         }
-
+        if (index == 0) {
+            questionStartTime = LocalDateTime.now(); //salva il tempo d’inizio della prima domanda
+        }
         Question q = questions.get(index);
         questionText.setText(q.text());
         questionCountLabel.setText((index + 1) + "/" + questions.size());
@@ -156,7 +168,7 @@ public class GameSessionController {
 
                 final int answerIndex = i;
                 btn.setOnAction(e -> {
-                    // ✅ STOPPA IL TIMER
+                    //STOPPA IL TIMER
                     if (questionTimer != null) {
                         questionTimer.stop();
                         questionTimer = null;
@@ -167,6 +179,7 @@ public class GameSessionController {
 
                     if (isCorrect) {
                         btn.setStyle("-fx-background-color: #4CAF50;");
+                        score++;
                     } else {
                         btn.setStyle("-fx-background-color: #F44336;");
                         buttons[q.correctAnswerIndex()].setStyle("-fx-background-color: #4CAF50;");
@@ -177,7 +190,7 @@ public class GameSessionController {
                         b.setDisable(true);
                     }
 
-                    // ✅ Pausa di 0.5 secondi per far vedere la risposta corretta
+                    //Pausa di 0.5 secondi per far vedere la risposta corretta
                     PauseTransition pause = new PauseTransition(Duration.seconds(0.5));
                     pause.setOnFinished(ev -> {
                         currentQuestionIndex++;
@@ -216,8 +229,26 @@ public class GameSessionController {
      * @brief Metodo chiamato al termine della sessione di gioco.
      */
     private void endGame() {
-        System.out.println("Game over");
-    }
+        LocalDateTime questionEndTime = LocalDateTime.now();
+        java.time.Duration usedTime = java.time.Duration.between(questionStartTime, questionEndTime);
+            GameReport report = new GameReport(
+                    0, // ID generato dal DB
+                    appContext.getCurrentUser(),
+                    gameService.getDocuments(),
+                    LocalDateTime.now(),
+                    gameService.getDifficulty(),
+                    gameService.getTimeLimit(),
+                    usedTime,
+                    gameService.getQuestionCount(),
+                    score // punteggio ottenuto
+            );
+            gameService.saveGameReport(report);
+
+            System.out.println("Game over. Punteggio: " + score);
+            ViewLoader.load(ViewLoader.View.MENU);
+        }
+
+
 
     /**
      * @brief Avvia un timer con aggiornamento visivo e callback finale.

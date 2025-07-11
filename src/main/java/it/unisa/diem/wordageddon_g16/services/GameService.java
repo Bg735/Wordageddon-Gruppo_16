@@ -4,10 +4,7 @@ import it.unisa.diem.wordageddon_g16.db.DocumentDAO;
 import it.unisa.diem.wordageddon_g16.db.GameReportDAO;
 import it.unisa.diem.wordageddon_g16.db.StopWordDAO;
 import it.unisa.diem.wordageddon_g16.db.WdmDAO;
-import it.unisa.diem.wordageddon_g16.models.AppContext;
-import it.unisa.diem.wordageddon_g16.models.Difficulty;
-import it.unisa.diem.wordageddon_g16.models.Document;
-import it.unisa.diem.wordageddon_g16.models.WDM;
+import it.unisa.diem.wordageddon_g16.models.*;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -716,5 +713,9 @@ public class GameService {
             }
         }
         return text;
+    }
+
+    public void saveGameReport(GameReport report) {
+        gameReportDAO.insert(report);
     }
 }
