@@ -7,7 +7,6 @@ import it.unisa.diem.wordageddon_g16.models.*;
 import it.unisa.diem.wordageddon_g16.services.tasks.DocumentAnalysisTask;
 import it.unisa.diem.wordageddon_g16.utility.Config;
 import it.unisa.diem.wordageddon_g16.utility.Resources;
-
 import it.unisa.diem.wordageddon_g16.utility.SystemLogger;
 import javafx.concurrent.Task;
 
