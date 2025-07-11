@@ -1,10 +1,11 @@
-package it.unisa.diem.wordageddon_g16.services;
+package it.unisa.diem.wordageddon_g16.utility;
 
 import it.unisa.diem.wordageddon_g16.models.Document;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+
 import java.nio.file.Path;
 import java.util.Objects;
 
@@ -21,9 +22,6 @@ public class Resources {
 
     /** Percorso base delle risorse nel classpath. */
     static final String RES_PATH = "/it/unisa/diem/wordageddon_g16/";
-
-    /** Percorso base della cartella di upload sul filesystem. */
-    static final Path UPLOADS_PATH = Path.of("uploads/");
 
     /**
      * Restituisce uno stream di input per un asset presente nella cartella delle risorse.
@@ -50,7 +48,15 @@ public class Resources {
      *
      * @return il {@link Path} relativo a "uploads/documents"
      */
-    public static Path getDocsPath() {
-        return UPLOADS_PATH.resolve("documents");
+    public static Path getDocPath(Document document) {
+        return Path.of(Config.get(Config.Props.DOCUMENTS_DIR) + document.filename());
+    }
+
+    public static Path getDocsDirPath(){
+        return Path.of(Config.get(Config.Props.DOCUMENTS_DIR));
+    }
+
+    public static String getDocumentContent(String filename) throws IOException {
+        return Files.readString(Path.of(Config.get(Config.Props.DOCUMENTS_DIR) + filename));
     }
 }

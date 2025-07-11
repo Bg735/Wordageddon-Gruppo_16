@@ -1,10 +1,10 @@
 package it.unisa.diem.wordageddon_g16.services.tasks;
 
-import it.unisa.diem.wordageddon_g16.db.DocumentDAO;
-import it.unisa.diem.wordageddon_g16.db.StopWordDAO;
-import it.unisa.diem.wordageddon_g16.db.WdmDAO;
-import it.unisa.diem.wordageddon_g16.services.Resources;
-import it.unisa.diem.wordageddon_g16.services.SystemLogger;
+import it.unisa.diem.wordageddon_g16.db.JDBCWdmDAO;
+import it.unisa.diem.wordageddon_g16.db.contracts.DocumentDAO;
+import it.unisa.diem.wordageddon_g16.db.contracts.StopWordDAO;
+import it.unisa.diem.wordageddon_g16.utility.Resources;
+import it.unisa.diem.wordageddon_g16.utility.SystemLogger;
 import javafx.concurrent.Task;
 import it.unisa.diem.wordageddon_g16.models.Document;
 import it.unisa.diem.wordageddon_g16.models.WDM;
@@ -32,11 +32,11 @@ import java.util.Set;
  */
 public class DocumentAnalysisTask extends Task<WDM> {
     private final DocumentDAO documentDAO;
-    private final WdmDAO wdmDAO;
+    private final JDBCWdmDAO wdmDAO;
     private final StopWordDAO stopWordDAO;
     private final File tempFile;
 
-    public DocumentAnalysisTask(File tempFile, DocumentDAO documentDAO, WdmDAO wdmDAO, StopWordDAO stopWordDAO) {
+    public DocumentAnalysisTask(File tempFile, DocumentDAO documentDAO, JDBCWdmDAO wdmDAO, StopWordDAO stopWordDAO) {
         this.documentDAO = documentDAO;
         this.wdmDAO = wdmDAO;
         this.stopWordDAO = stopWordDAO;
@@ -59,7 +59,7 @@ public class DocumentAnalysisTask extends Task<WDM> {
         // prelevo le stopwords dal database
         Set<String> stopWords = stopWordDAO.selectAll();
 
-        Path docsDir = Resources.getDocsPath();
+        Path docsDir = Resources.getDocsDirPath();
         String filename = tempFile.getName();
         Path filePath = docsDir.resolve(filename);
 

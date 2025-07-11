@@ -1,30 +1,30 @@
 @startuml
 actor Utente
+participant "View" as UI
+participant "AuthController" as Controller
+participant "AuthService" as Service
+database "UserDAO (Database)" as DB
 
-participant "Interfaccia" as UI
-participant "Controller" as Controller
-database "Database" as DB
+== Registrazione Utente ==
+Utente -> UI : compila form con username e password
 
-== Flusso Principale ==
-Utente -> UI : apre applicazione
-UI -> Utente : mostra form di registrazione
-Utente -> UI : inserisce username e password
-Utente -> UI : seleziona il pulsante "Registrati"
-
-UI -> Controller : invia dati di registrazione
-Controller -> DB : controlla se username già esistente
-DB --> Controller : username disponibile
-Controller -> DB : salva nuovo utente
-DB --> Controller : conferma registrazione
-Controller --> UI : registrazione riuscita
-UI -> Utente : accesso al menù
+UI -> Controller : handleRegisterBtn()
+Controller -> Service : register(username, password, noUsers)
+Service -> DB : selectById(username)
+DB --> Service : Optional.empty() // username non esistente
+Service -> DB : insert(User)
+Service -> Controller : true
+Controller -> UI : ViewLoader.load(MENU)
 
 == Flusso Alternativo ==
 group Username già esistente
-Controller -> DB : controlla se username già esistente
-DB --> Controller : username già in uso
-Controller --> UI : mostra errore
-UI -> Utente : messaggio di errore
+UI -> Controller : handleRegisterBtn()
+Controller -> Service : register(username, password, noUsers)
+Service -> DB : selectById(username)
+DB --> Service : Optional.of(User) // username esistente
+Service -> Controller : false
+Controller -> UI : showDialog(ERROR, "L'utente esiste già")
 end
+
 @enduml
 

@@ -1,9 +1,13 @@
 package it.unisa.diem.wordageddon_g16.db;
 
+import it.unisa.diem.wordageddon_g16.db.contracts.DAO;
+import it.unisa.diem.wordageddon_g16.db.contracts.DocumentDAO;
+import it.unisa.diem.wordageddon_g16.db.contracts.GameReportDAO;
+import it.unisa.diem.wordageddon_g16.db.contracts.UserDAO;
 import it.unisa.diem.wordageddon_g16.db.exceptions.QueryFailedException;
 import it.unisa.diem.wordageddon_g16.db.exceptions.UpdateFailedException;
 import it.unisa.diem.wordageddon_g16.models.*;
-import it.unisa.diem.wordageddon_g16.services.SystemLogger;
+import it.unisa.diem.wordageddon_g16.utility.SystemLogger;
 import javafx.util.Callback;
 
 import java.sql.Connection;
@@ -19,7 +23,7 @@ import java.util.Optional;
  * Consente di eseguire operazioni CRUD sulla tabella GameReport e di gestire le relazioni
  * con utenti e documenti associati a ciascun report.
  */
-public class GameReportDAO extends JdbcDAO<GameReport> {
+public class JDBCGameReportDAO extends JdbcDAO<GameReport> implements GameReportDAO {
 
     /**
      * DAO utilizzato per la gestione degli utenti associati ai report di gioco.
@@ -38,7 +42,7 @@ public class GameReportDAO extends JdbcDAO<GameReport> {
      * @param documentDAO il DAO per la gestione dei documenti
      * @param userDAO il DAO per la gestione degli utenti
      */
-    public GameReportDAO(Connection conn, DAO<Document> documentDAO, DAO<User> userDAO) {
+    public JDBCGameReportDAO(Connection conn, DAO<Document> documentDAO, DAO<User> userDAO) {
         super(conn);
         this.userDAO = (UserDAO) userDAO;
         this.documentDAO = (DocumentDAO) documentDAO;
@@ -149,16 +153,16 @@ public class GameReportDAO extends JdbcDAO<GameReport> {
         String updateOnContent = "INSERT OR IGNORE INTO Content (report, document) VALUES (?, ?)";
         try {
             executeUpdate(updateOnReport,
-                    gameReport.getUser().getName(),
-                    gameReport.getTimestamp(),
-                    gameReport.getDifficulty().name(),
-                    gameReport.getMaxTime().toString(),
-                    gameReport.getUsedTime().toString(),
-                    gameReport.getQuestionCount(),
-                    gameReport.getScore()
+                    gameReport.user().getName(),
+                    gameReport.timestamp(),
+                    gameReport.difficulty().name(),
+                    gameReport.maxTime().toString(),
+                    gameReport.usedTime().toString(),
+                    gameReport.questionCount(),
+                    gameReport.score()
             );
-            for (Document document : gameReport.getDocuments()) {
-                executeUpdate(updateOnContent, gameReport.getId(), document.filename());
+            for (Document document : gameReport.documents()) {
+                executeUpdate(updateOnContent, gameReport.id(), document.filename());
             }
         } catch (SQLException e) {
             SystemLogger.log("Error trying to insert game report", e);
@@ -177,17 +181,17 @@ public class GameReportDAO extends JdbcDAO<GameReport> {
         String update = "UPDATE GameReport SET user = ?, timestamp = ?, difficulty = ?, max_time = ?, used_time = ?, question_count = ?, score = ? WHERE id = ?";
         try {
             executeUpdate(update,
-                    gameReport.getUser().getName(),
-                    gameReport.getTimestamp(),
-                    gameReport.getDifficulty().name(),
-                    gameReport.getMaxTime().toString(),
-                    gameReport.getUsedTime().toString(),
-                    gameReport.getQuestionCount(),
-                    gameReport.getScore(),
-                    gameReport.getId()
+                    gameReport.user().getName(),
+                    gameReport.timestamp(),
+                    gameReport.difficulty().name(),
+                    gameReport.maxTime().toString(),
+                    gameReport.usedTime().toString(),
+                    gameReport.questionCount(),
+                    gameReport.score(),
+                    gameReport.id()
             );
         } catch (SQLException e) {
-            SystemLogger.log("Error trying to update game report with id: " + gameReport.getId(), e);
+            SystemLogger.log("Error trying to update game report with id: " + gameReport.id(), e);
             throw new UpdateFailedException(e.getMessage());
         }
     }
@@ -204,9 +208,9 @@ public class GameReportDAO extends JdbcDAO<GameReport> {
     public void delete(GameReport gameReport) {
         String updateOnReport = "DELETE FROM GameReport WHERE id = ?";
         try {
-            executeUpdate(updateOnReport, gameReport.getId());
+            executeUpdate(updateOnReport, gameReport.id());
         } catch (SQLException e) {
-            SystemLogger.log("Error trying to delete game report with id: " + gameReport.getId(), e);
+            SystemLogger.log("Error trying to delete game report with id: " + gameReport.id(), e);
             throw new UpdateFailedException(e.getMessage());
         }
     }

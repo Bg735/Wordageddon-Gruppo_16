@@ -1,7 +1,8 @@
 package it.unisa.diem.wordageddon_g16.db;
 
+import it.unisa.diem.wordageddon_g16.db.contracts.StopWordDAO;
 import it.unisa.diem.wordageddon_g16.db.exceptions.QueryFailedException;
-import it.unisa.diem.wordageddon_g16.services.SystemLogger;
+import it.unisa.diem.wordageddon_g16.utility.SystemLogger;
 import javafx.util.Callback;
 
 import java.sql.Connection;
@@ -14,14 +15,14 @@ import java.util.*;
  * Permette di eseguire operazioni CRUD (eccetto update e selectById) sulla tabella StopWord.
  * Ogni stopword è rappresentata come una stringa.
  */
-public class StopWordDAO extends JdbcDAO<String> {
+public class JDBCStopWordDAO extends JdbcDAO<String> implements StopWordDAO {
 
     /**
      * Costruisce un nuovo StopWordDAO utilizzando la connessione specificata.
      *
      * @param conn la connessione al database da utilizzare per le operazioni
      */
-    public StopWordDAO(Connection conn) {
+    public JDBCStopWordDAO(Connection conn) {
         super(conn);
     }
 
@@ -104,5 +105,10 @@ public class StopWordDAO extends JdbcDAO<String> {
             SystemLogger.log("Error trying to delete stop word: " + s, e);
             throw new QueryFailedException(e.getMessage());
         }
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return super.isEmpty("StopWord");
     }
 }

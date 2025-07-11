@@ -1,13 +1,17 @@
 package it.unisa.diem.wordageddon_g16.services;
 
-import it.unisa.diem.wordageddon_g16.db.DocumentDAO;
-import it.unisa.diem.wordageddon_g16.db.GameReportDAO;
-import it.unisa.diem.wordageddon_g16.db.StopWordDAO;
-import it.unisa.diem.wordageddon_g16.db.WdmDAO;
+import it.unisa.diem.wordageddon_g16.db.JDBCWdmDAO;
+import it.unisa.diem.wordageddon_g16.db.contracts.GameReportDAO;
+import it.unisa.diem.wordageddon_g16.db.contracts.DocumentDAO;
+import it.unisa.diem.wordageddon_g16.db.contracts.StopWordDAO;
 import it.unisa.diem.wordageddon_g16.models.AppContext;
 import it.unisa.diem.wordageddon_g16.models.Difficulty;
 import it.unisa.diem.wordageddon_g16.models.Document;
 import it.unisa.diem.wordageddon_g16.models.WDM;
+import it.unisa.diem.wordageddon_g16.utility.Config;
+import it.unisa.diem.wordageddon_g16.utility.Resources;
+
+import it.unisa.diem.wordageddon_g16.utility.SystemLogger;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -29,7 +33,7 @@ import java.util.stream.Collectors;
 public class GameService {
 
     private final GameReportDAO gameReportDAO;
-    private final WdmDAO wdmDAO;
+    private final JDBCWdmDAO wdmDAO;
     private final DocumentDAO documentDAO;
     private final StopWordDAO stopwordDAO;
     private final AppContext context;
@@ -46,7 +50,7 @@ public class GameService {
      * @param documentDAO   DAO per la gestione dei documenti
      * @param stopwordDAO   DAO per la gestione delle stopword
      */
-    public GameService(AppContext context, GameReportDAO gameReportDAO, WdmDAO wdmDAO,
+    public GameService(AppContext context, GameReportDAO gameReportDAO, JDBCWdmDAO wdmDAO,
                        DocumentDAO documentDAO, StopWordDAO stopwordDAO) {
         this.gameReportDAO = gameReportDAO;
         this.wdmDAO = wdmDAO;
@@ -183,7 +187,6 @@ public class GameService {
         }
         return questions;
     }
-
 
     private Question absoluteFrequencyQuestionSingle() {
         // Seleziona un documento casuale
@@ -745,18 +748,17 @@ public class GameService {
      * Da utilizzare nella fase di lettura dei documenti prima del quiz.
      *
      * @return testo concatenato dei documenti selezionati
+
      */
-    public StringBuffer setupReadingPhase() {
-        StringBuffer text = new StringBuffer();
+    public Map<Document,String> setupReadingPhase() {
+        Map<Document,String> result = new HashMap<>();
         for (Document doc : getDocuments()) {
-            Path path = Path.of(Config.get(Config.Props.DOCUMENTS_DIR) + doc.filename());
             try {
-                text.append(Files.readString(path)).append("\n");
-                System.out.println(text);
+                result.put(doc, Resources.getDocumentContent(doc.filename()));
             } catch (IOException e) {
                 SystemLogger.log("Errore nella lettura del documento", e);
             }
         }
-        return text;
+        return result;
     }
 }

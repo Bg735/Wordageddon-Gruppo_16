@@ -1,7 +1,7 @@
 package it.unisa.diem.wordageddon_g16.models;
 
-import it.unisa.diem.wordageddon_g16.services.Config;
-import it.unisa.diem.wordageddon_g16.services.SystemLogger;
+import it.unisa.diem.wordageddon_g16.utility.Config;
+import it.unisa.diem.wordageddon_g16.utility.SystemLogger;
 
 import java.io.*;
 import java.nio.file.Files;

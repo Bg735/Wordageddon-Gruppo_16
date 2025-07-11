@@ -2,10 +2,10 @@ package it.unisa.diem.wordageddon_g16.controllers;
 
 
 import it.unisa.diem.wordageddon_g16.models.*;
-import it.unisa.diem.wordageddon_g16.services.Resources;
-import it.unisa.diem.wordageddon_g16.services.SystemLogger;
+import it.unisa.diem.wordageddon_g16.utility.Popup;
+import it.unisa.diem.wordageddon_g16.utility.SystemLogger;
 import it.unisa.diem.wordageddon_g16.services.UserPanelService;
-import it.unisa.diem.wordageddon_g16.services.ViewLoader;
+import it.unisa.diem.wordageddon_g16.utility.ViewLoader;
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
@@ -16,7 +16,6 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -25,8 +24,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
+
 import java.io.File;
 import java.time.Duration;
 import java.util.List;
@@ -90,14 +88,13 @@ public class UserPanelController {
 
     @FXML
     void handleAdmin(ActionEvent event) {
-        PopupBuilder popup = new PopupBuilder("Gestione Ruoli Utenti", 450, 350);
-        VBox root = popup.getRoot();
+        Popup popup = new Popup("Gestione Ruoli Utenti");
         List<User> otherUsers = service.getAllUsersExceptCurrent();
 
         if (otherUsers.isEmpty()) {
             Label noUsersLabel = new Label("Nessun altro utente disponibile.");
             noUsersLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: gray;");
-            root.getChildren().add(noUsersLabel);
+            popup.add(noUsersLabel);
         } else {
             for (User user : otherUsers) {
                 VBox userBox = new VBox(5);
@@ -143,7 +140,7 @@ public class UserPanelController {
 
                 userRow.getChildren().addAll(nameLabel, spacer, toggle);
                 userBox.getChildren().addAll(userRow, feedbackLabel);
-                root.getChildren().add(userBox);
+                popup.add(userBox);
             }
         }
         popup.show();
@@ -159,8 +156,7 @@ public class UserPanelController {
      */
     @FXML
     void handleDocumenti(ActionEvent event) {
-        PopupBuilder popup = new PopupBuilder("Gestione Documenti", 400, 300);
-        VBox root = popup.getRoot();
+        Popup popup = new Popup("Gestione Documenti", 400, 300);
 
         ObservableList<Document> documentList = FXCollections.observableArrayList(service.getAllDocuments());
 
@@ -252,7 +248,7 @@ public class UserPanelController {
         });
 
 
-        root.getChildren().addAll(
+        popup.add(
                 new Label("Documenti esistenti:"),
                 listView,
                 uploadBtn,
@@ -295,8 +291,8 @@ public class UserPanelController {
         /*
          * Caricamento manuale
          */
-        PopupBuilder popup = new PopupBuilder("Gestione Documenti", 400, 500);
-        VBox root = popup.getRoot();
+        Popup popup = new Popup("Gestione Documenti", 400, 500);
+
 
         TextField tf = new TextField();
         tf.setPromptText("Inserisci una nuova stopword");
@@ -313,6 +309,8 @@ public class UserPanelController {
             sw.getItems().setAll(service.getAllStopwords()); // Aggiorna la ListView senza duplicati
             tf.clear();
         });
+
+        btnAdd.setDefaultButton(true);
 
         /*
          * Caricamento da file di stopwords
@@ -353,7 +351,7 @@ public class UserPanelController {
                 }
                 }
         });
-        root.getChildren().addAll(
+        popup.add(
                 new Label("Inserisci una nuova stopword:"),
                 tf,
                 btnAdd,
@@ -361,7 +359,6 @@ public class UserPanelController {
                 btnFile,
                 new Label("StopWords attuali:"),
                 sw, removeButton );
-        root.setAlignment(Pos.CENTER);
         popup.show();
     }
 
@@ -392,10 +389,10 @@ public class UserPanelController {
 
         usernameLabel.setText(currentUser.getName());
 
-        livelloClm.setCellValueFactory(report -> new SimpleStringProperty(report.getValue().getDifficulty().toString()));
+        livelloClm.setCellValueFactory(report -> new SimpleStringProperty(report.getValue().difficulty().toString()));
         punteggioClm.setCellValueFactory(new PropertyValueFactory<>("score"));
         tempoClm.setCellValueFactory(report -> {
-            Duration dur = report.getValue().getUsedTime();
+            Duration dur = report.getValue().usedTime();
             String formatted = String.format("%02d:%02d", dur.toMinutesPart(), dur.toSecondsPart());
             return new SimpleStringProperty(formatted);
         });
@@ -408,45 +405,6 @@ public class UserPanelController {
         totalGameLabel.setText(String.valueOf(stats.get("totalGames")));
         avgScoreLabel.setText(String.format("%.1f", stats.get("averageScore")));
         maxScoreLabel.setText(String.valueOf(stats.get("maxScore")));
-    }
-
-    /**
-     @class PopupBuilder
-
-     @brief Classe di utilità per creare popup modali JavaFX con layout VBox.
-
-     Facilita la costruzione e visualizzazione di popup riutilizzabili con stile uniforme.
-     */
-    private class PopupBuilder {
-        private final Stage stage;
-        private final VBox root;
-
-        public PopupBuilder(String title, int width, int height) {
-            this.stage = new Stage();
-            this.root = new VBox(15);
-            this.root.setPadding(new Insets(15));
-            this.root.setAlignment(Pos.CENTER);
-            this.stage.setTitle(title);
-            this.stage.setHeight(height);
-            this.stage.setWidth(width);
-            this.stage.initModality(Modality.APPLICATION_MODAL);
-            this.stage.setResizable(false);
-        }
-
-        public VBox getRoot() {
-            return root;
-        }
-
-        public void show() {
-            Scene scene = new Scene(root);
-            scene.getStylesheets().add(Resources.getStyle("popup"));
-            stage.setScene(scene);
-            stage.showAndWait();
-        }
-
-        public Stage getStage() {
-            return stage;
-        }
     }
 
 }

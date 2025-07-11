@@ -1,8 +1,6 @@
-package it.unisa.diem.wordageddon_g16.services;
+package it.unisa.diem.wordageddon_g16.utility;
 
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 

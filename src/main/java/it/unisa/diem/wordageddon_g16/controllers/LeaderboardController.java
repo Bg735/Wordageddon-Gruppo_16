@@ -3,7 +3,7 @@ package it.unisa.diem.wordageddon_g16.controllers;
 import it.unisa.diem.wordageddon_g16.models.AppContext;
 import it.unisa.diem.wordageddon_g16.models.Difficulty;
 import it.unisa.diem.wordageddon_g16.services.LeaderboardService;
-import it.unisa.diem.wordageddon_g16.services.ViewLoader;
+import it.unisa.diem.wordageddon_g16.utility.ViewLoader;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -13,7 +13,6 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
 
 import java.net.URL;
 import java.util.ResourceBundle;

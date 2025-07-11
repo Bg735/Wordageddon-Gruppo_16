@@ -1,18 +1,20 @@
 package it.unisa.diem.wordageddon_g16.services;
 
-import it.unisa.diem.wordageddon_g16.db.UserDAO;
+import it.unisa.diem.wordageddon_g16.db.JDBCUserDAO;
 import it.unisa.diem.wordageddon_g16.models.AppContext;
 import it.unisa.diem.wordageddon_g16.models.User;
+import it.unisa.diem.wordageddon_g16.utility.Config;
+import it.unisa.diem.wordageddon_g16.utility.SystemLogger;
 
 import java.io.*;
 
 public class AuthService {
 
     private final AppContext context;
-    private final UserDAO userDAO;
+    private final JDBCUserDAO userDAO;
     ;
 
-    public AuthService(AppContext context, UserDAO userDAO) {
+    public AuthService(AppContext context, JDBCUserDAO userDAO) {
         this.context = context;
         this.userDAO = userDAO;
     }

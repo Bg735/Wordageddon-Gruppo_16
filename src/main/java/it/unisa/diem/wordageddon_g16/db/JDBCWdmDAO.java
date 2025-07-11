@@ -1,11 +1,13 @@
 package it.unisa.diem.wordageddon_g16.db;
 
+import it.unisa.diem.wordageddon_g16.db.contracts.DAO;
+import it.unisa.diem.wordageddon_g16.db.contracts.DocumentDAO;
+import it.unisa.diem.wordageddon_g16.db.contracts.WdmDAO;
 import it.unisa.diem.wordageddon_g16.db.exceptions.QueryFailedException;
 import it.unisa.diem.wordageddon_g16.models.Document;
 import it.unisa.diem.wordageddon_g16.models.WDM;
 import javafx.util.Callback;
 
-import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.util.HashMap;
@@ -18,12 +20,12 @@ import java.util.Optional;
  * Permette di eseguire operazioni CRUD sulla tabella WDM del database,
  * associando ogni documento alle sue parole e relative frequenze.
  */
-public class WdmDAO extends JdbcDAO<WDM> {
+public class JDBCWdmDAO extends JdbcDAO<WDM> implements WdmDAO {
 
     /**
      * DAO utilizzato per recuperare i documenti associati alle istanze di WDM.
      */
-    private final DAO<Document> documentDAO;
+    private final DocumentDAO documentDAO;
 
     /**
      * Costruisce un nuovo WdmDAO utilizzando la connessione e il DAO dei documenti specificati.
@@ -31,7 +33,7 @@ public class WdmDAO extends JdbcDAO<WDM> {
      * @param conn la connessione al database da utilizzare per le operazioni
      * @param documentDAO il DAO per la gestione dei documenti
      */
-    public WdmDAO(Connection conn, DAO<Document> documentDAO) {
+    public JDBCWdmDAO(Connection conn, DocumentDAO documentDAO) {
         super(conn);
         this.documentDAO = documentDAO;
     }

@@ -1,9 +1,10 @@
 package it.unisa.diem.wordageddon_g16.models;
 
 import it.unisa.diem.wordageddon_g16.db.*;
+import it.unisa.diem.wordageddon_g16.db.contracts.DAO;
 import it.unisa.diem.wordageddon_g16.models.interfaces.Repository;
-import it.unisa.diem.wordageddon_g16.services.Config;
-import it.unisa.diem.wordageddon_g16.services.SystemLogger;
+import it.unisa.diem.wordageddon_g16.utility.Config;
+import it.unisa.diem.wordageddon_g16.utility.SystemLogger;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -19,17 +20,23 @@ public class JdbcRepository implements Repository {
     public JdbcRepository() {
         try {
             conn = DriverManager.getConnection(Config.get(Config.Props.DB_URL));
-            var userDAO = new UserDAO(conn);
-            var documentDAO = new DocumentDAO(conn);
+            // Abilita le foreign key per la connessione SQLite
+            try (var stmt = conn.createStatement()) {
+                stmt.execute("PRAGMA foreign_keys = ON;");
+            }
+
+            var userDAO = new JDBCUserDAO(conn);
+            var documentDAO = new JDBCDocumentDAO(conn);
             daos.put("user", userDAO);
             daos.put("document", documentDAO);
-            daos.put("stopWord", new StopWordDAO(conn));
-            daos.put("gameReport", new GameReportDAO(conn, documentDAO, userDAO));
-            daos.put("wdm", new WdmDAO(conn, documentDAO));
+            daos.put("stopWord", new JDBCStopWordDAO(conn));
+            daos.put("gameReport", new JDBCGameReportDAO(conn, documentDAO, userDAO));
+            daos.put("wdm", new JDBCWdmDAO(conn, documentDAO));
         } catch (SQLException e) {
             SystemLogger.log("Could not establish a connection to the database: ", e);
         }
     }
+
 
     @SuppressWarnings("unchecked")
     public <T,TDAO extends DAO<T>> TDAO getDAO(String category) {

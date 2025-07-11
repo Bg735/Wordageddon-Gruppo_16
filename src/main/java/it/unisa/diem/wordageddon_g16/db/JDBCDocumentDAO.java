@@ -1,9 +1,10 @@
 package it.unisa.diem.wordageddon_g16.db;
 
+import it.unisa.diem.wordageddon_g16.db.contracts.DocumentDAO;
 import it.unisa.diem.wordageddon_g16.db.exceptions.QueryFailedException;
 import it.unisa.diem.wordageddon_g16.db.exceptions.UpdateFailedException;
 import it.unisa.diem.wordageddon_g16.models.Document;
-import it.unisa.diem.wordageddon_g16.services.SystemLogger;
+import it.unisa.diem.wordageddon_g16.utility.SystemLogger;
 import javafx.util.Callback;
 
 import java.sql.Connection;
@@ -17,14 +18,15 @@ import java.util.Optional;
  * Consente di eseguire operazioni CRUD sulla tabella Document,
  * rappresentando ogni documento come un oggetto {@link Document}.
  */
-public class DocumentDAO extends JdbcDAO<Document> {
+public class JDBCDocumentDAO extends JdbcDAO<Document> implements DocumentDAO {
+
 
     /**
      * Costruisce un nuovo DocumentDAO utilizzando la connessione specificata.
      *
      * @param conn la connessione al database da utilizzare per le operazioni
      */
-    public DocumentDAO(Connection conn) {
+    public JDBCDocumentDAO(Connection conn) {
         super(conn);
     }
 
@@ -143,5 +145,10 @@ public class DocumentDAO extends JdbcDAO<Document> {
             SystemLogger.log("Error trying to delete document: " + document, e);
             throw new UpdateFailedException(e.getMessage());
         }
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return super.isEmpty("Document");
     }
 }
