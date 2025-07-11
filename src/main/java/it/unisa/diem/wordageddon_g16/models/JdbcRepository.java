@@ -19,6 +19,11 @@ public class JdbcRepository implements Repository {
     public JdbcRepository() {
         try {
             conn = DriverManager.getConnection(Config.get(Config.Props.DB_URL));
+            // Abilita le foreign key per la connessione SQLite
+            try (var stmt = conn.createStatement()) {
+                stmt.execute("PRAGMA foreign_keys = ON;");
+            }
+
             var userDAO = new UserDAO(conn);
             var documentDAO = new DocumentDAO(conn);
             daos.put("user", userDAO);
@@ -30,6 +35,7 @@ public class JdbcRepository implements Repository {
             SystemLogger.log("Could not establish a connection to the database: ", e);
         }
     }
+
 
     @SuppressWarnings("unchecked")
     public <T,TDAO extends DAO<T>> TDAO getDAO(String category) {

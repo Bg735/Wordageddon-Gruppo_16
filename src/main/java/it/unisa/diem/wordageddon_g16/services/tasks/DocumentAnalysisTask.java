@@ -96,7 +96,7 @@ public class DocumentAnalysisTask extends Task<WDM> {
         int wordCount = cleanContent.trim().split("\\s+").length;
 
         // Inserisco nel db il documento e la matrice WDM
-        Document doc = new Document(filename,title, wordCount);
+        Document doc = new Document(filename, title, wordCount);
         documentDAO.insert(doc);
 
         WDM wdm = new WDM(doc, stopWords);
