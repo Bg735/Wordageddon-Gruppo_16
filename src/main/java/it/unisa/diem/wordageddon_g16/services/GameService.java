@@ -147,6 +147,45 @@ public class GameService {
         return questions;
     }
 
+    private Question absoluteFrequencyQuestionSingle() {
+        // Seleziona un documento casuale
+        List<Document> docs = getDocuments();
+        Document document = docs.get(GameParams.random.nextInt(docs.size()));
+        WDM wdm = wdmMap.get(document);
+
+        // Seleziona una parola casuale tra quelle presenti nel documento
+        List<String> words = new ArrayList<>(wdm.getWords().keySet());
+        String chosenWord = words.get(GameParams.random.nextInt(words.size()));
+        int correctFrequency = wdm.getWords().get(chosenWord);
+
+        // Genera risposte plausibili (inclusa quella corretta)
+        Set<Integer> options = new HashSet<>();
+        options.add(correctFrequency);
+        Random rand = new Random();
+        while (options.size() < 4) {
+            int delta = 1 + rand.nextInt(Math.max(1, correctFrequency / 2 + 2));
+            int fakeOption = rand.nextBoolean() ? correctFrequency + delta : Math.max(0, correctFrequency - delta);
+            options.add(fakeOption);
+        }
+
+        // Prepara la lista delle risposte e trova l'indice corretto
+        List<Integer> answerOptions = new ArrayList<>(options);
+        Collections.shuffle(answerOptions);
+        int correctIndex = answerOptions.indexOf(correctFrequency);
+
+        // Converte le risposte in stringhe
+        List<String> answers = answerOptions.stream()
+                .map(String::valueOf)
+                .collect(Collectors.toList());
+
+        // Crea la domanda
+        return Question.create(
+                "Quante volte la parola \"" + chosenWord.toUpperCase() + "\" appare nel documento \"" + document.title() + "\"?",
+                answers,
+                correctIndex
+        );
+    }
+
     private Question absoluteFrequencyQuestion() {
         // Crea la mappa cumulativa delle frequenze per tutte le parole in tutti i documenti
         Map<String, Integer> cumulativeFrequency = new HashMap<>();
@@ -189,7 +228,7 @@ public class GameService {
 
         // Crea la domanda
         return Question.create(
-                "Quante volte la parola \"" + chosenWord + "\" appare in tutti i documenti?",
+                "Quante volte la parola \"" + chosenWord.toUpperCase() + "\" appare in tutti i documenti?",
                 answers,
                 correctIndex
         );
@@ -328,17 +367,9 @@ public class GameService {
             }
         }
 
-        return Question.create("Quale di queste parole appare MENO frequentemente in tutti i documenti?", answers, correctIndex);
+        return Question.create("Quale di queste parole appare meno frequentemente in tutti i documenti?", answers, correctIndex);
     }
 
-
-    private Question absoluteFrequencyQuestionSingle() {
-        return Question.create(
-                "Quante volte appare la parola 'sole'?",
-                List.of("3", "5", "7", "2"),
-                0
-        );
-    }
 
     private Question whichDocumentQuestion() {
         List<Document> docs = params.documents;
@@ -671,4 +702,5 @@ public class GameService {
             }
         }
         return text;
-    }}
+    }
+}
