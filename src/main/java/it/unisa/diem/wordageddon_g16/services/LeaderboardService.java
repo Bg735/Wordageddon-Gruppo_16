@@ -33,7 +33,7 @@ public class LeaderboardService {
         this.users = userDAO.selectAll();
     }
 
-    public List<LeaderboardEntry> getGloablLeaderboard(){
+    public List<LeaderboardEntry> getGlobalLeaderboard(){
         return getLeaderboardBase(null);
     }
 
@@ -73,7 +73,7 @@ public class LeaderboardService {
                 averageScore = totalScore / gamesPlayed;
             }
             Difficulty favouriteDifficulty = null;
-            if(difficulty!=null)
+            if(difficulty == null)
                 favouriteDifficulty = reports.stream()
                     .map(GameReport::getDifficulty)
                     .collect(Collectors.groupingBy(d -> d,Collectors.counting()))

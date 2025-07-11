@@ -10,6 +10,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -113,18 +114,28 @@ public class GameReportDAO extends JdbcDAO<GameReport> {
                             },
                             res.getLong("id")
                     );
+
+                    String[] maxParts = res.getString("max_time").split(":");
+                    Duration maxTime = Duration.ofMinutes(Long.parseLong(maxParts[0]))
+                            .plusSeconds(Long.parseLong(maxParts[1]));
+                    String[] usedParts = res.getString("used_time").split(":");
+                    Duration usedTime = Duration.ofMinutes(Long.parseLong(usedParts[0]))
+                            .plusSeconds(Long.parseLong(usedParts[1]));
+                    LocalDateTime timestamp = LocalDateTime.parse(res.getString("timestamp"));
+
                     if (user.isPresent()) {
                         result.add(new GameReport(
                                 res.getLong("id"),
                                 user.get(),
                                 docList,
-                                res.getTimestamp("timestamp").toLocalDateTime(),
+                                timestamp,
                                 Difficulty.valueOf(res.getString("difficulty")),
-                                Duration.parse(res.getString("max_time")),
-                                Duration.parse(res.getString("used_time")),
+                                maxTime,
+                                usedTime,
                                 res.getInt("question_count"),
                                 res.getInt("score")
                         ));
+
                     }
                 }
             } catch (SQLException e) {

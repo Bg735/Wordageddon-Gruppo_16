@@ -6,5 +6,7 @@ module it.unisa.diem.wordageddongruppo_16 {
 
     opens it.unisa.diem.wordageddon_g16 to javafx.fxml;
     opens it.unisa.diem.wordageddon_g16.controllers to javafx.fxml;
+    opens it.unisa.diem.wordageddon_g16.models to javafx.base;
+
     exports it.unisa.diem.wordageddon_g16;
 }
