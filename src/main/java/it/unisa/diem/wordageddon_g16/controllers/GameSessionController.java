@@ -65,8 +65,8 @@ public class GameSessionController {
     private final GameService gameService;
     private List<Question> questions;
 
-    private Service<StringBuffer> readingSetupService;
-    private Service questionSetupService;
+    private Service<Map<Document, String>> readingSetupService;
+    private Service<List<Question>> questionSetupService;
     private Timeline questionTimer;
 
 
@@ -115,7 +115,7 @@ public class GameSessionController {
                     int seconds = (int) gameService.getTimeLimit().getSeconds();
                     // alla fine del timer mostra questionPane
                     startTimer(seconds, timerLabelRead, timerBar, () -> loadPane(questionPane)); //METTI SECOND
-                    
+
                     questionSetupService = new Service<List<Question>>() {
                         @Override
                         protected Task<List<Question>> createTask() {
@@ -191,7 +191,7 @@ public class GameSessionController {
             wait.play();
             return;
         }
-        showQuestion(currentQuestionIndex.get());
+        showQuestion(currentQuestionIndex);
     }
 
     /**
@@ -199,15 +199,17 @@ public class GameSessionController {
      *
      * @param index indice della domanda da visualizzare nella lista delle domande.
      */
-    private void showQuestion(int index) {
-        if (index >= questions.size()) {
+    private void showQuestion(SimpleIntegerProperty index) {
+        int idx = index.get();
+
+        if (idx >= questions.size()) {
             endGame();
             return;
         }
 
-        Question q = questions.get(index);
+        Question q = questions.get(idx);
         questionText.setText(q.text());
-        questionCountLabel.setText((index + 1) + "/" + questions.size());
+        questionCountLabel.setText((idx + 1) + "/" + questions.size());
 
         List<String> answers = q.answers();
         Button[] buttons = { answer1Btn, answer2Btn, answer3Btn, answer4Btn };
@@ -215,7 +217,7 @@ public class GameSessionController {
         for (int i = 0; i < buttons.length; i++) {
             Button btn = buttons[i];
             if (i < answers.size()) {
-                String capitalizedAnswer = answers.get(i).substring(0, 1).toUpperCase() +answers.get(i).substring(1);
+                String capitalizedAnswer = answers.get(i).substring(0, 1).toUpperCase() + answers.get(i).substring(1);
                 btn.setText(capitalizedAnswer);
                 btn.setDisable(false);
                 btn.setStyle("");
@@ -247,8 +249,8 @@ public class GameSessionController {
                     // ✅ Pausa di 0.5 secondi per far vedere la risposta corretta
                     PauseTransition pause = new PauseTransition(Duration.seconds(0.5));
                     pause.setOnFinished(ev -> {
-                        currentQuestionIndex.set(currentDocumentIndex.get() + 1);
-                        showQuestion(currentQuestionIndex);
+                        index.set(index.get() + 1); // Incrementa la property
+                        showQuestion(index);        // Passa la property aggiornata
                     });
                     pause.play();
                 });
@@ -260,23 +262,21 @@ public class GameSessionController {
         questionTimer = startTimer(20, timerLabelQuestion, timerBarQuestion, () -> {
             // Tempo scaduto → mostra la risposta corretta e vai avanti dopo 0.5s
             Platform.runLater(() -> {
-                // Disabilita bottoni
                 for (Button b : buttons) {
                     b.setDisable(true);
                 }
-
-                // Evidenzia la risposta corretta
                 buttons[q.correctAnswerIndex()].setStyle("-fx-background-color: #4CAF50;");
 
                 PauseTransition pause = new PauseTransition(Duration.seconds(0.5));
                 pause.setOnFinished(e -> {
-                    currentQuestionIndex.set(currentDocumentIndex.get() + 1);
-                    showQuestion(currentQuestionIndex);
+                    index.set(index.get() + 1); // Incrementa la property
+                    showQuestion(index);        // Passa la property aggiornata
                 });
                 pause.play();
             });
         });
     }
+
 
     private void endGame() {
         System.out.println("Game over");
@@ -361,7 +361,7 @@ public class GameSessionController {
         }
         switch(pane.getId()){
             case "readingPane" -> readingSetupService.start();
-            case "questionPane" -> showQuestion(0);
+            case "questionPane" -> showQuestion(new SimpleIntegerProperty(0));
             default -> {}
         }
         pane.setVisible(true);
