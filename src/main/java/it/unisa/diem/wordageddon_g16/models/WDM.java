@@ -68,7 +68,9 @@ public class WDM {
             while (scanner.hasNext()) {
                 String word = scanner.next().replaceAll("\\p{Punct}", "");
                 if (!word.isEmpty() && !stopWords.contains(word.toLowerCase())) {
-                    wordMap.put(word, wordMap.getOrDefault(word, 0) + 1);
+                    // normalizza la parola in minuscolo per evitare duplicati
+                    String normalized = word.toLowerCase();
+                    wordMap.put(normalized, wordMap.getOrDefault(normalized, 0) + 1);
                 }
             }
         } catch(IOException e) {

@@ -21,9 +21,6 @@ import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
 import java.util.List;
-//import it.unisa.diem.wordageddon_g16.services.tasks.GenerateQuestionsTask;
-
-
 
 /**
  * @class GameSessionController
@@ -213,7 +210,7 @@ public class GameSessionController {
 
 
     /**
-     * @brief Metodo chiamato al termine della sessione di gioco.
+     * Metodo chiamato al termine della sessione di gioco.
      */
     private void endGame() {
         System.out.println("Game over");

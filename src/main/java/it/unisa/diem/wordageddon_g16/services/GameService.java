@@ -163,20 +163,28 @@ public class GameService {
         Document document = docs.get(GameParams.random.nextInt(docs.size()));
         WDM wdm = wdmMap.get(document);
 
-        // Seleziona una parola casuale tra quelle presenti nel documento
         List<String> words = new ArrayList<>(wdm.getWords().keySet());
+        // Seleziona una parola casuale tra quelle presenti nel documento a partire dalla sua matrice WDM
+
         String chosenWord = words.get(GameParams.random.nextInt(words.size()));
+        // frequenza della parola nella WDM
         int correctFrequency = wdm.getWords().get(chosenWord);
 
-        // Genera risposte plausibili (inclusa quella corretta)
+        // Genero 4 risposte plausibili (inclusa quella corretta) e le inserisco nel set
         Set<Integer> options = new HashSet<>();
         options.add(correctFrequency);
+
         Random rand = new Random();
         while (options.size() < 4) {
-            int delta = 1 + rand.nextInt(Math.max(1, correctFrequency / 2 + 2));
-            int fakeOption = rand.nextBoolean() ? correctFrequency + delta : Math.max(0, correctFrequency - delta);
-            options.add(fakeOption);
+
+            int delta = 1 + rand.nextInt(4); // Delta tra 1 e 4
+            int fakeOption = correctFrequency + (rand.nextBoolean() ? delta : -delta);
+
+            if (fakeOption >= 0 && fakeOption != correctFrequency) {
+                options.add(fakeOption);
+            }
         }
+
 
         // Prepara la lista delle risposte e trova l'indice corretto
         List<Integer> answerOptions = new ArrayList<>(options);
