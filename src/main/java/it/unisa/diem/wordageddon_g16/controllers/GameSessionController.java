@@ -225,25 +225,83 @@ public class GameSessionController {
      * @return oggetto Timeline che rappresenta il timer in esecuzione
      */
     private Timeline startTimer(int durationSeconds, Label label, ProgressBar bar, Runnable onFinished) {
-        //Imposta la label che mostra il tempo rimanente a durationSeconds
-        label.setText(durationSeconds + "s");
+        label.setText(String.format("%02d:%02d", durationSeconds / 60, durationSeconds % 60));
 
-        bar.setProgress(0);
+        // Metodo interno per aggiornare lo stile della progress bar
+        Runnable updateBarStyle = () -> {
+            Platform.runLater(() -> {
+                // lookup funziona solo se il nodo è già nel scene graph
+                var barNode = bar.lookup(".bar");
+                if (barNode != null) {
+                    barNode.getStyleClass().removeAll("low", "medium", "high");
+                    double progress = bar.getProgress();
+                    if (progress < 0.3) {
+                        barNode.getStyleClass().add("high");
+                    } else if (progress < 0.7) {
+                        barNode.getStyleClass().add("medium");
+                    } else {
+                        barNode.getStyleClass().add("low");
+                    }
+                }
+            });
+        };
 
         Timeline timer = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
-            //Viene descrementato il tempo rimanente
-            int remaining = Integer.parseInt(label.getText().replace("s", "")) - 1;
-            label.setText(remaining + "s");
-            bar.setProgress((double) (durationSeconds - remaining) / durationSeconds);
-            if (remaining <= 0) {
-                ((Timeline) e.getSource()).stop(); //Blocca la Timeline
-                onFinished.run(); // Viene eseguito il metodo passato
+            String[] parts = label.getText().split(":");
+            int minutes = Integer.parseInt(parts[0]);
+            int seconds = Integer.parseInt(parts[1]);
+            int totalSeconds = minutes * 60 + seconds - 1;
+            if (totalSeconds < 0) totalSeconds = 0;
+
+            label.setText(String.format("%02d:%02d", totalSeconds / 60, totalSeconds % 60));
+
+            double progress = (double) (durationSeconds - totalSeconds) / durationSeconds;
+            bar.setProgress(progress);
+            updateBarStyle.run(); // aggiorna il colore
+
+            if (totalSeconds <= 0) {
+                ((Timeline) e.getSource()).stop();
+                onFinished.run();
             }
         }));
+
+        // Dopo che la ProgressBar è mostrata, applica lo stile iniziale
+        bar.sceneProperty().addListener((obs, oldScene, newScene) -> {
+            if (newScene != null) {
+                Platform.runLater(updateBarStyle);
+            }
+        });
+
         timer.setCycleCount(durationSeconds);
         timer.play();
         return timer;
     }
+
+
+//    private Timeline startTimer(int durationSeconds, Label label, ProgressBar bar, Runnable onFinished) {
+//        // Imposta la label che mostra il tempo rimanente in formato mm:ss
+//        label.setText(String.format("%02d:%02d", durationSeconds / 60, durationSeconds % 60));
+//
+//        bar.setProgress(0);
+//
+//        Timeline timer = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
+//            // Estrae i minuti e i secondi dalla label e decrementa di 1 secondo
+//            String[] parts = label.getText().split(":");
+//            int minutes = Integer.parseInt(parts[0]);
+//            int seconds = Integer.parseInt(parts[1]);
+//            int totalSeconds = minutes * 60 + seconds - 1;
+//            if (totalSeconds < 0) totalSeconds = 0;
+//            label.setText(String.format("%02d:%02d", totalSeconds / 60, totalSeconds % 60));
+//            bar.setProgress((double) (durationSeconds - totalSeconds) / durationSeconds);
+//            if (totalSeconds <= 0) {
+//                ((Timeline) e.getSource()).stop(); // Blocca la Timeline
+//                onFinished.run(); // Viene eseguito il metodo passato
+//            }
+//        }));
+//        timer.setCycleCount(durationSeconds);
+//        timer.play();
+//        return timer;
+//    }
 
     /**
      * Gestisce la visualizzazione dei diversi pannelli dell'interfaccia.
