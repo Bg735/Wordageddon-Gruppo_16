@@ -104,34 +104,7 @@ public class GameSessionController {
 
         loadPane(diffSelectionPane);
     }
-
-    /**
-     * @brief Avvia in background la generazione delle domande per la sessione di gioco.
-     *
-     * Questo metodo crea un Service JavaFX che lancia in modo asincrono un Task
-     * per la generazione delle domande, sfruttando il metodo getQuestions() del GameService.
-     *
-     * La generazione avviene durante la fase di lettura dei documenti (readingPane), così da non bloccare l'interfaccia utente.
-     *
-     * Al completamento con successo, la lista delle domande generate viene salvata in questions.
-     *
-     * @note Deve essere invocato prima della visualizzazione delle domande (prima di `switchToQuestions()`).
-     */
-   /* private void generateQuestionsAsync() {
-        Service<List<Question>> service = new Service<>() {
-            @Override
-            protected Task<List<Question>> createTask() {
-                return new GenerateQuestionsTask(gameService);
-            }
-        };
-        service.setOnSucceeded(e -> questions = service.getValue());
-        service.setOnFailed(e -> SystemLogger.log("Errore generazione domande", service.getException()));
-        service.start();
-    }
-*/
-
-
-
+    
     /**
      * @brief Passa dalla fase di lettura a quella delle domande:
      *

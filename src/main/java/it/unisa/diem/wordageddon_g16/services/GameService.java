@@ -145,6 +145,7 @@ public class GameService {
         for (Document doc : params.documents) {
             WDM wdm;
             var optionalWdm = wdmDAO.selectById(doc);
+            // Se la matrice non esiste nel database, la creo e la salvo al volo
             if (optionalWdm.isEmpty()) {
                 wdm = new WDM(doc, stopwordDAO.selectAll());
                 wdmDAO.insert(wdm);
