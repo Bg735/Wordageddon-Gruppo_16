@@ -71,14 +71,20 @@ public class GameSessionController {
     @FXML
     private Button skipReadingBtn;
 
-    @FXML private Button answer1Btn;
-    @FXML private Button answer2Btn;
-    @FXML private Button answer3Btn;
-    @FXML private Button answer4Btn;
-    @FXML private Button nextButton;
-    @FXML private Button backButton;
-  
-     Map<Document, String> documentToTextMap;
+    @FXML
+    private Button answer1Btn;
+    @FXML
+    private Button answer2Btn;
+    @FXML
+    private Button answer3Btn;
+    @FXML
+    private Button answer4Btn;
+    @FXML
+    private Button nextButton;
+    @FXML
+    private Button backButton;
+
+    Map<Document, String> documentToTextMap;
 
 
     private SimpleIntegerProperty currentQuestionIndex;
@@ -90,8 +96,6 @@ public class GameSessionController {
     private Service<List<Question>> questionSetupService;
     private Timeline questionTimer;
 
-    private Service<Map<Document, String>> readingSetupService;
-    private Service<List<Question>> questionSetupService;
     private final SimpleIntegerProperty elapsedSeconds;
     private Timeline readingTimer;
 
@@ -208,7 +212,7 @@ public class GameSessionController {
         }
 
 
-        showQuestion(currentQuestionIndex);
+        showQuestion(currentQuestionIndex.get());
 
     }
 
@@ -218,52 +222,22 @@ public class GameSessionController {
      *
      * @param index indice della domanda da visualizzare nella lista delle domande.
      */
-    private void showQuestion(SimpleIntegerProperty index) {
-        int idx = index.get();
-
-        if (idx >= questions.size()) {
+    /**
+     * Visualizza la domanda corrente e genera i pulsanti delle possibili risposte.
+     *
+     * @param index indice della domanda da visualizzare nella lista delle domande.
+     */
+    private void showQuestion(int index) {
+        if (index >= questions.size()) {
             endGame();
             return;
         }
-
-        Question q = questions.get(idx);
+        Question q = questions.get(index);
         questionText.setText(q.text());
-        questionCountLabel.setText((idx + 1) + "/" + questions.size());
+        questionCountLabel.setText((index + 1) + "/" + questions.size());
 
+        answerBox.getChildren().clear();
         List<String> answers = q.answers();
-        Button[] buttons = { answer1Btn, answer2Btn, answer3Btn, answer4Btn };
-
-        for (int i = 0; i < buttons.length; i++) {
-            Button btn = buttons[i];
-            if (i < answers.size()) {
-                String capitalizedAnswer = answers.get(i).substring(0, 1).toUpperCase() + answers.get(i).substring(1);
-                btn.setText(capitalizedAnswer);
-                btn.setDisable(false);
-                btn.setStyle("");
-                btn.setVisible(true);
-
-                final int answerIndex = i;
-                btn.setOnAction(e -> {
-                    // ✅ STOPPA IL TIMER
-                    if (questionTimer != null) {
-                        questionTimer.stop();
-                        questionTimer = null;
-                    }
-
-                    // Controlla la risposta
-                    boolean isCorrect = answerIndex == q.correctAnswerIndex();
-
-                    if (isCorrect) {
-                        btn.setStyle("-fx-background-color: #4CAF50;");
-                    } else {
-                        btn.setStyle("-fx-background-color: #F44336;");
-                        buttons[q.correctAnswerIndex()].setStyle("-fx-background-color: #4CAF50;");
-                    }
-
-                    // Disabilita tutti i bottoni
-                    for (Button b : buttons) {
-                        b.setDisable(true);
-                    }
 
         for (int i = 0; i < answers.size(); i++) {
             int finalI = i;
@@ -272,25 +246,17 @@ public class GameSessionController {
             btn.setOnAction(_ -> handleAnswer(finalI));
             answerBox.getChildren().add(btn);
         }
-
-        questionTimer = startTimer(20, timerLabelQuestion, timerBarQuestion, () -> {
-            // Tempo scaduto → mostra la risposta corretta e vai avanti dopo 0.5s
-            Platform.runLater(() -> {
-                for (Button b : buttons) {
-                    b.setDisable(true);
-                }
-                buttons[q.correctAnswerIndex()].setStyle("-fx-background-color: #4CAF50;");
-
-                PauseTransition pause = new PauseTransition(Duration.seconds(0.5));
-                pause.setOnFinished(e -> {
-                    index.set(index.get() + 1); // Incrementa la property
-                    showQuestion(index);        // Passa la property aggiornata
-                });
-                pause.play();
-            });
+        //BISOGNA DECIDERE IL TEMPO DELLE DOMANDE COME GESTIRLO
+        // Avvia il timer della domanda corrente. Se il tempo scade, passa automaticamente alla successiva.
+        readingTimer = startTimer(20, timerLabelQuestion, timerBarQuestion, () -> {
+            currentQuestionIndex.set(currentQuestionIndex.get() + 1);
+            showQuestion(currentQuestionIndex.get());
         });
     }
 
+    private void handleAnswer(int selectedIndex) {
+
+    }
 
     private void endGame() {
         System.out.println("Game over");
@@ -307,7 +273,6 @@ public class GameSessionController {
      * @return oggetto Timeline che rappresenta il timer in esecuzione
      */
     private Timeline startTimer(int durationSeconds, Label label, ProgressBar bar, Runnable onFinished) {
-
 
         label.setText(String.format("%02d:%02d", durationSeconds / 60, durationSeconds % 60));
 
@@ -375,8 +340,9 @@ public class GameSessionController {
         }
         switch (pane.getId()) {
             case "readingPane" -> readingSetupService.start();
-            case "questionPane" -> showQuestion(new SimpleIntegerProperty(0));
-            default -> {}
+            case "questionPane" -> switchToQuestions();
+            default -> {
+            }
 
         }
         pane.setVisible(true);
