@@ -8,15 +8,13 @@ import it.unisa.diem.wordageddon_g16.models.AppContext;
 import it.unisa.diem.wordageddon_g16.models.Difficulty;
 import it.unisa.diem.wordageddon_g16.models.Document;
 import it.unisa.diem.wordageddon_g16.models.WDM;
-import it.unisa.diem.wordageddon_g16.utility.Config;
 import it.unisa.diem.wordageddon_g16.utility.Resources;
 import it.unisa.diem.wordageddon_g16.utility.SystemLogger;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.Duration;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Service principale per la gestione della logica di gioco di Wordageddon.
@@ -122,103 +120,210 @@ public class GameService {
      * @return lista delle domande da sottoporre durante il quiz
      * @throws IllegalStateException se la partita non è stata inizializzata
      */
+    /**
+     * Genera e restituisce la lista delle domande per la partita corrente.
+     * La generazione può essere lenta se sono presenti nuovi documenti.
+     * Da chiamare in modo asincrono durante la fase di visualizzazione dei documenti.
+     *
+     * @return lista delle domande del quiz
+     * @throws IllegalStateException se la partita non è stata inizializzata
+     */
     public List<Question> getQuestions() {
+        Random rand = new Random();
         if (params == null) throw new IllegalStateException("Game not initialized");
         loadWdmMap();
         List<Question> questions = new ArrayList<>();
+        int numDocs = params.documents.size();
+
+        // Definisci i tipi di domanda consentiti in base al numero di documenti
+        List<Question.QuestionType> allowedTypes = new ArrayList<>();
+        allowedTypes.add(Question.QuestionType.ABSOLUTE_FREQUENCY);
+        allowedTypes.add(Question.QuestionType.WHICH_MORE);
+        allowedTypes.add(Question.QuestionType.WHICH_LESS);
+
+        // WHICH_DOCUMENT e WHICH_ABSENT solo se almeno 4 documenti
+        if (numDocs >= 4) {
+            allowedTypes.add(Question.QuestionType.WHICH_DOCUMENT);
+            allowedTypes.add(Question.QuestionType.WHICH_ABSENT);
+        } else {
+            System.out.println("Sono presenti meno di 4 documenti, le domande generate saranno di tipo SINGLE (riguardano un singolo documento)");
+        }
+
         for (int i = 0; i < params.questionCount; i++) {
-            var type = Question.QuestionType.getRandomType();
-            Question q = switch (type) {
-                case ABSOLUTE_FREQUENCY -> absoluteFrequencyQuestion();
-                case WHICH_MORE -> whichMoreQuestion();
-                case WHICH_LESS -> whichLessQuestion();
-                case WHICH_DOCUMENT -> whichDocumentQuestion();
-                case WHICH_ABSENT -> whichAbsentQuestion();
-            };
+            var type = allowedTypes.get(rand.nextInt(allowedTypes.size()));
+            Question q;
+
+            // Se ci sono meno di 4 documenti, solo domande SINGLE
+            if (numDocs < 4) {
+                q = switch (type) {
+                    case ABSOLUTE_FREQUENCY -> absoluteFrequencyQuestionSingle();
+                    case WHICH_MORE -> whichMoreQuestionSingle();
+                    case WHICH_LESS -> whichLessQuestionSingle();
+                    default -> throw new IllegalStateException("Tipo di domanda non supportato con meno di 4 documenti: " + type);
+                };
+            } else {
+                // Se >= 4 documenti, scegli casualmente tra single e non single
+                q = switch (type) {
+                    case ABSOLUTE_FREQUENCY -> rand.nextBoolean()
+                            ? absoluteFrequencyQuestionSingle()
+                            : absoluteFrequencyQuestion();
+                    case WHICH_MORE -> rand.nextBoolean()
+                            ? whichMoreQuestionSingle()
+                            : whichMoreQuestion();
+                    case WHICH_LESS -> rand.nextBoolean()
+                            ? whichLessQuestionSingle()
+                            : whichLessQuestion();
+                    case WHICH_DOCUMENT -> whichDocumentQuestion();
+                    case WHICH_ABSENT -> whichAbsentQuestion();
+                };
+            }
             questions.add(q);
         }
         return questions;
     }
-
-    /**
-     * Carica nella mappa wdmMap le matrici parola-documento per tutti i documenti della partita.
-     * Se la matrice non è presente nel database, viene generata e salvata.
-     */
-    private void loadWdmMap() {
-        for (Document doc : params.documents) {
-            WDM wdm;
-            var optionalWdm = wdmDAO.selectById(doc);
-            // Se la matrice non esiste nel database, la creo e la salvo al volo
-            if (optionalWdm.isEmpty()) {
-                throw new IllegalStateException("WDM not found for document: " + doc.title());
-            } else {
-                wdm = optionalWdm.get();
-            }
-            wdmMap.put(doc, wdm);
-        }
-    }
-
-    /**
-     * Crea una domanda che chiede quante volte una parola appare in un documento.
-     * Seleziona una parola a caso da un documento scelto casualmente e genera risposte multiple.
-     *
-     * @return una domanda di tipo "frequenza assoluta"
-     * @throws IllegalStateException se non sono disponibili parole
-     */
-    private Question absoluteFrequencyQuestion() {
-        List<Document> docs = params.documents;
-
-        // Scegli un documento a caso dalla lista
+    private Question absoluteFrequencyQuestionSingle() {
+        // Seleziona un documento casuale
+        List<Document> docs = getDocuments();
         Document document = docs.get(GameParams.random.nextInt(docs.size()));
         WDM wdm = wdmMap.get(document);
 
-        // Ottieni la lista delle parole significative presenti nel documento
         List<String> words = new ArrayList<>(wdm.getWords().keySet());
-        if (words.isEmpty()) throw new IllegalStateException("No words available");
 
-        // Scegli casualmente una parola tra quelle disponibili nel documento
-        String word = words.get(GameParams.random.nextInt(words.size()));
-        // Recupera la frequenza reale della parola selezionata nel documento
-        int frequency = wdm.getWords().get(word);
+        // Seleziona una parola casuale tra quelle presenti nel documento a partire dalla sua matrice WDM
+        String chosenWord = words.get(GameParams.random.nextInt(words.size()));
+        // frequenza della parola nella WDM
+        int correctFrequency = wdm.getWords().get(chosenWord);
 
-        // Prepara un set per raccogliere 3 risposte errate (frequenze plausibili ma sbagliate)
-        Set<Integer> wrongAnswers = new HashSet<>();
-        while (wrongAnswers.size() < 3) {
-            // Genera una risposta errata come uno scostamento casuale tra -2 e +2 rispetto alla frequenza reale
-            int answerIndex = frequency + GameParams.random.nextInt(5) - 2;
-            // Aggiungi solo se è diversa dalla risposta corretta e positiva
-            if (answerIndex != frequency && answerIndex > 0) {
-                wrongAnswers.add(answerIndex);
+        // Genero 4 risposte plausibili (inclusa quella corretta) e le inserisco nel set
+        Set<Integer> options = new HashSet<>();
+        options.add(correctFrequency);
+
+        Random rand = new Random();
+        while (options.size() < 4) {
+
+            int delta = 1 + rand.nextInt(4); // Delta tra 1 e 4
+            int fakeOption = correctFrequency + (rand.nextBoolean() ? delta : -delta);
+
+            if (fakeOption >= 0 && fakeOption != correctFrequency) {
+                options.add(fakeOption);
             }
         }
 
-        // Crea la lista delle risposte (inizialmente solo quelle errate)
-        List<String> answers = new ArrayList<>();
-        for (int answerIndex : wrongAnswers) {
-            answers.add(String.valueOf(answerIndex));
-        }
 
-        // Scegli una posizione casuale per inserire la risposta corretta tra le quattro opzioni
-        int correctAnswerIndex = GameParams.random.nextInt(4);
-        answers.add(correctAnswerIndex, String.valueOf(frequency));
+        // Prepara la lista delle risposte e trova l'indice corretto
+        List<Integer> answerOptions = new ArrayList<>(options);
+        Collections.shuffle(answerOptions);
+        int correctIndex = answerOptions.indexOf(correctFrequency);
 
-        // Crea e restituisce la domanda, specificando il testo, le risposte e la posizione di quella corretta
+        // Converte le risposte in stringhe
+        List<String> answers = answerOptions.stream()
+                .map(String::valueOf)
+                .collect(Collectors.toList());
+
+        // Crea la domanda
         return Question.create(
-                "Quante volte appare la parola " + word + " nel documento " + document.title() + "?",
+                "Quante volte la parola \"" + chosenWord.toUpperCase() + "\" appare nel documento \"" + document.title() + "\"?",
                 answers,
-                correctAnswerIndex
+                correctIndex
         );
     }
 
+    private Question absoluteFrequencyQuestion() {
+        // Crea la mappa cumulativa delle frequenze per tutte le parole in tutti i documenti
+        Map<String, Integer> cumulativeFrequency = new HashMap<>();
+        for (WDM wdm : wdmMap.values()) {
+            for (Map.Entry<String, Integer> entry : wdm.getWords().entrySet()) {
+                cumulativeFrequency.merge(entry.getKey(), entry.getValue(), Integer::sum);
+            }
+        }
 
-    /**
-     * Crea una domanda che chiede quale parola appare più frequentemente tra quelle proposte.
-     * Seleziona quattro parole da un documento e chiede quale ha la frequenza maggiore.
-     *
-     * @return una domanda di tipo "quale appare di più"
-     */
+        // Se non ci sono parole, lancia eccezione
+        if (cumulativeFrequency.isEmpty()) {
+            throw new IllegalStateException("Non ci sono parole nei documenti");
+        }
+
+        // Seleziona una parola casuale tra quelle presenti
+        List<String> words = new ArrayList<>(cumulativeFrequency.keySet());
+        String chosenWord = words.get(GameParams.random.nextInt(words.size()));
+        int correctFrequency = cumulativeFrequency.get(chosenWord);
+
+        // Genera risposte plausibili (inclusa quella corretta)
+        Set<Integer> options = new HashSet<>();
+        options.add(correctFrequency);
+        Random rand = new Random();
+        while (options.size() < 4) {
+            // Genera un'opzione casuale vicina al valore corretto
+            int delta = 1 + rand.nextInt(Math.max(1, correctFrequency / 2 + 2));
+            int fakeOption = rand.nextBoolean() ? correctFrequency + delta : Math.max(0, correctFrequency - delta);
+            options.add(fakeOption);
+        }
+
+        // Prepara la lista delle risposte e trova l'indice corretto
+        List<Integer> answerOptions = new ArrayList<>(options);
+        Collections.shuffle(answerOptions);
+        int correctIndex = answerOptions.indexOf(correctFrequency);
+
+        // Converte le risposte in stringhe
+        List<String> answers = answerOptions.stream()
+                .map(String::valueOf)
+                .collect(Collectors.toList());
+
+        // Crea la domanda
+        return Question.create(
+                "Quante volte la parola \"" + chosenWord.toUpperCase() + "\" appare in tutti i documenti?",
+                answers,
+                correctIndex
+        );
+    }
+
     private Question whichMoreQuestion() {
-        List<Document> docs = params.documents;
+        // Mappa cumulativa delle frequenze di tutte le parole in tutti i documenti
+        Map<String, Integer> cumulativeFrequency = new HashMap<>();
+        List<Document> docs = getDocuments();
+        for (Document doc : docs) {
+            WDM wdm = wdmMap.get(doc);
+            if (wdm != null) {
+                for (Map.Entry<String, Integer> entry : wdm.getWords().entrySet()) {
+                    // accumulo valori associati ad una determinata chiave
+                    cumulativeFrequency.merge(entry.getKey(), entry.getValue(), Integer::sum);
+                }
+            }
+        }
+
+        // Lista delle entry parola-frequenza, mischiate per selezione casuale
+        // Sostanzialmente é una lista contenente le righe della matrice parola-documento
+        List<Map.Entry<String, Integer>> wordFrequency = new ArrayList<>(cumulativeFrequency.entrySet());
+        Collections.shuffle(wordFrequency);
+
+        // Check: almeno 4 parole disponibili
+        if (wordFrequency.size() < 4) {
+            throw new IllegalStateException("Non ci sono abbastanza parole per generare la domanda (minimo 4 richieste)");
+        }
+
+        // Prendo le prime 4 parole casuali
+        List<Map.Entry<String, Integer>> currentAnswer = new ArrayList<>();
+        for (int y = 0; y < 4; y++) {
+            currentAnswer.add(wordFrequency.get(y));
+        }
+
+        // Trova la parola più frequente tra le 4 selezionate
+        List<String> answers = new ArrayList<>();
+        int correctIndex = 0;
+        int maxFreq = -1;
+        for (int i = 0; i < currentAnswer.size(); i++) {
+            Map.Entry<String, Integer> entry = currentAnswer.get(i);
+            answers.add(entry.getKey());
+            if (entry.getValue() > maxFreq) {
+                maxFreq = entry.getValue();
+                correctIndex = i;
+            }
+        }
+
+        return Question.create("Quale di queste parole appare più frequentemente in tutti i documenti?", answers, correctIndex);
+    }
+
+    private Question whichMoreQuestionSingle() {
+        List<Document> docs = getDocuments();
         Document document = docs.get(GameParams.random.nextInt(docs.size()));
         WDM wdm = wdmMap.get(document);
 
@@ -244,14 +349,8 @@ public class GameService {
         return Question.create("Quale di queste parole appare più frequentemente nel documento " + document.title() + "?", answers, correctIndex);
     }
 
-    /**
-     * Crea una domanda che chiede quale parola appare meno frequentemente tra quelle proposte.
-     * Seleziona quattro parole da un documento e chiede quale ha la frequenza minore.
-     *
-     * @return una domanda di tipo "quale appare di meno"
-     */
-    private Question whichLessQuestion() {
-        List<Document> docs = params.documents;
+    private Question whichLessQuestionSingle() {
+        List<Document> docs = getDocuments();
         Document document = docs.get(GameParams.random.nextInt(docs.size()));
         WDM wdm = wdmMap.get(document);
 
@@ -278,13 +377,46 @@ public class GameService {
         return Question.create("Quale delle seguenti parole appare meno frequentemente nel documento " + document.title() + "?", answers, correctIndex);
     }
 
-    /**
-     * Crea una domanda che chiede in quale documento appare una determinata parola.
-     * Seleziona una parola da un documento e propone quattro documenti come possibili risposte.
-     *
-     * @return una domanda di tipo "in quale documento"
-     * @throws IllegalStateException se non sono disponibili parole
-     */
+    private Question whichLessQuestion() {
+        // Mappa cumulativa delle frequenze di tutte le parole in tutti i documenti
+        Map<String, Integer> cumulativeFrequency = new HashMap<>();
+        List<Document> docs = getDocuments();
+        for (Document doc : docs) {
+            WDM wdm = wdmMap.get(doc);
+            if (wdm != null) {
+                for (Map.Entry<String, Integer> entry : wdm.getWords().entrySet()) {
+                    // Accumulo valori associati ad una determinata chiave
+                    cumulativeFrequency.merge(entry.getKey(), entry.getValue(), Integer::sum);
+                }
+            }
+        }
+
+        // Lista delle entry parola-frequenza, mischiate per selezione casuale
+        List<Map.Entry<String, Integer>> wordFrequency = new ArrayList<>(cumulativeFrequency.entrySet());
+        Collections.shuffle(wordFrequency);
+
+        // Prendi le prime 4 parole casuali
+        List<Map.Entry<String, Integer>> currentAnswer = new ArrayList<>();
+        for (int y = 0; y < 4 && y < wordFrequency.size(); y++) {
+            currentAnswer.add(wordFrequency.get(y));
+        }
+
+        // Trova la parola MENO frequente tra le 4 selezionate
+        List<String> answers = new ArrayList<>();
+        int correctIndex = 0;
+        int minFreq = Integer.MAX_VALUE;
+        for (int i = 0; i < currentAnswer.size(); i++) {
+            Map.Entry<String, Integer> entry = currentAnswer.get(i);
+            answers.add(entry.getKey());
+            if (entry.getValue() < minFreq) {
+                minFreq = entry.getValue();
+                correctIndex = i;
+            }
+        }
+
+        return Question.create("Quale di queste parole appare meno frequentemente in tutti i documenti?", answers, correctIndex);
+    }
+
     private Question whichDocumentQuestion() {
         List<Document> docs = params.documents;
         Document document = docs.get(GameParams.random.nextInt(docs.size()));
@@ -312,17 +444,11 @@ public class GameService {
                 index = i;
             }
         }
-        return Question.create("In quale di questi documenti appare la parola " + word + "?", answers, index);
+        return Question.create("In quale di questi documenti appare la parola " + word.toUpperCase() + "?", answers, index);
     }
 
-    /**
-     * Crea una domanda che chiede quale parola NON appare in nessun documento.
-     * Seleziona tre parole presenti e ne aggiunge una assente, poi chiede all'utente di individuarla.
-     *
-     * @return una domanda di tipo "quale assente"
-     * @throws IllegalStateException se non ci sono abbastanza parole per generare la domanda
-     */
     private Question whichAbsentQuestion() {
+        // Recupera tutti i documenti e tutte le parole presenti
         List<Document> docs = params.documents;
         Set<String> allWords = new HashSet<>();
         for (WDM wdm : wdmMap.values()) {
@@ -332,6 +458,7 @@ public class GameService {
             throw new IllegalStateException("Not enough words for the question");
         }
 
+        // Crea una lista di parole presenti e seleziona 3 parole casuali
         List<String> presentWords = new ArrayList<>(allWords);
         Collections.shuffle(presentWords);
         List<String> answers = new ArrayList<>();
@@ -339,14 +466,64 @@ public class GameService {
         answers.add(presentWords.get(1));
         answers.add(presentWords.get(2));
 
-        String absentWord = "rossella"; // Da migliorare: generare parola assente randomica
+        // Genera una parola assente in modo robusto
+        String absentWord = generateAbsentWord(allWords);
+
         answers.add(absentWord);
 
+        // Mischia le risposte e individua l'indice corretto
         Collections.shuffle(answers);
         int correctIndex = answers.indexOf(absentWord);
 
-        return Question.create("Quale delle seguenti parole NON è presente in nessun documento?", answers, correctIndex);
+        return Question.create(
+                "Quale delle seguenti parole NON è presente in nessun documento?",
+                answers,
+                correctIndex
+        );
     }
+
+    /**
+     * DA RIFARE
+     * Genera una parola che sicuramente non è presente nel set delle parole.
+     * Puoi personalizzare la logica per generare parole più realistiche.
+     *
+     * @param presentWords insieme delle parole già presenti nei documenti
+     * @return una parola sicuramente assente
+     */
+    private String generateAbsentWord(Set<String> presentWords) {
+        Random rand = new Random();
+        String[] candidateSyllables = {"tra", "spo", "gle", "fro", "zan", "qui", "lop"};
+        String absentWord;
+        do {
+            // Costruisce una parola casuale di 2-3 sillabe
+            int syllableCount = 2 + rand.nextInt(2); // 2 o 3 sillabe
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < syllableCount; i++) {
+                sb.append(candidateSyllables[rand.nextInt(candidateSyllables.length)]);
+            }
+            absentWord = sb.toString();
+        } while (presentWords.contains(absentWord));
+        return absentWord;
+    }
+    /**
+     * Carica nella mappa wdmMap le matrici parola-documento per tutti i documenti della partita.
+     * Se la matrice non è presente nel database, viene generata e salvata.
+     */
+    private void loadWdmMap() {
+        for (Document doc : params.documents) {
+            WDM wdm;
+            var optionalWdm = wdmDAO.selectById(doc);
+            // Se la matrice non esiste nel database, la creo e la salvo al volo
+            if (optionalWdm.isEmpty()) {
+                throw new IllegalStateException("WDM not found for document: " + doc.title());
+            } else {
+                wdm = optionalWdm.get();
+            }
+            wdmMap.put(doc, wdm);
+        }
+    }
+
+
 
     /**
      * Record che rappresenta una domanda del quiz.

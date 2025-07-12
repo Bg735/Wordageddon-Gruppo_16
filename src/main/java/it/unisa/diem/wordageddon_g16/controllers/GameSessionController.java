@@ -22,6 +22,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -98,7 +99,8 @@ public class GameSessionController {
 
     private final SimpleIntegerProperty elapsedSeconds;
     private Timeline readingTimer;
-
+    private int score;
+    private LocalDateTime questionStartTime;
 
     /**
      * Costruisce il controller e inizializza il servizio di gioco.
@@ -109,6 +111,7 @@ public class GameSessionController {
         this.gameService = appContext.getGameService();
         currentDocumentIndex = new SimpleIntegerProperty(0);
         elapsedSeconds = new SimpleIntegerProperty(0);
+        score = 0;
     }
 
     /**
@@ -138,19 +141,16 @@ public class GameSessionController {
                 };
                 task.setOnSucceeded(_ -> {
                     documentToTextMap = task.getValue();
-                    Platform.runLater(
-                            () -> setDocument(0)
-                    );
+                    Platform.runLater(() -> setDocument(0));
 
                     questionSetupService.start();
                     int seconds = (int) gameService.getTimeLimit().getSeconds();
-                    // alla fine del timer mostra questionPane
-                    readingTimer = startTimer(seconds, timerLabelRead, timerBar, () -> loadPane(questionPane));
+                    readingTimer = startTimer(3, timerLabelRead, timerBar, () -> loadPane(questionPane));
 
                 });
                 task.setOnFailed(_ -> {
                     endGame();
-                    throw new RuntimeException("Erorr during reading setup task", task.getException());
+                    throw new RuntimeException("Error during reading setup task", task.getException());
                 });
                 return task;
             }
@@ -159,7 +159,7 @@ public class GameSessionController {
 
         /*
          * Avvia la generazione delle domande del quiz in un servizio asincrono.
-         * Quando la generazione è completata, aggiorna la lista delle domande e imposta il timer per la lettura.
+         * Quando la generazione è completata, aggiorna la lista delle domande e imposta il timer per le domande.
          * In caso di errore, termina la sessione di gioco.
          */
         questionSetupService = new Service<>() {
@@ -175,8 +175,6 @@ public class GameSessionController {
         };
         questionSetupService.setOnSucceeded(_ -> {
             questions = questionSetupService.getValue();
-            int seconds = (int) gameService.getTimeLimit().getSeconds();
-            readingTimer = startTimer(seconds, timerLabelRead, timerBar, () -> loadPane(questionPane)); //TODO questo dovrebbe caricare il Pane coi risultati, non il questionPane
             skipReadingBtn.setDisable(false);
         });
         questionSetupService.setOnFailed(_ -> {
@@ -210,50 +208,75 @@ public class GameSessionController {
             endGame();
             return;
         }
-
-
         showQuestion(currentQuestionIndex.get());
-
     }
 
+    /**
+     * Visualizza la domanda corrente e genera i pulsanti delle possibili risposte.
+     *
+     * @param index indice della domanda da visualizzare nella lista delle domande.
+     */
 
-    /**
-     * Visualizza la domanda corrente e genera i pulsanti delle possibili risposte.
-     *
-     * @param index indice della domanda da visualizzare nella lista delle domande.
-     */
-    /**
-     * Visualizza la domanda corrente e genera i pulsanti delle possibili risposte.
-     *
-     * @param index indice della domanda da visualizzare nella lista delle domande.
-     */
     private void showQuestion(int index) {
         if (index >= questions.size()) {
             endGame();
             return;
         }
+        if (index == 0) {
+            questionStartTime = LocalDateTime.now(); //salva il tempo d’inizio della prima domanda
+        }
         Question q = questions.get(index);
         questionText.setText(q.text());
         questionCountLabel.setText((index + 1) + "/" + questions.size());
 
-        answerBox.getChildren().clear();
         List<String> answers = q.answers();
+        Button[] buttons = {answer1Btn, answer2Btn, answer3Btn, answer4Btn};
 
-        for (int i = 0; i < answers.size(); i++) {
-            int finalI = i;
-            Button btn = new Button(answers.get(i));
-            btn.getStyleClass().add("buttonAnswer");
-            btn.setOnAction(_ -> handleAnswer(finalI));
-            answerBox.getChildren().add(btn);
+        for (int i = 0; i < buttons.length; i++) {
+            Button btn = buttons[i];
+            if (i < answers.size()) {
+                btn.setText(answers.get(i));
+                btn.setDisable(false);
+                btn.setStyle("");
+                btn.setVisible(true);
+
+                final int answerIndex = i;
+                btn.setOnAction(e -> {
+                    //STOPPA IL TIMER
+                    if (questionTimer != null) {
+                        questionTimer.stop();
+                        questionTimer = null;
+                    }
+
+                    // Controlla la risposta
+                    boolean isCorrect = answerIndex == q.correctAnswerIndex();
+
+                    if (isCorrect) {
+                        btn.setStyle("-fx-background-color: #4CAF50;");
+                        score++;
+                    } else {
+                        btn.setStyle("-fx-background-color: #F44336;");
+                        buttons[q.correctAnswerIndex()].setStyle("-fx-background-color: #4CAF50;");
+                    }
+
+                    // Disabilita tutti i bottoni
+                    for (Button b : buttons) {
+                        b.setDisable(true);
+                    }
+
+                    //Pausa di 0.5 secondi per far vedere la risposta corretta
+                    PauseTransition pause = new PauseTransition(Duration.seconds(0.5));
+                    pause.setOnFinished(ev -> {
+                        currentQuestionIndex.set(currentQuestionIndex.get() + 1);
+                        showQuestion(currentQuestionIndex.get());
+                    });
+                    pause.play();
+                });
+            } else {
+                btn.setVisible(false);
+            }
         }
-        //BISOGNA DECIDERE IL TEMPO DELLE DOMANDE COME GESTIRLO
-        // Avvia il timer della domanda corrente. Se il tempo scade, passa automaticamente alla successiva.
-        readingTimer = startTimer(20, timerLabelQuestion, timerBarQuestion, () -> {
-            currentQuestionIndex.set(currentQuestionIndex.get() + 1);
-            showQuestion(currentQuestionIndex.get());
-        });
     }
-
     private void handleAnswer(int selectedIndex) {
 
     }
