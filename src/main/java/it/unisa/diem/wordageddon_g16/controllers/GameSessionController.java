@@ -10,6 +10,8 @@ import javafx.animation.KeyFrame;
 import javafx.animation.PauseTransition;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
@@ -99,8 +101,15 @@ public class GameSessionController {
 
     private final SimpleIntegerProperty elapsedSeconds;
     private Timeline readingTimer;
-    private int score;
+    private int score = 0;
     private LocalDateTime questionStartTime;
+
+    // Indica se il thread di setup delle domande ha finito
+    private BooleanProperty questionsReady;
+    private BooleanProperty minTimeElapsed;
+    
+    // Secondi minimi prima di poter saltare la lettura
+    private static final int MIN_TIME_FOR_SKIP = 15;
 
     /**
      * Costruisce il controller e inizializza il servizio di gioco.
@@ -112,7 +121,9 @@ public class GameSessionController {
         currentDocumentIndex = new SimpleIntegerProperty(0);
         currentQuestionIndex = new SimpleIntegerProperty(0);
         elapsedSeconds = new SimpleIntegerProperty(0);
-        score = 0;
+        questionsReady = new SimpleBooleanProperty(false);
+        minTimeElapsed = new SimpleBooleanProperty(false);
+
     }
 
     /**
@@ -121,8 +132,10 @@ public class GameSessionController {
      */
     @FXML
     public void initialize() {
-        // IL pulsante di skip viene abilitato automaticamente quando la generazione delle domande è completata
-        skipReadingBtn.setDisable(true);
+        // IL pulsante di skip viene abilitato automaticamente quando la generazione delle domande è completata e sono trascorsi almeno 15s dall'inizio del timer
+        skipReadingBtn.disableProperty().bind(
+                minTimeElapsed.not().or(questionsReady.not())
+        );
 
         //Instanziazione dei servizi per la generazione asincrona del testo e delle domande
 
@@ -146,8 +159,12 @@ public class GameSessionController {
 
                     questionSetupService.start();
                     int seconds = (int) gameService.getTimeLimit().getSeconds();
-                    readingTimer = startTimer(3, timerLabelRead, timerBar, () -> loadPane(questionPane));
+                    readingTimer = startTimer(seconds, timerLabelRead, timerBar, () -> loadPane(questionPane));
 
+                    // Avvia la pausa per abilitare lo skip dopo 15 secondi
+                    PauseTransition wait15s = new PauseTransition(Duration.seconds(MIN_TIME_FOR_SKIP));
+                    wait15s.setOnFinished(e -> minTimeElapsed.set(true));
+                    wait15s.play();
                 });
                 task.setOnFailed(_ -> {
                     endGame();
@@ -176,7 +193,7 @@ public class GameSessionController {
         };
         questionSetupService.setOnSucceeded(_ -> {
             questions = questionSetupService.getValue();
-            skipReadingBtn.setDisable(false);
+            questionsReady.set(true);  // Le domande sono pronte
         });
         questionSetupService.setOnFailed(_ -> {
             endGame();
@@ -334,7 +351,7 @@ public class GameSessionController {
             updateBarStyle.run();
 
             if (totalSeconds <= 0) {
-                timer.stop(); // <-- usa direttamente la variabile locale
+                timer.stop();
                 onFinished.run();
             }
         }));
