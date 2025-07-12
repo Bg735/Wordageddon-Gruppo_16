@@ -10,7 +10,10 @@ import it.unisa.diem.wordageddon_g16.utility.ViewLoader;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 
@@ -60,15 +63,9 @@ public class MainMenuController implements Initializable {
         if(!(context.getRepo().<Document,DocumentDAO>getDAO("document")).selectAll().isEmpty())
             ViewLoader.load(ViewLoader.View.GAME);
         else{
-            Alert alert=new Alert(Alert.AlertType.ERROR);
-            alert.setHeaderText(null);
-            alert.setContentText("Non sono presenti documenti per il gioco. Un amministratore deve caricare dei documenti per poter giocare.");
-            alert.getDialogPane().getStyleClass().add(Resources.getStyle("dialog"));
-            DialogPane dialogPane = alert.getDialogPane();
-            dialogPane.getStylesheets().add(Resources.getStyle("dialog"));
-            dialogPane.getStyleClass().add("alert-error");
+            Alert alert=new Alert(Alert.AlertType.ERROR, "Non sono presenti documenti da utilizzare per il gioco. Un amministratore deve caricare dei documenti per poter giocare.", ButtonType.CLOSE);
+            alert.getDialogPane().getStyleClass().add(Resources.getStyle("alert"));
             alert.show();
         }
-
     }
 }

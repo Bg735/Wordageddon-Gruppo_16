@@ -39,19 +39,3 @@
     -fx-background-color: rgba(255, 255, 255, 0.2);
 }
 
-.button {
-    -fx-text-fill: white;
-    -fx-font-size: 1.5em;
-    -fx-background-color: transparent;
-    -fx-border-color: white;
-    -fx-border-width: 2px;
-    -fx-border-radius: 12px;
-    -fx-cursor: hand;
-}
-
-.button:hover {
-    -fx-effect: dropshadow(gaussian, rgba(123,47,242,0.25), 16, 0.4, 0, 6);
-    -fx-scale-x: 1.2;
-    -fx-scale-y: 1.2;
-}
-
