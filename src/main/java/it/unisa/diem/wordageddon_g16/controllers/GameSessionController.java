@@ -107,9 +107,9 @@ public class GameSessionController {
     // Indica se il thread di setup delle domande ha finito
     private BooleanProperty questionsReady;
     private BooleanProperty minTimeElapsed;
-    
+
     // Secondi minimi prima di poter saltare la lettura
-    private static final int MIN_TIME_FOR_SKIP = 15;
+    private static final int MIN_TIME_FOR_SKIP = 5;
 
     /**
      * Costruisce il controller e inizializza il servizio di gioco.
@@ -163,7 +163,7 @@ public class GameSessionController {
 
                     // Avvia la pausa per abilitare lo skip dopo 15 secondi
                     PauseTransition wait15s = new PauseTransition(Duration.seconds(MIN_TIME_FOR_SKIP));
-                    wait15s.setOnFinished(e -> minTimeElapsed.set(true));
+                    wait15s.setOnFinished(_ -> minTimeElapsed.set(true));
                     wait15s.play();
                 });
                 task.setOnFailed(_ -> {
@@ -218,7 +218,7 @@ public class GameSessionController {
         if (questions == null) {
             // Le domande non sono ancora pronte: aspetta e riprova tra poco
             PauseTransition wait = new PauseTransition(Duration.seconds(1));
-            wait.setOnFinished(e -> switchToQuestions());
+            wait.setOnFinished(_ -> switchToQuestions());
             wait.play();
             return;
         }
@@ -245,34 +245,36 @@ public class GameSessionController {
             questionStartTime = LocalDateTime.now(); // Inizio della sessione di domande
         }
 
-
         Question q = questions.get(index);
-        questionText.setText(q.text());
-        questionCountLabel.setText((index + 1) + "/" + questions.size());
+        Platform.runLater(() -> {
+            questionText.setText(q.text());
+            questionCountLabel.setText((index + 1) + "/" + questions.size());
+        });
 
         List<String> answers = q.answers();
         Button[] buttons = {answer1Btn, answer2Btn, answer3Btn, answer4Btn};
         // Avvia il timer di 20 secondi per la domanda
-        questionTimer = startTimer(20, timerLabelQuestion, timerBarQuestion, () -> {
-            Platform.runLater(() -> {
-                // Disabilita tutti i pulsanti
-                for (Button b : buttons) {
-                    b.setDisable(true);
-                }
-                // Evidenzia la risposta corretta
-                int correctIndex = q.correctAnswerIndex();
-                if (correctIndex >= 0 && correctIndex < buttons.length) {
-                    buttons[correctIndex].setStyle("-fx-background-color: #4CAF50;");
-                }
-                // Dopo 0.5s, mostra la prossima domanda
-                PauseTransition pause = new PauseTransition(Duration.seconds(0.5));
-                pause.setOnFinished(ev -> {
-                    currentQuestionIndex.set(currentQuestionIndex.get() + 1);
-                    showQuestion(currentQuestionIndex.get());
-                });
-                pause.play();
+        if(questionTimer != null) {
+            questionTimer.stop();
+        }
+        questionTimer = startTimer(20, timerLabelQuestion, timerBarQuestion, () -> Platform.runLater(() -> {
+            // Disabilita tutti i pulsanti
+            for (Button b : buttons) {
+                b.setDisable(true);
+            }
+            // Evidenzia la risposta corretta
+            int correctIndex = q.correctAnswerIndex();
+            if (correctIndex >= 0 && correctIndex < buttons.length) {
+                buttons[correctIndex].setStyle("-fx-background-color: #4CAF50;");
+            }
+            // Dopo 0.5s, mostra la prossima domanda
+            PauseTransition pause = new PauseTransition(Duration.seconds(0.5));
+            pause.setOnFinished(_ -> {
+                currentQuestionIndex.set(currentQuestionIndex.get() + 1);
+                showQuestion(currentQuestionIndex.get());
             });
-        });
+            pause.play();
+        }));
 
         // Reset stile e stato dei bottoni
         for (Button b : buttons) {
@@ -283,10 +285,11 @@ public class GameSessionController {
         // Mostra solo i bottoni necessari
         for (int i = 0; i < answers.size(); i++) {
             Button btn = buttons[i];
-            btn.setText(answers.get(i));
+            String capitalizedAnswer = answers.get(i).substring(0, 1).toUpperCase() + answers.get(i).substring(1);
+            Platform.runLater(() -> btn.setText(capitalizedAnswer));
             btn.setVisible(true);
             final int answerIndex = i;
-            btn.setOnAction(e -> {
+            btn.setOnAction(_ -> {
                 // Stoppa il timer se in corso
                 if (questionTimer != null) {
                     questionTimer.stop();
@@ -307,7 +310,7 @@ public class GameSessionController {
                 }
                 // Pausa di 0.5s prima di mostrare la prossima domanda
                 PauseTransition pause = new PauseTransition(Duration.seconds(0.5));
-                pause.setOnFinished(ev -> {
+                pause.setOnFinished(_ -> {
                     currentQuestionIndex.set(currentQuestionIndex.get() + 1);
                     showQuestion(currentQuestionIndex.get());
                 });
@@ -368,7 +371,7 @@ public class GameSessionController {
             bar.setProgress(progress);
             updateBarStyle.run();
 
-            if (totalSeconds <= 0) {
+            if (totalSeconds == 0) {
                 timer.stop();
                 onFinished.run();
             }
@@ -429,10 +432,9 @@ public class GameSessionController {
     /**
      * Gestisce il ritorno al menu principale o la chiusura della finestra corrente.
      *
-     * @param event evento generato dalla pressione del pulsante "Back".
      */
     @FXML
-    private void onBackPressed(ActionEvent event) {
+    private void onBackPressed() {
         //Torna al menu principale o chiudi la finestra
         ViewLoader.load(ViewLoader.View.MENU);
     }
@@ -448,7 +450,7 @@ public class GameSessionController {
     }
 
     @FXML
-    public void skipReading(ActionEvent actionEvent) {
+    public void skipReading() {
         // Ferma il timer di lettura se è attivo
         if (readingTimer != null) {
             readingTimer.stop();
