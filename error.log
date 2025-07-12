@@ -12,7 +12,7 @@ org.sqlite.SQLiteException: [SQLITE_CONSTRAINT_FOREIGNKEY] A foreign key constra
 	at it.unisa.diem.wordageddongruppo_16@1.0-SNAPSHOT/it.unisa.diem.wordageddon_g16.db.JDBCGameReportDAO.insert(JDBCGameReportDAO.java:165)
 	at it.unisa.diem.wordageddongruppo_16@1.0-SNAPSHOT/it.unisa.diem.wordageddon_g16.db.JDBCGameReportDAO.insert(JDBCGameReportDAO.java:26)
 	at it.unisa.diem.wordageddongruppo_16@1.0-SNAPSHOT/it.unisa.diem.wordageddon_g16.services.GameService.saveGameReport(GameService.java:770)
-	at it.unisa.diem.wordageddongruppo_16@1.0-SNAPSHOT/it.unisa.diem.wordageddon_g16.controllers.GameSessionController.endGame(GameSessionController.java:341)
+	at it.unisa.diem.wordageddongruppo_16@1.0-SNAPSHOT/showReport(GameSessionController.java:341)
 	at it.unisa.diem.wordageddongruppo_16@1.0-SNAPSHOT/it.unisa.diem.wordageddon_g16.controllers.GameSessionController.showQuestion(GameSessionController.java:244)
 	at it.unisa.diem.wordageddongruppo_16@1.0-SNAPSHOT/it.unisa.diem.wordageddon_g16.controllers.GameSessionController.lambda$showQuestion$6(GameSessionController.java:319)
 	at javafx.graphics@21.0.2/javafx.animation.Animation.runHandler(Animation.java:1102)

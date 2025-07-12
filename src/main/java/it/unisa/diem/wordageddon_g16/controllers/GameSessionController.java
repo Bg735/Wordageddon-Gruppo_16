@@ -112,7 +112,7 @@ public class GameSessionController {
     private BooleanProperty minTimeElapsed;
 
     // Secondi minimi prima di poter saltare la lettura
-    private static final int MIN_TIME_FOR_SKIP = 5;
+    private static final int MIN_TIME_FOR_SKIP = 1;
 
     /**
      * Costruisce il controller e inizializza il servizio di gioco.
@@ -171,7 +171,6 @@ public class GameSessionController {
                     wait15s.play();
                 });
                 task.setOnFailed(_ -> {
-                    endGame();
                     throw new RuntimeException("Error during reading setup task", task.getException());
                 });
                 return task;
@@ -200,7 +199,6 @@ public class GameSessionController {
             questionsReady.set(true);  // Le domande sono pronte
         });
         questionSetupService.setOnFailed(_ -> {
-            endGame();
             throw new RuntimeException("Error during reading setup task");
         });
 
@@ -227,7 +225,6 @@ public class GameSessionController {
             return;
         }
         if (questions.isEmpty()) {
-            endGame();
             return;
         }
         showQuestion(currentQuestionIndex.get());
@@ -241,7 +238,7 @@ public class GameSessionController {
 
     private void showQuestion(int index) {
         if (index >= questions.size()) {
-            endGame();
+            showReport();
             return;
         }
 
@@ -324,9 +321,11 @@ public class GameSessionController {
 
     }
 
-    private void endGame() {
+    private void showReport() {
         LocalDateTime questionEndTime = LocalDateTime.now();
         java.time.Duration usedTime = java.time.Duration.between(questionStartTime, questionEndTime);
+        ViewLoader.load(ViewLoader.View.REPORT);
+        /*
         GameReport report = new GameReport(
                 0, // ID generato dal DB
                 appContext.getCurrentUser(),
@@ -339,9 +338,8 @@ public class GameSessionController {
                 score // punteggio ottenuto
         );
         gameService.saveGameReport(report);
-
+*/
         System.out.println("Game over. Punteggio: " + score);
-        ViewLoader.load(ViewLoader.View.MENU);
     }
 
     /**

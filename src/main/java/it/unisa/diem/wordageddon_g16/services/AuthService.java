@@ -12,7 +12,7 @@ public class AuthService {
 
     private final AppContext context;
     private final JDBCUserDAO userDAO;
-    ;
+
 
     public AuthService(AppContext context, JDBCUserDAO userDAO) {
         this.context = context;

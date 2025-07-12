@@ -1,4 +1,5 @@
 package it.unisa.diem.wordageddon_g16.controllers;
+import it.unisa.diem.wordageddon_g16.models.AppContext;
 import it.unisa.diem.wordageddon_g16.utility.ViewLoader;
 import javafx.event.Event;
 
@@ -11,7 +12,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.input.MouseEvent;
 
-public class ResultsController {
+public class ReportController {
     @FXML
     private StackPane playAgainBtn;
     @FXML
@@ -44,9 +45,10 @@ public class ResultsController {
     private Label viewAnswersBtnText;
 
     //private final ResultsService resultsService;
+    private final AppContext context;
 
-    public ResultsController() {
-        //this.resultsService = context.getResultsService();
+    public ReportController(AppContext context) {
+        this.context = context;
     }
 
     @FXML
