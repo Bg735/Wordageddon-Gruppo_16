@@ -418,7 +418,7 @@ public class GameService {
     }
 
     private Question whichDocumentQuestion() {
-        List<Document> docs = params.documents;
+        List<Document> docs = getDocuments();
         Document document = docs.get(GameParams.random.nextInt(docs.size()));
         WDM wdm = wdmMap.get(document);
 
@@ -427,12 +427,24 @@ public class GameService {
 
         String word = words.get(GameParams.random.nextInt(words.size()));
 
+        // Crea una lista di documenti senza duplicati
+        List<Document> docPool = new ArrayList<>(docs);
+        Collections.shuffle(docPool);
+
+        // Assicurati che il documento corretto sia incluso
+        if (!docPool.contains(document)) {
+            docPool.set(0, document); // Forza la presenza del documento corretto
+        }
+
+        // Prendi i primi 4 documenti (tutti diversi)
         List<Document> docAnswer = new ArrayList<>();
         docAnswer.add(document);
-        while (docAnswer.size() < 4) {
-            Document d = docs.get(GameParams.random.nextInt(docs.size()));
-            docAnswer.add(d);
+        for (Document d : docPool) {
+            if (!d.equals(document) && docAnswer.size() < 4) {
+                docAnswer.add(d);
+            }
         }
+
         Collections.shuffle(docAnswer);
 
         List<String> answers = new ArrayList<>();
@@ -444,7 +456,11 @@ public class GameService {
                 index = i;
             }
         }
-        return Question.create("In quale di questi documenti appare la parola " + word.toUpperCase() + "?", answers, index);
+        return Question.create(
+                "In quale di questi documenti appare la parola " + word.toUpperCase() + "?",
+                answers,
+                index
+        );
     }
 
     private Question whichAbsentQuestion() {
