@@ -184,7 +184,7 @@ public class GameSessionController {
         if (questions == null) {
             // Le domande non sono ancora pronte: aspetta e riprova tra poco
             PauseTransition wait = new PauseTransition(Duration.seconds(1));
-            wait.setOnFinished(e -> switchToQuestions());
+            wait.setOnFinished(_ -> switchToQuestions());
             wait.play();
             return;
         }
@@ -292,7 +292,7 @@ public class GameSessionController {
             updateBarStyle.run();
 
             if (totalSeconds <= 0) {
-                timer.stop(); // <-- usa direttamente la variabile locale
+                timer.stop(); 
                 onFinished.run();
             }
         }));
