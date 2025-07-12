@@ -34,45 +34,6 @@ import java.util.Map;
  * per mantenere la UI reattiva.
  */
 public class GameSessionController {
-    @FXML
-    private StackPane stackPane;
-    @FXML
-    private AnchorPane readingPane;
-    @FXML
-    private AnchorPane questionPane;
-    @FXML
-    private AnchorPane diffSelectionPane;
-
-    @FXML
-    private TextArea textDisplayArea;
-    @FXML
-    private ProgressBar timerBar;
-    @FXML
-    private Label timerLabelRead;
-    @FXML
-    private Label documentTitleLabel;
-
-    @FXML
-    private Label questionText;
-    @FXML
-    private VBox answerBox;
-    @FXML
-    private Label questionCountLabel;
-    @FXML
-    private ProgressBar timerBarQuestion;
-    @FXML
-    private Label timerLabelQuestion;
-    @FXML
-    private Button nextQuestionButton;
-    @FXML
-    private Button nextDocumentButton;
-    @FXML
-    private Button previousDocumentButton;
-    @FXML
-    private Button skipReadingBtn;
-
-    Map<Document, String> documentToTextMap;
-
     @FXML private StackPane stackPane;
     @FXML private AnchorPane readingPane;
     @FXML private AnchorPane questionPane;
@@ -108,11 +69,6 @@ public class GameSessionController {
     private Service<List<Question>> questionSetupService;
     private Timeline questionTimer;
 
-    private Service<Map<Document, String>> readingSetupService;
-    private Service<List<Question>> questionSetupService;
-    private final SimpleIntegerProperty elapsedSeconds;
-    private Timeline readingTimer;
-
 
     /**
      * Costruisce il controller e inizializza il servizio di gioco.
@@ -122,7 +78,6 @@ public class GameSessionController {
     public GameSessionController(AppContext appContext) {
         this.gameService = appContext.getGameService();
         currentDocumentIndex = new SimpleIntegerProperty(0);
-        elapsedSeconds = new SimpleIntegerProperty(0);
     }
 
     /**
@@ -131,8 +86,6 @@ public class GameSessionController {
      */
     @FXML
     public void initialize() {
-        // IL pulsante di skip viene abilitato automaticamente quando la generazione delle domande è completata
-        skipReadingBtn.setDisable(true);
 
         //Instanziazione dei servizi per la generazione asincrona del testo e delle domande
 
@@ -143,23 +96,43 @@ public class GameSessionController {
          */
         readingSetupService = new Service<>() {
             @Override
-            protected Task<Map<Document, String>> createTask() {
-                Task<Map<Document, String>> task = new Task<>() {
+            protected Task<Map<Document,String>> createTask() {
+                Task<Map<Document,String>> task= new Task<>() {
                     @Override
-                    protected Map<Document, String> call() {
+                    protected Map<Document,String> call() {
                         return gameService.setupReadingPhase();
                     }
                 };
                 task.setOnSucceeded(_ -> {
-                    documentToTextMap = task.getValue();
+                    documentToTextMap= task.getValue();
                     Platform.runLater(
-                            () -> setDocument(0)
+                            () -> {
+                                setDocument(0);
+                            }
                     );
 
                     questionSetupService.start();
                     int seconds = (int) gameService.getTimeLimit().getSeconds();
                     // alla fine del timer mostra questionPane
-                    readingTimer = startTimer(seconds, timerLabelRead, timerBar, () -> loadPane(questionPane));
+                    startTimer(seconds, timerLabelRead, timerBar, () -> loadPane(questionPane)); //METTI SECOND
+
+                    questionSetupService = new Service<List<Question>>() {
+                        @Override
+                        protected Task<List<Question>> createTask() {
+                            return new Task<>() {
+                                @Override
+                                protected List<Question> call() {
+                                    return gameService.getQuestions(); // recupera le domande
+                                }
+                            };
+                        }
+                    };
+                    questionSetupService.setOnSucceeded(e -> {
+                        questions = (List<Question>) questionSetupService.getValue();
+                    });
+                    questionSetupService.setOnFailed(_ -> endGame());
+                    questionSetupService.start();
+
 
                 });
                 task.setOnFailed(_ -> {
@@ -190,8 +163,7 @@ public class GameSessionController {
         questionSetupService.setOnSucceeded(_ -> {
             questions = questionSetupService.getValue();
             int seconds = (int) gameService.getTimeLimit().getSeconds();
-            readingTimer = startTimer(seconds, timerLabelRead, timerBar, () -> loadPane(questionPane)); //TODO questo dovrebbe caricare il Pane coi risultati, non il questionPane
-            skipReadingBtn.setDisable(false);
+            startTimer(seconds, timerLabelRead, timerBar, () -> loadPane(questionPane)); //TODO questo dovrebbe caricare il Pane coi risultati, non il questionPane
         });
         questionSetupService.setOnFailed(_ -> {
             endGame();
@@ -213,21 +185,14 @@ public class GameSessionController {
      * Altrimenti, mostra la domanda corrente.
      */
     private void switchToQuestions() {
-        if (questions == null) {
-            // Le domande non sono ancora pronte: aspetta e riprova tra poco
+        if (questions.isEmpty()) {
             PauseTransition wait = new PauseTransition(Duration.seconds(1));
             wait.setOnFinished(e -> switchToQuestions());
             wait.play();
             return;
         }
-        if (questions.isEmpty()) {
-            endGame();
-            return;
-        }
-
         showQuestion(currentQuestionIndex);
     }
-
 
     /**
      * Visualizza la domanda corrente e genera i pulsanti delle possibili risposte.
@@ -281,21 +246,18 @@ public class GameSessionController {
                         b.setDisable(true);
                     }
 
-        for (int i = 0; i < answers.size(); i++) {
-            int finalI = i;
-            Button btn = new Button(answers.get(i));
-            btn.getStyleClass().add("buttonAnswer");
-            btn.setOnAction(_ -> handleAnswer(finalI));
-            answerBox.getChildren().add(btn);
+                    // ✅ Pausa di 0.5 secondi per far vedere la risposta corretta
+                    PauseTransition pause = new PauseTransition(Duration.seconds(0.5));
+                    pause.setOnFinished(ev -> {
+                        index.set(index.get() + 1); // Incrementa la property
+                        showQuestion(index);        // Passa la property aggiornata
+                    });
+                    pause.play();
+                });
+            } else {
+                btn.setVisible(false);
+            }
         }
-        //BISOGNA DECIDERE IL TEMPO DELLE DOMANDE COME GESTIRLO
-        // Avvia il timer della domanda corrente. Se il tempo scade, passa automaticamente alla successiva.
-        readingTimer = startTimer(20, timerLabelQuestion, timerBarQuestion, () -> {
-            currentQuestionIndex.set(currentQuestionIndex.get() + 1);
-            showQuestion(currentQuestionIndex.get());
-        });
-    }
-
 
         questionTimer = startTimer(20, timerLabelQuestion, timerBarQuestion, () -> {
             // Tempo scaduto → mostra la risposta corretta e vai avanti dopo 0.5s
@@ -325,9 +287,9 @@ public class GameSessionController {
      * Al termine del conto alla rovescia, esegue la callback specificata.
      *
      * @param durationSeconds durata del timer in secondi
-     * @param label           label da aggiornare con il tempo rimanente
-     * @param bar             progress bar da aggiornare con l'avanzamento del tempo
-     * @param onFinished      operazione da eseguire al termine del timer
+     * @param label label da aggiornare con il tempo rimanente
+     * @param bar progress bar da aggiornare con l'avanzamento del tempo
+     * @param onFinished operazione da eseguire al termine del timer
      * @return oggetto Timeline che rappresenta il timer in esecuzione
      */
     private Timeline startTimer(int durationSeconds, Label label, ProgressBar bar, Runnable onFinished) {
@@ -336,31 +298,31 @@ public class GameSessionController {
         label.setText(String.format("%02d:%02d", durationSeconds / 60, durationSeconds % 60));
 
         // Metodo interno per aggiornare lo stile della progress bar
-        Runnable updateBarStyle = () -> Platform.runLater(() -> {
-            // lookup funziona solo se il nodo è già nel scene graph
-            var barNode = bar.lookup(".bar");
-            if (barNode != null) {
-                barNode.getStyleClass().removeAll("low", "medium", "high");
-                double progress = bar.getProgress();
-                if (progress < 0.3) {
-                    barNode.getStyleClass().add("high");
-                } else if (progress < 0.7) {
-                    barNode.getStyleClass().add("medium");
-                } else {
-                    barNode.getStyleClass().add("low");
+        Runnable updateBarStyle = () -> {
+            Platform.runLater(() -> {
+                // lookup funziona solo se il nodo è già nel scene graph
+                var barNode = bar.lookup(".bar");
+                if (barNode != null) {
+                    barNode.getStyleClass().removeAll("low", "medium", "high");
+                    double progress = bar.getProgress();
+                    if (progress < 0.3) {
+                        barNode.getStyleClass().add("high");
+                    } else if (progress < 0.7) {
+                        barNode.getStyleClass().add("medium");
+                    } else {
+                        barNode.getStyleClass().add("low");
+                    }
                 }
-            }
-        });
+            });
+        };
 
         Timeline timer = new Timeline();
-        timer.getKeyFrames().add(new KeyFrame(Duration.seconds(1), _ -> {
+        timer.getKeyFrames().add(new KeyFrame(Duration.seconds(1), e -> {
             String[] parts = label.getText().split(":");
             int minutes = Integer.parseInt(parts[0]);
             int seconds = Integer.parseInt(parts[1]);
             int totalSeconds = minutes * 60 + seconds - 1;
             if (totalSeconds < 0) totalSeconds = 0;
-
-            elapsedSeconds.set(elapsedSeconds.get() + 1);
 
             label.setText(String.format("%02d:%02d", totalSeconds / 60, totalSeconds % 60));
 
@@ -376,7 +338,7 @@ public class GameSessionController {
 
 
         // Dopo che la ProgressBar è mostrata, applica lo stile iniziale
-        bar.sceneProperty().addListener((_, _, newScene) -> {
+        bar.sceneProperty().addListener((obs, oldScene, newScene) -> {
             if (newScene != null) {
                 Platform.runLater(updateBarStyle);
             }
@@ -394,15 +356,11 @@ public class GameSessionController {
      * @param pane il nodo (AnchorPane) da rendere visibile nello StackPane principale.
      */
     private void loadPane(Node pane) {
-        for (Node p : stackPane.getChildren()) {
+        for(Node p : stackPane.getChildren()) {
             p.setVisible(false);
         }
-        switch (pane.getId()) {
+        switch(pane.getId()){
             case "readingPane" -> readingSetupService.start();
-            case "questionPane" -> switchToQuestions();
-            default -> {
-            }
-
             case "questionPane" -> showQuestion(new SimpleIntegerProperty(0));
             default -> {}
         }
@@ -417,13 +375,13 @@ public class GameSessionController {
      */
     @FXML
     public void onDifficultySelected(ActionEvent event) {
-        switch (((Button) event.getSource()).getId()) {
+        switch (((Button) event.getSource()).getId()){
             case "diffEasyBTN" -> gameService.init(Difficulty.EASY);
             case "diffMediumBTN" -> gameService.init(Difficulty.MEDIUM);
             case "diffHardBTN" -> gameService.init(Difficulty.HARD);
             default -> throw new IllegalArgumentException("Difficoltà non riconosciuta");
         }
-        nextDocumentButton.disableProperty().bind(currentDocumentIndex.isEqualTo(gameService.getDocuments().size() - 1));
+        nextDocumentButton.disableProperty().bind(currentDocumentIndex.isEqualTo(gameService.getDocuments().size()-1));
         previousDocumentButton.disableProperty().bind(currentDocumentIndex.isEqualTo(0));
         loadPane(readingPane);
     }
@@ -442,21 +400,10 @@ public class GameSessionController {
     @FXML
     private void onChangeDocument(ActionEvent event) {
         if (event.getSource().equals(nextDocumentButton)) {
-            currentDocumentIndex.set(currentDocumentIndex.get() + 1);
+            currentDocumentIndex.set(currentDocumentIndex.get()+1);
         } else { // previousDocumentButton pressed
-            currentDocumentIndex.set(currentDocumentIndex.get() - 1);
+            currentDocumentIndex.set(currentDocumentIndex.get()-1);
         }
         setDocument(currentDocumentIndex.get());
     }
-
-    @FXML
-    public void skipReading(ActionEvent actionEvent) {
-        // Ferma il timer di lettura se è attivo
-        if (readingTimer != null) {
-            readingTimer.stop();
-        }
-        // Passa subito alla fase delle domande
-        loadPane(questionPane);
-    }
-
 }
