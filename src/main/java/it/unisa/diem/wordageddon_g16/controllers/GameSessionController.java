@@ -110,6 +110,7 @@ public class GameSessionController {
     public GameSessionController(AppContext appContext) {
         this.gameService = appContext.getGameService();
         currentDocumentIndex = new SimpleIntegerProperty(0);
+        currentQuestionIndex = new SimpleIntegerProperty(0);
         elapsedSeconds = new SimpleIntegerProperty(0);
         score = 0;
     }
