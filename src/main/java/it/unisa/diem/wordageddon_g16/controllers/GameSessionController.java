@@ -223,62 +223,80 @@ public class GameSessionController {
             endGame();
             return;
         }
+
         if (index == 0) {
-            questionStartTime = LocalDateTime.now(); //salva il tempo d’inizio della prima domanda
+            questionStartTime = LocalDateTime.now(); // Inizio della sessione di domande
         }
+
+
         Question q = questions.get(index);
         questionText.setText(q.text());
         questionCountLabel.setText((index + 1) + "/" + questions.size());
 
         List<String> answers = q.answers();
         Button[] buttons = {answer1Btn, answer2Btn, answer3Btn, answer4Btn};
-
-        for (int i = 0; i < buttons.length; i++) {
-            Button btn = buttons[i];
-            if (i < answers.size()) {
-                btn.setText(answers.get(i));
-                btn.setDisable(false);
-                btn.setStyle("");
-                btn.setVisible(true);
-
-                final int answerIndex = i;
-                btn.setOnAction(e -> {
-                    //STOPPA IL TIMER
-                    if (questionTimer != null) {
-                        questionTimer.stop();
-                        questionTimer = null;
-                    }
-
-                    // Controlla la risposta
-                    boolean isCorrect = answerIndex == q.correctAnswerIndex();
-
-                    if (isCorrect) {
-                        btn.setStyle("-fx-background-color: #4CAF50;");
-                        score++;
-                    } else {
-                        btn.setStyle("-fx-background-color: #F44336;");
-                        buttons[q.correctAnswerIndex()].setStyle("-fx-background-color: #4CAF50;");
-                    }
-
-                    // Disabilita tutti i bottoni
-                    for (Button b : buttons) {
-                        b.setDisable(true);
-                    }
-
-                    //Pausa di 0.5 secondi per far vedere la risposta corretta
-                    PauseTransition pause = new PauseTransition(Duration.seconds(0.5));
-                    pause.setOnFinished(ev -> {
-                        currentQuestionIndex.set(currentQuestionIndex.get() + 1);
-                        showQuestion(currentQuestionIndex.get());
-                    });
-                    pause.play();
+        // Avvia il timer di 20 secondi per la domanda
+        questionTimer = startTimer(20, timerLabelQuestion, timerBarQuestion, () -> {
+            Platform.runLater(() -> {
+                // Disabilita tutti i pulsanti
+                for (Button b : buttons) {
+                    b.setDisable(true);
+                }
+                // Evidenzia la risposta corretta
+                int correctIndex = q.correctAnswerIndex();
+                if (correctIndex >= 0 && correctIndex < buttons.length) {
+                    buttons[correctIndex].setStyle("-fx-background-color: #4CAF50;");
+                }
+                // Dopo 0.5s, mostra la prossima domanda
+                PauseTransition pause = new PauseTransition(Duration.seconds(0.5));
+                pause.setOnFinished(ev -> {
+                    currentQuestionIndex.set(currentQuestionIndex.get() + 1);
+                    showQuestion(currentQuestionIndex.get());
                 });
-            } else {
-                btn.setVisible(false);
-            }
+                pause.play();
+            });
+        });
+
+        // Reset stile e stato dei bottoni
+        for (Button b : buttons) {
+            b.setStyle("");
+            b.setDisable(false);
+            b.setVisible(false); // Nascondi tutto all'inizio
         }
-    }
-    private void handleAnswer(int selectedIndex) {
+        // Mostra solo i bottoni necessari
+        for (int i = 0; i < answers.size(); i++) {
+            Button btn = buttons[i];
+            btn.setText(answers.get(i));
+            btn.setVisible(true);
+            final int answerIndex = i;
+            btn.setOnAction(e -> {
+                // Stoppa il timer se in corso
+                if (questionTimer != null) {
+                    questionTimer.stop();
+                    questionTimer = null;
+                }
+                // Verifica risposta
+                boolean isCorrect = answerIndex == q.correctAnswerIndex();
+                if (isCorrect) {
+                    btn.setStyle("-fx-background-color: #4CAF50;");
+                    score++; //aumenta ptn
+                } else {
+                    btn.setStyle("-fx-background-color: #F44336;");
+                    buttons[q.correctAnswerIndex()].setStyle("-fx-background-color: #4CAF50;");
+                }
+                // Disabilita tutti i bottoni
+                for (Button b : buttons) {
+                    b.setDisable(true);
+                }
+                // Pausa di 0.5s prima di mostrare la prossima domanda
+                PauseTransition pause = new PauseTransition(Duration.seconds(0.5));
+                pause.setOnFinished(ev -> {
+                    currentQuestionIndex.set(currentQuestionIndex.get() + 1);
+                    showQuestion(currentQuestionIndex.get());
+                });
+                pause.play();
+            });
+        }
 
     }
 
