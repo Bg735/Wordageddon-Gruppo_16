@@ -17,12 +17,15 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import javafx.util.Duration;
 
 import java.time.LocalDateTime;
@@ -83,10 +86,6 @@ public class GameSessionController {
     private Button answer3Btn;
     @FXML
     private Button answer4Btn;
-    @FXML
-    private Button nextButton;
-    @FXML
-    private Button backButton;
 
     Map<Document, String> documentToTextMap;
 
@@ -103,7 +102,8 @@ public class GameSessionController {
     private final SimpleIntegerProperty elapsedSeconds;
     private Timeline readingTimer;
     private int score = 0;
-    private AppContext appContext;
+    private int numeroRisposteCorrette = 0;
+    private final AppContext appContext;
 
     private LocalDateTime questionStartTime;
 
@@ -113,6 +113,51 @@ public class GameSessionController {
 
     // Secondi minimi prima di poter saltare la lettura
     private static final int MIN_TIME_FOR_SKIP = 1;
+    private static final int QUESTION_TIME_LIMIT = 10;
+    @FXML
+    private Button diffHardBTN;
+    @FXML
+    private StackPane leaderboardBtn;
+    @FXML
+    private VBox questionContainer;
+    @FXML
+    private StackPane showAnswersBtn;
+    @FXML
+    private TableView answersTable;
+    @FXML
+    private StackPane menuBtn;
+    @FXML
+    private HBox actionBarBox;
+    @FXML
+    private Label wrongValue;
+    @FXML
+    private Text scoreValue;
+    @FXML
+    private StackPane playAgainBtn;
+    @FXML
+    private Button backButtonDiff;
+    @FXML
+    private Button diffEasyBTN;
+    @FXML
+    private VBox heroBox;
+    @FXML
+    private VBox answersBox;
+    @FXML
+    private StackPane mainStack;
+    @FXML
+    private VBox difficultyButtonsBox;
+    @FXML
+    private Label viewAnswersBtnText;
+    @FXML
+    private Label rightValue;
+    @FXML
+    private Button diffMediumBTN;
+    @FXML
+    private Label completionValue;
+    @FXML
+    private AnchorPane reportPane;
+    @FXML
+    private Label questionNumber;
 
     /**
      * Costruisce il controller e inizializza il servizio di gioco.
@@ -238,7 +283,7 @@ public class GameSessionController {
 
     private void showQuestion(int index) {
         if (index >= questions.size()) {
-            showReport();
+            loadPane(reportPane);
             return;
         }
 
@@ -258,7 +303,7 @@ public class GameSessionController {
         if(questionTimer != null) {
             questionTimer.stop();
         }
-        questionTimer = startTimer(20, timerLabelQuestion, timerBarQuestion, () -> Platform.runLater(() -> {
+        questionTimer = startTimer(QUESTION_TIME_LIMIT, timerLabelQuestion, timerBarQuestion, () -> Platform.runLater(() -> {
             // Disabilita tutti i pulsanti
             for (Button b : buttons) {
                 b.setDisable(true);
@@ -300,7 +345,9 @@ public class GameSessionController {
                 boolean isCorrect = answerIndex == q.correctAnswerIndex();
                 if (isCorrect) {
                     btn.setStyle("-fx-background-color: #4CAF50;");
-                    score++; //aumenta ptn
+                    score += gameService.getScorePerQuestion();
+                    numeroRisposteCorrette++;
+                    System.out.println("\nScore: " + score);
                 } else {
                     btn.setStyle("-fx-background-color: #F44336;");
                     buttons[q.correctAnswerIndex()].setStyle("-fx-background-color: #4CAF50;");
@@ -323,9 +370,11 @@ public class GameSessionController {
 
     private void showReport() {
         LocalDateTime questionEndTime = LocalDateTime.now();
-        java.time.Duration usedTime = java.time.Duration.between(questionStartTime, questionEndTime);
 
-        ViewLoader.load(ViewLoader.View.REPORT);
+        // Calcola il tempo totale dedicato alla fase di gioco
+        java.time.Duration timeLimit = gameService.getTimeLimit().multipliedBy(gameService.getQuestionCount());
+
+        java.time.Duration usedTime = java.time.Duration.between(questionStartTime, questionEndTime);
 
         GameReport report = new GameReport(
                 0, // ID generato dal DB
@@ -333,13 +382,17 @@ public class GameSessionController {
                 gameService.getDocuments(),
                 LocalDateTime.now(),
                 gameService.getDifficulty(),
-                gameService.getTimeLimit(),
+                timeLimit,
                 usedTime,
                 gameService.getQuestionCount(),
-                score // punteggio ottenuto
+                score
         );
         gameService.saveGameReport(report);
-
+        scoreValue.setText(String.valueOf(score));
+        rightValue.setText(String.valueOf(numeroRisposteCorrette));
+        wrongValue.setText(String.valueOf(gameService.getQuestionCount() - numeroRisposteCorrette));
+        questionNumber.setText(String.valueOf(gameService.getQuestionCount()));
+        completionValue.setText(String.format("%.2f%%", (double) numeroRisposteCorrette / gameService.getQuestionCount() * 100));
     }
 
     /**
@@ -421,6 +474,7 @@ public class GameSessionController {
         switch (pane.getId()) {
             case "readingPane" -> readingSetupService.start();
             case "questionPane" -> switchToQuestions();
+            case "reportPane" -> showReport();
             default -> {
             }
 
@@ -477,4 +531,25 @@ public class GameSessionController {
         loadPane(questionPane);
     }
 
+
+    @FXML
+    public void handleShowLeaderboard(Event event) {
+        ViewLoader.load(ViewLoader.View.LEADERBOARD);
+    }
+
+    @FXML
+    public void toggleShowAnswers(Event event) {
+        
+
+    }
+
+    @FXML
+    public void handleGoMenu(Event event) {
+        ViewLoader.load(ViewLoader.View.MENU);
+    }
+
+    @FXML
+    public void handlePlayAgain(Event event) {
+        loadPane(readingPane);
+    }
 }

@@ -1,3 +1,7 @@
+.root {
+    -fx-background-color: linear-gradient(to bottom, #23217D, #6937B7);
+    -fx-font-family: "Alata";
+}
 .numberQuestion{
     -fx-background-color: transparent;
     -fx-text-fill: white;

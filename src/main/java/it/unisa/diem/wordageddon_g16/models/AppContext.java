@@ -11,8 +11,8 @@ public class AppContext {
     private final LeaderboardService leaderboardService;
     public final UserPanelService userPanelService;
     private final GameService gameService;
-    private final ReportService reportService;
 
+    private GameReport currentGameReport;
     private User currentUser;
 
     public AppContext(Repository repo) {
@@ -21,7 +21,7 @@ public class AppContext {
         leaderboardService = new LeaderboardService(this, repo.getDAO("gameReport"), repo.getDAO("user"));
         userPanelService = new UserPanelService(repo.getDAO("gameReport"), repo.getDAO("user"), repo.getDAO("document"), repo.getDAO("stopWord"), repo.getDAO("wdm"), this);
         gameService = new GameService(this, repo.getDAO("gameReport"), repo.getDAO("wdm"), repo.getDAO("document"), repo.getDAO("stopWord"));
-        reportService= new ReportService(this, repo.getDAO("gameReport"));
+        //reportService= new ReportService(this, repo.getDAO("gameReport"));
     }
 
     public AuthService getAuthService() { return authService; }

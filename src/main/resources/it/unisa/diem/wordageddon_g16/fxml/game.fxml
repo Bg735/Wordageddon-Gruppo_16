@@ -1,15 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextArea?>
+<?import javafx.scene.effect.BoxBlur?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Circle?>
 <?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
 
 <StackPane id="stackPane" fx:id="stackPane" prefHeight="832.0" prefWidth="1280.0" stylesheets="@../style/game.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unisa.diem.wordageddon_g16.controllers.GameSessionController">
     <children>
@@ -42,7 +50,7 @@
         </AnchorPane>
 
         <!-- Schermata Lettura Documento -->
-        <AnchorPane id="readingPane" fx:id="readingPane" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="867.0" prefWidth="1322.0" stylesheets="@../style/readingSession.css">
+        <AnchorPane id="readingPane" fx:id="readingPane" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="867.0" prefWidth="1322.0" stylesheets="@../style/readingSession.css" visible="false">
             <children>
                 <VBox alignment="TOP_CENTER" spacing="30.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                     <children>
@@ -110,5 +118,264 @@
                 </VBox>
             </children>
         </AnchorPane>
+      <AnchorPane id="reportPane" fx:id="reportPane" stylesheets="@../style/report.css">
+         <children>
+            <Region prefHeight="500.0" styleClass="bg" AnchorPane.bottomAnchor="500.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+            <VBox alignment="CENTER" prefHeight="800.0" prefWidth="1280.0" spacing="75.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+               <children>
+                  <StackPane fx:id="mainStack">
+                     <children>
+                        <VBox fx:id="heroBox" alignment="CENTER" prefHeight="400.0" spacing="50.0" StackPane.alignment="CENTER">
+                           <children>
+                              <StackPane prefHeight="150.0">
+                                 <children>
+                                    <Circle fill="DODGERBLUE" radius="115.0" stroke="BLACK" strokeType="INSIDE" styleClass="circle-outer" />
+                                    <Circle fill="DODGERBLUE" radius="100.0" stroke="BLACK" strokeType="INSIDE" styleClass="circle-middle" />
+                                    <Circle fill="DODGERBLUE" radius="85.0" stroke="BLACK" strokeType="INSIDE" styleClass="circle-inner" />
+                                    <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
+                                       <children>
+                                          <Text fill="#9e0081" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="circle-title" text="Punteggio" />
+                                          <Text fx:id="scoreValue" fill="#9e0081" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="circle-value" text="90 pp" />
+                                       </children>
+                                    </VBox>
+                                 </children>
+                                 <VBox.margin>
+                                    <Insets bottom="75.0" />
+                                 </VBox.margin>
+                              </StackPane>
+                              <HBox alignment="CENTER" maxWidth="800.0" prefWidth="600.0" spacing="20.0" styleClass="floating-region">
+                                 <children>
+                                    <VBox alignment="CENTER" prefHeight="277.0" prefWidth="155.0" spacing="15.0">
+                                       <children>
+                                          <StackPane prefHeight="150.0" prefWidth="200.0">
+                                             <children>
+                                                <Circle fill="#0077ff" radius="35.0" stroke="TRANSPARENT" strokeType="INSIDE" />
+                                                <Label text="\%" textFill="WHITE">
+                                                   <font>
+                                                      <Font name="System Bold" size="35.0" />
+                                                   </font>
+                                                </Label>
+                                             </children>
+                                          </StackPane>
+                                          <Label fx:id="completionValue" styleClass="floating-title" text="100%">
+                                             <font>
+                                                <Font name="Cantarell Thin" size="13.0" />
+                                             </font>
+                                          </Label>
+                                          <Label styleClass="floating-subtitle" text="Completato" />
+                                       </children>
+                                    </VBox>
+                                    <Separator orientation="VERTICAL" prefHeight="200.0" />
+                                    <VBox alignment="CENTER" prefHeight="277.0" prefWidth="155.0" spacing="15.0">
+                                       <children>
+                                          <Label fx:id="questionNumber" styleClass="floating-title" text="20">
+                                             <font>
+                                                <Font name="Cantarell Thin" size="13.0" />
+                                             </font>
+                                          </Label>
+                                          <Label styleClass="floating-subtitle" text="Domande" />
+                                       </children>
+                                    </VBox>
+                                    <Separator orientation="VERTICAL" prefHeight="200.0" />
+                                    <VBox alignment="CENTER" prefHeight="277.0" prefWidth="155.0" spacing="15.0">
+                                       <children>
+                                          <Label fx:id="rightValue" styleClass="floating-title" text="13">
+                                             <font>
+                                                <Font name="Cantarell Thin" size="13.0" />
+                                             </font>
+                                          </Label>
+                                          <Label styleClass="floating-subtitle" text="Corrette" />
+                                          <StackPane prefHeight="150.0" prefWidth="200.0">
+                                             <children>
+                                                <Circle fill="#009951" radius="35.0" stroke="TRANSPARENT" strokeType="INSIDE" />
+                                                <Label text="✔" textFill="WHITE">
+                                                   <font>
+                                                      <Font size="35.0" />
+                                                   </font>
+                                                </Label>
+                                             </children>
+                                          </StackPane>
+                                       </children>
+                                    </VBox>
+                                    <Separator orientation="VERTICAL" prefHeight="200.0" />
+                                    <VBox alignment="CENTER" prefHeight="277.0" prefWidth="155.0" spacing="15.0">
+                                       <children>
+                                          <Label fx:id="wrongValue" styleClass="floating-title" text="7">
+                                             <font>
+                                                <Font name="Cantarell Thin" size="13.0" />
+                                             </font>
+                                          </Label>
+                                          <Label styleClass="floating-subtitle" text="Sbagliate" />
+                                          <StackPane prefHeight="150.0" prefWidth="200.0">
+                                             <children>
+                                                <Circle fill="#b3261e" radius="35.0" stroke="TRANSPARENT" strokeType="INSIDE" />
+                                                <Label text="❌" textFill="WHITE">
+                                                   <font>
+                                                      <Font name="System Bold" size="35.0" />
+                                                   </font>
+                                                </Label>
+                                             </children>
+                                          </StackPane>
+                                       </children>
+                                    </VBox>
+                                 </children>
+                                 <padding>
+                                    <Insets bottom="35.0" left="35.0" right="35.0" top="35.0" />
+                                 </padding>
+                                 <VBox.margin>
+                                    <Insets top="30.0" />
+                                 </VBox.margin>
+                              </HBox>
+                           </children>
+                           <StackPane.margin>
+                              <Insets top="50.0" />
+                           </StackPane.margin>
+                        </VBox>
+                        <VBox fx:id="answersBox" alignment="TOP_CENTER" visible="false" StackPane.alignment="CENTER">
+                           <children>
+                              <Label styleClass="floating-title" text="Risposte">
+                                 <VBox.margin>
+                                    <Insets bottom="20.0" />
+                                 </VBox.margin>
+                              </Label>
+                              <TableView fx:id="answersTable">
+                                 <columns>
+                                    <TableColumn maxWidth="6120.0" minWidth="30.0" prefWidth="612.0" text="Risposta Data" />
+                                    <TableColumn maxWidth="6060.0" minWidth="30.0" prefWidth="606.0" text="Risposta Corretta" />
+                                    <TableColumn maxWidth="6060.0" minWidth="30.0" prefWidth="606.0" text="Corretta/Errata" />
+                                    <TableColumn maxWidth="6060.0" minWidth="30.0" prefWidth="606.0" text="Punteggio" />
+                                 </columns>
+                                 <columnResizePolicy>
+                                    <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                                 </columnResizePolicy>
+                              </TableView>
+                           </children>
+                           <padding>
+                              <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
+                           </padding>
+                        </VBox>
+                     </children>
+                     <VBox.margin>
+                        <Insets />
+                     </VBox.margin>
+                  </StackPane>
+                  <HBox fx:id="actionBarBox" alignment="TOP_CENTER" spacing="30.0">
+                     <children>
+                        <VBox alignment="CENTER" prefWidth="250.0" spacing="10.0">
+                           <children>
+                              <StackPane fx:id="playAgainBtn" onMouseClicked="#handlePlayAgain" styleClass="button">
+                                 <children>
+                                    <Circle accessibleRole="BUTTON" fill="#1d7fa9" focusTraversable="true" radius="30.0" stroke="TRANSPARENT" strokeType="INSIDE">
+                                       <cursor>
+                                          <Cursor fx:constant="DEFAULT" />
+                                       </cursor>
+                                       <effect>
+                                          <BoxBlur />
+                                       </effect>
+                                    </Circle>
+                                    <Label text="↺" textFill="WHITE">
+                                       <font>
+                                          <Font size="35.0" />
+                                       </font>
+                                    </Label>
+                                 </children>
+                                 <cursor>
+                                    <Cursor fx:constant="HAND" />
+                                 </cursor>
+                              </StackPane>
+                              <Label text="Gioca Ancora">
+                                 <font>
+                                    <Font size="15.0" />
+                                 </font>
+                              </Label>
+                           </children>
+                        </VBox>
+                        <VBox alignment="CENTER" prefWidth="250.0" spacing="10.0">
+                           <children>
+                              <StackPane fx:id="menuBtn" onMouseClicked="#handleGoMenu" styleClass="button">
+                                 <children>
+                                    <Circle accessibleRole="BUTTON" fill="#ad8ae8" radius="30.0" stroke="TRANSPARENT" strokeType="INSIDE">
+                                       <effect>
+                                          <BoxBlur />
+                                       </effect>
+                                    </Circle>
+                                    <Label text="🏠" textFill="WHITE">
+                                       <font>
+                                          <Font size="35.0" />
+                                       </font>
+                                    </Label>
+                                 </children>
+                                 <cursor>
+                                    <Cursor fx:constant="HAND" />
+                                 </cursor>
+                              </StackPane>
+                              <Label text="Menu">
+                                 <font>
+                                    <Font size="15.0" />
+                                 </font>
+                              </Label>
+                           </children>
+                        </VBox>
+                        <VBox alignment="CENTER" prefWidth="250.0" spacing="10.0">
+                           <children>
+                              <StackPane fx:id="leaderboardBtn" onMouseClicked="#handleShowLeaderboard" styleClass="button">
+                                 <children>
+                                    <Circle accessibleRole="BUTTON" fill="#5f6a6e" radius="30.0" stroke="TRANSPARENT" strokeType="INSIDE">
+                                       <effect>
+                                          <BoxBlur />
+                                       </effect>
+                                    </Circle>
+                                    <Label text="⚙" textFill="WHITE">
+                                       <font>
+                                          <Font size="35.0" />
+                                       </font>
+                                    </Label>
+                                 </children>
+                                 <cursor>
+                                    <Cursor fx:constant="HAND" />
+                                 </cursor>
+                              </StackPane>
+                              <Label text="Leaderboard">
+                                 <font>
+                                    <Font size="16.0" />
+                                 </font>
+                              </Label>
+                           </children>
+                        </VBox>
+                        <VBox alignment="CENTER" prefWidth="250.0" spacing="10.0">
+                           <children>
+                              <StackPane fx:id="showAnswersBtn" onMouseClicked="#toggleShowAnswers" styleClass="button">
+                                 <children>
+                                    <Circle accessibleRole="BUTTON" fill="#f0b200" radius="30.0" stroke="TRANSPARENT" strokeType="INSIDE">
+                                       <effect>
+                                          <BoxBlur />
+                                       </effect>
+                                    </Circle>
+                                    <Label text="👁️" textFill="WHITE">
+                                       <font>
+                                          <Font size="35.0" />
+                                       </font>
+                                    </Label>
+                                 </children>
+                                 <cursor>
+                                    <Cursor fx:constant="HAND" />
+                                 </cursor>
+                              </StackPane>
+                              <Label fx:id="viewAnswersBtnText" text="Visualizza Risposte">
+                                 <font>
+                                    <Font size="15.0" />
+                                 </font>
+                              </Label>
+                           </children>
+                        </VBox>
+                     </children>
+                  </HBox>
+               </children>
+               <padding>
+                  <Insets bottom="30.0" />
+               </padding>
+            </VBox>
+         </children>
+      </AnchorPane>
     </children>
 </StackPane>

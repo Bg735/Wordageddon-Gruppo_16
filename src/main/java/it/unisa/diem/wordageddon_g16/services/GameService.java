@@ -594,9 +594,16 @@ public class GameService {
         }
     }
 
+    public int getScorePerQuestion() {
+        int totalScore = Difficulty.getMaxScoreDifficulty(getDifficulty());
+        return totalScore / getQuestionCount();
+    }
+
+
     /**
      * Classe interna che incapsula i parametri di una partita.
      */
+
     private class GameParams {
 
         private static final Random random = new Random();
