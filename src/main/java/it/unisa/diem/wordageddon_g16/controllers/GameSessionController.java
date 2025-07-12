@@ -103,6 +103,8 @@ public class GameSessionController {
     private Timeline readingTimer;
     private int score = 0;
     private int numeroRisposteCorrette = 0;
+    private int numeroRisposteSaltate = 0;
+
     private final AppContext appContext;
 
     private LocalDateTime questionStartTime;
@@ -304,6 +306,9 @@ public class GameSessionController {
             questionTimer.stop();
         }
         questionTimer = startTimer(QUESTION_TIME_LIMIT, timerLabelQuestion, timerBarQuestion, () -> Platform.runLater(() -> {
+            // Alla fine del timer, se non è stata data risposta, mostra la risposta corretta
+            numeroRisposteSaltate++;
+            System.out.println("Risposta saltata. Numero risposte saltate: " + numeroRisposteSaltate);
             // Disabilita tutti i pulsanti
             for (Button b : buttons) {
                 b.setDisable(true);
@@ -370,10 +375,8 @@ public class GameSessionController {
 
     private void showReport() {
         LocalDateTime questionEndTime = LocalDateTime.now();
-
         // Calcola il tempo totale dedicato alla fase di gioco
         java.time.Duration timeLimit = gameService.getTimeLimit().multipliedBy(gameService.getQuestionCount());
-
         java.time.Duration usedTime = java.time.Duration.between(questionStartTime, questionEndTime);
 
         GameReport report = new GameReport(
@@ -392,7 +395,13 @@ public class GameSessionController {
         rightValue.setText(String.valueOf(numeroRisposteCorrette));
         wrongValue.setText(String.valueOf(gameService.getQuestionCount() - numeroRisposteCorrette));
         questionNumber.setText(String.valueOf(gameService.getQuestionCount()));
-        completionValue.setText(String.format("%.2f%%", (double) numeroRisposteCorrette / gameService.getQuestionCount() * 100));
+
+        int numeroDomandeTotali = gameService.getQuestionCount();
+        int numeroRisposteDate = numeroDomandeTotali - numeroRisposteSaltate;
+        double percentualeCompletamento = (double) numeroRisposteDate / numeroDomandeTotali  * 100;
+
+        completionValue.setText(String.format("%.2f%%", percentualeCompletamento));
+
     }
 
     /**
@@ -539,7 +548,7 @@ public class GameSessionController {
 
     @FXML
     public void toggleShowAnswers(Event event) {
-        
+
 
     }
 
