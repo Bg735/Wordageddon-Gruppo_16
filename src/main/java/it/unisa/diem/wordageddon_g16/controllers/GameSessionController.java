@@ -324,8 +324,9 @@ public class GameSessionController {
     private void showReport() {
         LocalDateTime questionEndTime = LocalDateTime.now();
         java.time.Duration usedTime = java.time.Duration.between(questionStartTime, questionEndTime);
+
         ViewLoader.load(ViewLoader.View.REPORT);
-        /*
+
         GameReport report = new GameReport(
                 0, // ID generato dal DB
                 appContext.getCurrentUser(),
@@ -338,8 +339,7 @@ public class GameSessionController {
                 score // punteggio ottenuto
         );
         gameService.saveGameReport(report);
-*/
-        System.out.println("Game over. Punteggio: " + score);
+
     }
 
     /**

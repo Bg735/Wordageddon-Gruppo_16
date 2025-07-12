@@ -3,13 +3,15 @@
 }
 
 .circle-outer {
-    -fx-fill: #ffffff40;
+    -fx-fill: white;
     -fx-stroke: transparent;
+    -fx-opacity: 0.4;
 }
 
 .circle-middle {
-    -fx-fill: #ffffff4d;
+    -fx-fill: white;
     -fx-stroke: transparent;
+    -fx-opacity: 0.6;
 }
 
 .circle-inner {
@@ -19,7 +21,7 @@
 
 /* Responsive font sizes */
 .circle-title {
-    -fx-text-fill: #a42fc1;
+    -fx-text-fill: 85;
     -fx-font-weight: bold;
     -fx-font-size: 1.5em;
 }
@@ -27,4 +29,40 @@
 .circle-value {
     -fx-text-fill: #9e0081;
     -fx-font-size: 2em;
+    -fx-font-weight: 600;
+}
+
+.bg {
+    -fx-background-color: linear-gradient(to bottom, #462C9A, #7A4AC4);
+    -fx-background-radius: 0 0 100 100;
+}
+
+.floating-region {
+    -fx-background-color: white;
+    -fx-background-radius: 50 50 50 50;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 20, 0, 0, 5);
+}
+
+
+.floating-title {
+    -fx-text-fill: black;
+    -fx-font-size: 2.5em;
+    -fx-font-weight: bold;
+}
+
+.floating-subtitle {
+    -fx-text-fill: black;
+    -fx-font-size: 1.8em;
+    -fx-font-weight: 400;
+}
+
+.button{
+    -fx-background-color: transparent;
+}
+
+.button:hover{
+    -fx-background-color: white;
+    -fx-background-radius: 50;
+    -fx-scale-x: 1.2;
+    -fx-scale-y: 1.2;
 }

@@ -10,9 +10,7 @@ import it.unisa.diem.wordageddon_g16.models.*;
 import it.unisa.diem.wordageddon_g16.utility.SystemLogger;
 import javafx.util.Callback;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -57,7 +55,7 @@ public class JDBCGameReportDAO extends JdbcDAO<GameReport> implements GameReport
      */
     @Override
     public Optional<GameReport> selectById(Object id) {
-        return selectWhere("id = ?", (long) id).stream().findFirst();
+        return selectWhere("id = ?", id).stream().findFirst();
     }
 
     /**
@@ -149,26 +147,64 @@ public class JDBCGameReportDAO extends JdbcDAO<GameReport> implements GameReport
      */
     @Override
     public void insert(GameReport gameReport) {
-        String updateOnReport = "INSERT OR IGNORE INTO GameReport (user, timestamp, difficulty, max_time, used_time, question_count, score) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        String updateOnContent = "INSERT OR IGNORE INTO Content (report, document) VALUES (?, ?)";
+        String insertReport = "INSERT INTO GameReport (user, timestamp, difficulty, max_time, used_time, question_count, score) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String insertContent = "INSERT INTO Content (report, document) VALUES (?, ?)";
         try {
-            executeUpdate(updateOnReport,
+            // Conversione diretta delle Duration in formato "HH:MM"
+            String maxTimeFormatted = String.format("%02d:%02d",
+                    gameReport.maxTime().toMinutes() / 60,
+                    gameReport.maxTime().toMinutes() % 60
+            );
+            String usedTimeFormatted = String.format("%02d:%02d",
+                    gameReport.usedTime().toMinutes() / 60,
+                    gameReport.usedTime().toMinutes() % 60
+            );
+
+            long reportId = executeUpdateAndReturnGeneratedKey(
+                    insertReport,
                     gameReport.user().getName(),
                     gameReport.timestamp(),
                     gameReport.difficulty().name(),
-                    gameReport.maxTime().toString(),
-                    gameReport.usedTime().toString(),
+                    maxTimeFormatted,      // Formattato come "HH:MM"
+                    usedTimeFormatted,     // Formattato come "HH:MM"
                     gameReport.questionCount(),
                     gameReport.score()
             );
             for (Document document : gameReport.documents()) {
-                executeUpdate(updateOnContent, gameReport.id(), document.filename());
+                executeUpdate(insertContent, reportId, document.filename());
             }
         } catch (SQLException e) {
             SystemLogger.log("Error trying to insert game report", e);
             throw new QueryFailedException(e.getMessage());
         }
     }
+
+    /**
+     * Esegue una query di INSERT e restituisce la chiave generata (ad esempio l'id autoincrement).
+     *
+     * @param sql la query di INSERT (con eventuali segnaposto ?)
+     * @param params i parametri da inserire nei segnaposto
+     * @return il valore della chiave generata (tipicamente l'id)
+     * @throws SQLException se qualcosa va storto nell'esecuzione
+     */
+    private long executeUpdateAndReturnGeneratedKey(String sql, Object... params) throws SQLException {
+        try (PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            // Imposta i parametri nella query
+            for (int i = 0; i < params.length; i++) {
+                ps.setObject(i + 1, params[i]);
+            }
+            ps.executeUpdate();
+            // Recupera la chiave generata
+            try (ResultSet rs = ps.getGeneratedKeys()) {
+                if (rs.next()) {
+                    return rs.getLong(1);
+                } else {
+                    throw new SQLException("Nessuna chiave generata dal database.");
+                }
+            }
+        }
+    }
+
 
     /**
      * Aggiorna le informazioni di un report di gioco esistente nella tabella GameReport.
