@@ -3,6 +3,7 @@ package it.unisa.diem.wordageddon_g16.controllers;
 import it.unisa.diem.wordageddon_g16.models.AppContext;
 import it.unisa.diem.wordageddon_g16.models.Difficulty;
 import it.unisa.diem.wordageddon_g16.models.Document;
+import it.unisa.diem.wordageddon_g16.models.GameReport;
 import it.unisa.diem.wordageddon_g16.services.GameService;
 import it.unisa.diem.wordageddon_g16.services.GameService.Question;
 import it.unisa.diem.wordageddon_g16.utility.ViewLoader;
@@ -102,6 +103,8 @@ public class GameSessionController {
     private final SimpleIntegerProperty elapsedSeconds;
     private Timeline readingTimer;
     private int score = 0;
+    private AppContext appContext;
+
     private LocalDateTime questionStartTime;
 
     // Indica se il thread di setup delle domande ha finito
@@ -118,6 +121,7 @@ public class GameSessionController {
      */
     public GameSessionController(AppContext appContext) {
         this.gameService = appContext.getGameService();
+        this.appContext= appContext;
         currentDocumentIndex = new SimpleIntegerProperty(0);
         currentQuestionIndex = new SimpleIntegerProperty(0);
         elapsedSeconds = new SimpleIntegerProperty(0);
@@ -321,7 +325,23 @@ public class GameSessionController {
     }
 
     private void endGame() {
-        System.out.println("Game over");
+        LocalDateTime questionEndTime = LocalDateTime.now();
+        java.time.Duration usedTime = java.time.Duration.between(questionStartTime, questionEndTime);
+        GameReport report = new GameReport(
+                0, // ID generato dal DB
+                appContext.getCurrentUser(),
+                gameService.getDocuments(),
+                LocalDateTime.now(),
+                gameService.getDifficulty(),
+                gameService.getTimeLimit(),
+                usedTime,
+                gameService.getQuestionCount(),
+                score // punteggio ottenuto
+        );
+        gameService.saveGameReport(report);
+
+        System.out.println("Game over. Punteggio: " + score);
+        ViewLoader.load(ViewLoader.View.MENU);
     }
 
     /**
