@@ -70,7 +70,7 @@ public class LeaderboardService {
                 averageScore = totalScore / gamesPlayed;
             }
             Difficulty favouriteDifficulty = null;
-            if(difficulty!=null)
+            if(difficulty==null)
                 favouriteDifficulty = reports.stream()
                     .map(GameReport::difficulty)
                     .collect(Collectors.groupingBy(d -> d,Collectors.counting()))

@@ -12,6 +12,7 @@ import javafx.util.Callback;
 
 import java.sql.*;
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -105,7 +106,7 @@ public class JDBCGameReportDAO extends JdbcDAO<GameReport> implements GameReport
                                 List<Document> documents = new ArrayList<>();
                                 try {
                                     while (docs.next()) {
-                                        documentDAO.selectById(docs.getLong("document")).ifPresent(documents::add);
+                                        documentDAO.selectById(docs.getString("document")).ifPresent(documents::add);
                                     }
                                 } catch (SQLException e) {
                                     SystemLogger.log("Error trying to get documents", e);
@@ -115,15 +116,22 @@ public class JDBCGameReportDAO extends JdbcDAO<GameReport> implements GameReport
                             },
                             res.getLong("id")
                     );
+                    String[] maxParts = res.getString("max_time").split(":");
+                    Duration maxTime = Duration.ofMinutes(Long.parseLong(maxParts[0]))
+                            .plusSeconds(Long.parseLong(maxParts[1]));
+                    String[] usedParts = res.getString("used_time").split(":");
+                    Duration usedTime = Duration.ofMinutes(Long.parseLong(usedParts[0]))
+                            .plusSeconds(Long.parseLong(usedParts[1]));
+                    LocalDateTime timestamp = LocalDateTime.parse(res.getString("timestamp"));
                     if (user.isPresent()) {
                         result.add(new GameReport(
                                 res.getLong("id"),
                                 user.get(),
                                 docList,
-                                res.getTimestamp("timestamp").toLocalDateTime(),
+                                timestamp,
                                 Difficulty.valueOf(res.getString("difficulty")),
-                                Duration.parse(res.getString("max_time")),
-                                Duration.parse(res.getString("used_time")),
+                                maxTime,
+                                usedTime,
                                 res.getInt("question_count"),
                                 res.getInt("score")
                         ));
@@ -180,6 +188,7 @@ public class JDBCGameReportDAO extends JdbcDAO<GameReport> implements GameReport
     }
 
     /**
+     *  METODO TEMPORANEO, CONTROLLARE
      * Esegue una query di INSERT e restituisce la chiave generata (ad esempio l'id autoincrement).
      *
      * @param sql la query di INSERT (con eventuali segnaposto ?)
