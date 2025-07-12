@@ -8,6 +8,7 @@ import it.unisa.diem.wordageddon_g16.services.UserPanelService;
 import it.unisa.diem.wordageddon_g16.utility.ViewLoader;
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -395,7 +396,7 @@ public class UserPanelController {
         usernameLabel.setText(currentUser.getName());
 
         livelloClm.setCellValueFactory(report -> new SimpleStringProperty(report.getValue().difficulty().toString()));
-        punteggioClm.setCellValueFactory(new PropertyValueFactory<>("score"));
+        punteggioClm.setCellValueFactory(cellData -> new ReadOnlyObjectWrapper<>(cellData.getValue().score()));
         tempoClm.setCellValueFactory(report -> {
             Duration dur = report.getValue().usedTime();
             String formatted = String.format("%02d:%02d", dur.toMinutesPart(), dur.toSecondsPart());
