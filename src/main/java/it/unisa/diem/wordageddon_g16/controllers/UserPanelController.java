@@ -254,6 +254,7 @@ public class UserPanelController {
                     feedbackLabel.setVisible(true);
                     pause.playFromStart();
                 }
+                titleTF.clear();
             }
         });
         popup.addAll(

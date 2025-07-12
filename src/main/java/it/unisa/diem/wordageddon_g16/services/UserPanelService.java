@@ -215,7 +215,7 @@ public class UserPanelService {
         documentDAO.delete(doc);
 
         // Se il documento non è più presente nel database, elimino il file fisico
-        if (documentDAO.selectById(doc).isEmpty()) {
+        if (documentDAO.selectById(doc.filename()).isEmpty()) {
             try {
                 Files.deleteIfExists(Resources.getDocPath(doc));
             } catch (IOException e) {
