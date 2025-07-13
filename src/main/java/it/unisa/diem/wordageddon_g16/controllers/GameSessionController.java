@@ -9,9 +9,7 @@ import it.unisa.diem.wordageddon_g16.services.GameService.Question;
 import it.unisa.diem.wordageddon_g16.utility.ViewLoader;
 import javafx.animation.*;
 import javafx.application.Platform;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.*;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
@@ -100,8 +98,8 @@ public class GameSessionController {
     // Secondi minimi prima di poter saltare la lettura
     private static final int MIN_TIME_FOR_SKIP = 1;
     private static final int QUESTION_TIME_LIMIT = 10;
-    @FXML
-    private TableView answersTable;
+
+    @FXML private TableView<Map.Entry<Question, Integer>> answersTable;
     @FXML
     private HBox actionBarBox;
     @FXML
@@ -124,15 +122,11 @@ public class GameSessionController {
     private AnchorPane reportPane;
     @FXML
     private Label questionNumber;
+    @FXML private TableColumn<Map.Entry<Question, Integer>, String> domandaCln;
+    @FXML private TableColumn<Map.Entry<Question, Integer>, String> punteggioCln;
+    @FXML private TableColumn<Map.Entry<Question, Integer>, String> rispostaCorrettaCln;
+    @FXML private TableColumn<Map.Entry<Question, Integer>, String> rispostaDataCln;
 
-    @FXML
-    private TableColumn<?, ?> domandaCln;
-    @FXML
-    private TableColumn<?, ?> punteggioCln;
-    @FXML
-    private TableColumn<?, ?> rispostaCorrettaCln;
-    @FXML
-    private TableColumn<?, ?> rispostaDataCln;
 
 
     /**
@@ -376,7 +370,7 @@ public class GameSessionController {
         double percentualeCompletamento = (double) numeroRisposteDate / numeroDomandeTotali  * 100;
 
         completionValue.setText(String.format("%.2f%%", percentualeCompletamento));
-
+        populateAnswerTable();
     }
 
     /**
@@ -525,4 +519,57 @@ public class GameSessionController {
     public void handlePlayAgain(Event event) {
         ViewLoader.load(ViewLoader.View.GAME);
     }
+    private void populateAnswerTable() {
+        answersTable.getItems().addAll(domandaRisposte.entrySet());
+        // Colonna Domanda
+        domandaCln.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getKey().text())
+        );
+        // Colonna Risposta Data
+        rispostaDataCln.setCellValueFactory(data -> {
+            Question question = data.getValue().getKey();
+            int givenAnswerIndex = data.getValue().getValue();
+            String answer = (givenAnswerIndex == -1) ? "Saltata" : question.answers().get(givenAnswerIndex);
+            return new SimpleStringProperty(answer);
+        });
+        // Colonna Risposta Corretta
+        rispostaCorrettaCln.setCellValueFactory(data -> {
+            Question question = data.getValue().getKey();
+            int correctIndex = question.correctAnswerIndex();
+            String correctAnswer = question.answers().get(correctIndex);
+            return new SimpleStringProperty(correctAnswer);
+        });
+        // Colonna Punteggio
+        punteggioCln.setCellValueFactory(data -> {
+            int givenIndex = data.getValue().getValue();
+            int score = (givenIndex == -1) ? 0 : (givenIndex == data.getValue().getKey().correctAnswerIndex() ? gameService.getScorePerQuestion() : 0); //Se Integer è -1 allora la domanda è saltata, se l'indice della risposta data è lo stesso della risposta corretta allora stampo il punteggio altrimenti 0
+            return new SimpleStringProperty(String.valueOf(score));
+        });
+
+        punteggioCln.setCellFactory(column -> new TableCell<>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    setStyle("");
+                } else {
+                    setText(item);
+                    Map.Entry<Question, Integer> entry = getTableView().getItems().get(getIndex());
+                    if ("0".equals(item)) {
+                        int givenIndex = entry.getValue();
+                        if (givenIndex == -1) {
+                            setStyle("-fx-background-color: #fff3b0;");
+                        } else {
+                            setStyle("-fx-background-color: #ffcccc;");
+                        }
+                    } else {
+                        setStyle(""); //corrette
+                    }
+                }
+            }
+        });
+
+    }
+
+
 }
