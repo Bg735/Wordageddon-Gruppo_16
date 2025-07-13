@@ -85,7 +85,8 @@ public class LeaderboardService {
                     gamesPlayed
             ));
         }
-        result.sort(Comparator.comparingInt(LeaderboardEntry::totalScore));
+        result.sort(Comparator.comparingInt(LeaderboardEntry::averageScore).reversed());
+
         return result;
     }
 }
