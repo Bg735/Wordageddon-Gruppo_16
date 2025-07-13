@@ -34,6 +34,7 @@ public class AuthService {
             User user = new User(username, password, firstUser); // If no users, set as admin
             userDAO.insert(user);
             context.setCurrentUser(user);
+            saveSession(user);
             return true;
         }
         return false; // User already exists

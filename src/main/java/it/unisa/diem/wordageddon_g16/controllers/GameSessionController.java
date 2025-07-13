@@ -495,12 +495,23 @@ public class GameSessionController {
         loadPane(questionPane);
     }
 
-
+    /**
+     * Gestisce il click sul pulsante "Leaderboard" del presente nella pagina dei Risultati.
+     * Carica la schermata della leaderboard utilizzando il {@code ViewLoader}.
+     *
+     * @param event l'evento generato dal click dell'utente
+     */
     @FXML
     public void handleShowLeaderboard(Event event) {
         ViewLoader.load(ViewLoader.View.LEADERBOARD);
     }
 
+
+    /**
+     * Alterna la visualizzazione della sezione dei Report e della TableView popolata tramite il metodo {@code populateAnswerTable}.
+     *
+     * @param event l'evento generato dal click sul pulsante di toggle
+     */
     @FXML
     public void toggleShowAnswers(Event event) {
         heroBox.setVisible(!heroBox.isVisible());
@@ -509,16 +520,40 @@ public class GameSessionController {
 
 
     }
-
+    /**
+     * Gestisce il click sul pulsante "Menu" del presente nella pagina dei Risultati.
+     * Carica la schermata del Menu utilizzando il {@code ViewLoader}.
+     *
+     * @param event l'evento generato dal click dell'utente
+     */
     @FXML
     public void handleGoMenu(Event event) {
         ViewLoader.load(ViewLoader.View.MENU);
     }
-
+    /**
+     * Gestisce il click sul pulsante "Play Again" del presente nella pagina dei Risultati.
+     * Carica la schermata del Game utilizzando il {@code ViewLoader}.
+     *
+     * @param event l'evento generato dal click dell'utente
+     */
     @FXML
     public void handlePlayAgain(Event event) {
         ViewLoader.load(ViewLoader.View.GAME);
     }
+
+    /**
+     * Popola la tabella delle risposte alla fine della partita.
+     *
+     * Il metodo viene chiamato in {@code showReport()} per visualizzare il riepilogo
+     * delle risposte date dall'utente. Utilizza la mappa {@code domandaRisposte}
+     * per mostrare, per ogni domanda:
+     * <ul>
+     *   <li>Il testo della domanda</li>
+     *   <li>La risposta data dall'utente (o "Saltata" se assente)</li>
+     *   <li>La risposta corretta</li>
+     *   <li>Il punteggio ottenuto per la risposta</li>
+     * </ul>
+     */
     private void populateAnswerTable() {
         answersTable.getItems().addAll(domandaRisposte.entrySet());
         // Colonna Domanda
@@ -558,9 +593,9 @@ public class GameSessionController {
                     if ("0".equals(item)) {
                         int givenIndex = entry.getValue();
                         if (givenIndex == -1) {
-                            setStyle("-fx-background-color: #fff3b0;");
+                            setStyle("-fx-background-color: #fff3b0;"); // se la domanda è stata saltata allora colore giallo
                         } else {
-                            setStyle("-fx-background-color: #ffcccc;");
+                            setStyle("-fx-background-color: #ffcccc;"); //domanda sbagliata colore rosso
                         }
                     } else {
                         setStyle(""); //corrette
