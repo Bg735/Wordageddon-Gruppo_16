@@ -38,10 +38,7 @@ public class JDBCDocumentDAO extends JdbcDAO<Document> implements DocumentDAO {
      * @throws QueryFailedException se si verifica un errore durante la query
      */
     @Override
-    public Optional<Document> selectById(Object obj) {
-        if (!(obj instanceof String id)) {
-            throw new IllegalArgumentException("Expected a String as id");
-        }
+    public Optional<Document> selectBy(String filename) {
         String query = "SELECT * FROM Document WHERE id = ?";
         Callback<ResultSet, Optional<Document>> callback = res -> {
             try {
@@ -59,7 +56,7 @@ public class JDBCDocumentDAO extends JdbcDAO<Document> implements DocumentDAO {
             }
             return Optional.empty();
         };
-        return executeQuery(query, callback, id);
+        return executeQuery(query, callback, filename);
     }
 
 

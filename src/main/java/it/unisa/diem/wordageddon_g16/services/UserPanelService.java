@@ -196,7 +196,7 @@ public class UserPanelService {
         Path filePath = docsDir.resolve(filename);
 
         // Controllo se il documento é giá presente nel database
-        if (documentDAO.selectById(filename).isPresent()) {
+        if (documentDAO.selectByfilename(filename).isPresent()) {
             SystemLogger.log("Documento già presente: " + filename, null);
             throw new FileAlreadyExistsException("Documento già presente: " + filename);
         }
@@ -215,7 +215,7 @@ public class UserPanelService {
         documentDAO.delete(doc);
 
         // Se il documento non è più presente nel database, elimino il file fisico
-        if (documentDAO.selectById(doc.filename()).isEmpty()) {
+        if (documentDAO.selectByfilename(doc.filename()).isEmpty()) {
             try {
                 Files.deleteIfExists(Resources.getDocPath(doc));
             } catch (IOException e) {

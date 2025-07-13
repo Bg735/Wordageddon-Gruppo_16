@@ -27,18 +27,6 @@ public class JDBCStopWordDAO extends JdbcDAO<String> implements StopWordDAO {
     }
 
     /**
-     * Operazione non supportata: la selezione per id non è rilevante per le stopword.
-     *
-     * @param oid identificativo non utilizzato
-     * @return mai restituito, viene sempre lanciata un'eccezione
-     * @throws UnsupportedOperationException sempre lanciata per questa operazione
-     */
-    @Override
-    public Optional<String> selectById(Object oid) {
-        throw new UnsupportedOperationException("This operation is not implemented as it is not useful in this context.");
-    }
-
-    /**
      * Recupera tutte le stopword presenti nella tabella StopWord.
      *
      * @return un Set contenente tutte le stopword del database

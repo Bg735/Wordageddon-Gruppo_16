@@ -12,14 +12,6 @@ import java.util.Optional;
 public interface DAO<T> {
 
     /**
-     * Recupera un oggetto tramite il suo identificativo.
-     *
-     * @param id l'identificativo dell'oggetto da recuperare
-     * @return un Optional contenente l'oggetto trovato, o vuoto se non esiste
-     */
-    Optional<T> selectById(Object id);
-
-    /**
      * Recupera tutti gli oggetti gestiti dal DAO.
      *
      * @return una collezione contenente tutti gli oggetti trovati

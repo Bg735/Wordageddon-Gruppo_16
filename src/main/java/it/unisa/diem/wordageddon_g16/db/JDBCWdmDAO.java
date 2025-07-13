@@ -1,6 +1,5 @@
 package it.unisa.diem.wordageddon_g16.db;
 
-import it.unisa.diem.wordageddon_g16.db.contracts.DAO;
 import it.unisa.diem.wordageddon_g16.db.contracts.DocumentDAO;
 import it.unisa.diem.wordageddon_g16.db.contracts.WdmDAO;
 import it.unisa.diem.wordageddon_g16.db.exceptions.QueryFailedException;
@@ -45,8 +44,8 @@ public class JDBCWdmDAO extends JdbcDAO<WDM> implements WdmDAO {
      * @return un Optional contenente la WDM trovata, o vuoto se non esiste
      */
     @Override
-    public Optional<WDM> selectById(Object document) {
-        return selectWhere("document = ?", ((Document)document).filename()).stream().findFirst();
+    public Optional<WDM> selectBy(Document document) {
+        return selectWhere("document = ?", (document).filename()).stream().findFirst();
     }
 
     /**
@@ -87,7 +86,7 @@ public class JDBCWdmDAO extends JdbcDAO<WDM> implements WdmDAO {
                 Map<String, WDM> wdmMap = new HashMap<>();
                 while (res.next()) {
                     String filename = res.getString("document");
-                    var document = documentDAO.selectById(filename);
+                    var document = documentDAO.selectBy(filename);
                     if (document.isPresent()) {
                         WDM wdm = wdmMap.computeIfAbsent(filename, k -> new WDM(document.get(), new HashMap<>()));
                         wdm.getWords().put(res.getString("word"), res.getInt("occurrences"));

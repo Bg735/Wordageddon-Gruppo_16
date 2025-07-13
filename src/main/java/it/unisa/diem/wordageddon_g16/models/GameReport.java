@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Objects;
 
 public record GameReport (
-    long id,
+
     User user,
     List<Document> documents,
     LocalDateTime timestamp,
@@ -21,11 +21,6 @@ public record GameReport (
         if (documents == null) {
             documents = new ArrayList<>();
         }
-    }
-
-    @Override
-    public long id() {
-        return id;
     }
 
     @Override

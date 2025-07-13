@@ -8,6 +8,7 @@ import javafx.util.Callback;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 /**
  * Classe astratta che implementa il pattern Data Access Object (DAO) per la gestione
@@ -78,13 +79,15 @@ public abstract class JdbcDAO<T> implements DAO<T> {
      * @param sql la query SQL da eseguire
      * @param params i parametri da sostituire nella query
      * @throws SQLException se si verifica un errore durante l'esecuzione dell'update
+     * @return l'ID generato per la riga inserita, se l'operazione è un INSERT e ne ha uno.
      */
-    protected void executeUpdate(String sql, Object... params) throws SQLException {
-        try (var stm = connection.prepareStatement(sql)) {
+    protected long executeUpdate(String sql, Object... params) throws SQLException {
+        try (var stm = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             if (params.length > 0)
                 for (int i = 0; i < params.length; i++)
                     stm.setObject(i + 1, params[i]);
             stm.executeUpdate();
+            return stm.getGeneratedKeys().next() ? stm.getGeneratedKeys().getLong(1) : -1;
         }
     }
 

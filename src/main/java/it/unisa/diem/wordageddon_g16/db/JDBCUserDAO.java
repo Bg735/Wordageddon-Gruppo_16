@@ -21,35 +21,31 @@ public class JDBCUserDAO extends JdbcDAO<User> implements UserDAO {
     }
 
     @Override
-    public Optional<User> selectById(Object oid) {
-        String name = (String) oid;
-        if (name instanceof String username) {
-            String query = "SELECT * FROM User WHERE name = ?";
-            Callback<ResultSet,Optional<User>> callback = res -> {
-                try{
-                    if (res != null && res.next()) {
-                        User user = new User(
-                                res.getString("name"),
-                                res.getString("password"),
-                                res.getBoolean("isAdmin")
-                        );
-                        return Optional.of(user);
-                    }
-                    return Optional.empty();
-                } catch (SQLException e) {
-                    SystemLogger.log("Error trying to get user with id: "+username, e);
-                    throw new QueryFailedException(e.getMessage());
+    public Optional<User> selectBy(String username) {
+        String query = "SELECT * FROM User WHERE name = ?";
+        Callback<ResultSet, Optional<User>> callback = res -> {
+            try {
+                if (res != null && res.next()) {
+                    User user = new User(
+                            res.getString("name"),
+                            res.getString("password"),
+                            res.getBoolean("isAdmin")
+                    );
+                    return Optional.of(user);
                 }
-            };
-            return executeQuery(query, callback, username);
-        }
-        return Optional.empty();
+                return Optional.empty();
+            } catch (SQLException e) {
+                SystemLogger.log("Error trying to get user with id: " + username, e);
+                throw new QueryFailedException(e.getMessage());
+            }
+        };
+        return executeQuery(query, callback, username);
     }
 
     @Override
     public List<User> selectAll() {
         String query = "SELECT * FROM User";
-        Callback<ResultSet,List<User>> callback = res -> {
+        Callback<ResultSet, List<User>> callback = res -> {
             try {
                 var result = new ArrayList<User>();
                 if (res == null) {

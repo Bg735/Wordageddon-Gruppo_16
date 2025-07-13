@@ -55,8 +55,8 @@ public class JDBCGameReportDAO extends JdbcDAO<GameReport> implements GameReport
      * @throws QueryFailedException se si verifica un errore durante la query
      */
     @Override
-    public Optional<GameReport> selectById(Object id) {
-        return selectWhere("id = ?", id).stream().findFirst();
+    public Optional<GameReport> selectBy(User user, Timestamp timestamp) {
+        return selectWhere("user = ? AND timestamp = ?", user, timestamp).stream().findFirst();
     }
 
     /**
@@ -99,14 +99,14 @@ public class JDBCGameReportDAO extends JdbcDAO<GameReport> implements GameReport
                     return result;
                 }
                 while (res.next()) {
-                    var user = userDAO.selectById(res.getString("user"));
+                    var user = userDAO.selectBy(res.getString("user"));
                     var docList = executeQuery(
                             "SELECT document FROM Content WHERE report = ?",
                             docs -> {
                                 List<Document> documents = new ArrayList<>();
                                 try {
                                     while (docs.next()) {
-                                        documentDAO.selectById(docs.getString("document")).ifPresent(documents::add);
+                                        documentDAO.selectBy(docs.getString("document")).ifPresent(documents::add);
                                     }
                                 } catch (SQLException e) {
                                     SystemLogger.log("Error trying to get documents", e);
@@ -125,7 +125,6 @@ public class JDBCGameReportDAO extends JdbcDAO<GameReport> implements GameReport
                     LocalDateTime timestamp = LocalDateTime.parse(res.getString("timestamp"));
                     if (user.isPresent()) {
                         result.add(new GameReport(
-                                res.getLong("id"),
                                 user.get(),
                                 docList,
                                 timestamp,
@@ -162,16 +161,16 @@ public class JDBCGameReportDAO extends JdbcDAO<GameReport> implements GameReport
             String usedTimeFormatted = preFormatTime(usedTotalSeconds);
             long maxTotalSeconds = gameReport.maxTime().getSeconds();
             String maxTimeFormatted = preFormatTime(maxTotalSeconds);
-            long reportId = executeUpdateAndReturnGeneratedKey(
-                    insertReport,
+            long reportId=executeUpdate(insertReport,
                     gameReport.user().getName(),
-                    gameReport.timestamp(),
+                    Timestamp.valueOf(gameReport.timestamp()),
                     gameReport.difficulty().name(),
                     maxTimeFormatted,
                     usedTimeFormatted,
                     gameReport.questionCount(),
                     gameReport.score()
             );
+
             for (Document document : gameReport.documents()) {
                 executeUpdate(insertContent, reportId, document.filename());
             }
@@ -191,40 +190,10 @@ public class JDBCGameReportDAO extends JdbcDAO<GameReport> implements GameReport
         long seconds = time % 60;
         //Duration contiene frazioni di secondo, che vengono troncate per i vincoli del db
         if (minutes == 60 && seconds > 0) {
-            minutes = 60;
             seconds = 0;
         }
-        String usedTimeFormatted = String.format("%02d:%02d", minutes, seconds);
-        return usedTimeFormatted;
+        return String.format("%02d:%02d", minutes, seconds);
     }
-
-    /**
-     *  METODO TEMPORANEO, CONTROLLARE
-     * Esegue una query di INSERT e restituisce la chiave generata (ad esempio l'id autoincrement).
-     *
-     * @param sql la query di INSERT (con eventuali segnaposto ?)
-     * @param params i parametri da inserire nei segnaposto
-     * @return il valore della chiave generata (tipicamente l'id)
-     * @throws SQLException se qualcosa va storto nell'esecuzione
-     */
-    private long executeUpdateAndReturnGeneratedKey(String sql, Object... params) throws SQLException {
-        try (PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            // Imposta i parametri nella query
-            for (int i = 0; i < params.length; i++) {
-                ps.setObject(i + 1, params[i]);
-            }
-            ps.executeUpdate();
-            // Recupera la chiave generata
-            try (ResultSet rs = ps.getGeneratedKeys()) {
-                if (rs.next()) {
-                    return rs.getLong(1);
-                } else {
-                    throw new SQLException("Nessuna chiave generata dal database.");
-                }
-            }
-        }
-    }
-
 
     /**
      * Aggiorna le informazioni di un report di gioco esistente nella tabella GameReport.
@@ -243,11 +212,10 @@ public class JDBCGameReportDAO extends JdbcDAO<GameReport> implements GameReport
                     gameReport.maxTime().toString(),
                     gameReport.usedTime().toString(),
                     gameReport.questionCount(),
-                    gameReport.score(),
-                    gameReport.id()
+                    gameReport.score()
             );
         } catch (SQLException e) {
-            SystemLogger.log("Error trying to update game report with id: " + gameReport.id(), e);
+            SystemLogger.log("Error trying to update game report", e);
             throw new UpdateFailedException(e.getMessage());
         }
     }
@@ -262,11 +230,11 @@ public class JDBCGameReportDAO extends JdbcDAO<GameReport> implements GameReport
      */
     @Override
     public void delete(GameReport gameReport) {
-        String updateOnReport = "DELETE FROM GameReport WHERE id = ?";
+        String updateOnReport = "DELETE FROM GameReport WHERE user = ? AND timestamp = ?";
         try {
-            executeUpdate(updateOnReport, gameReport.id());
+            executeUpdate(updateOnReport, gameReport.user().getName(), Timestamp.valueOf(gameReport.timestamp()));
         } catch (SQLException e) {
-            SystemLogger.log("Error trying to delete game report with id: " + gameReport.id(), e);
+            SystemLogger.log("Error trying to delete game report", e);
             throw new UpdateFailedException(e.getMessage());
         }
     }

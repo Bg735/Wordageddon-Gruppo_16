@@ -349,7 +349,6 @@ public class GameSessionController {
         java.time.Duration timeLimit = gameService.getTimeLimit().multipliedBy(gameService.getQuestionCount());
 
         GameReport report = new GameReport(
-                0, // ID generato dal DB
                 appContext.getCurrentUser(),
                 gameService.getDocuments(),
                 LocalDateTime.now(),
