@@ -50,8 +50,7 @@ public class JDBCGameReportDAO extends JdbcDAO<GameReport> implements GameReport
     /**
      * Recupera un report di gioco dal database tramite il suo identificativo.
      *
-     * @param id l'identificativo del report da recuperare
-     * @return un Optional contenente il report trovato, o vuoto se non esiste
+* @return un Optional contenente il report trovato, o vuoto se non esiste
      * @throws QueryFailedException se si verifica un errore durante la query
      */
     @Override
@@ -122,7 +121,7 @@ public class JDBCGameReportDAO extends JdbcDAO<GameReport> implements GameReport
                     String[] usedParts = res.getString("used_time").split(":");
                     Duration usedTime = Duration.ofMinutes(Long.parseLong(usedParts[0]))
                             .plusSeconds(Long.parseLong(usedParts[1]));
-                    LocalDateTime timestamp = LocalDateTime.parse(res.getString("timestamp"));
+                    LocalDateTime timestamp = new Timestamp(res.getLong("timestamp")).toLocalDateTime();
                     if (user.isPresent()) {
                         result.add(new GameReport(
                                 user.get(),
