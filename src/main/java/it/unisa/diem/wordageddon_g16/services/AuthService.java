@@ -20,7 +20,7 @@ public class AuthService {
     }
 
     public boolean login(String username, String password) {
-        var user = userDAO.selectById(username);
+        var user = userDAO.selectBy(username);
         if(user.isPresent() && user.get().getPassword().equals(password)) {
             context.setCurrentUser(user.get());
             saveSession(user.get());
@@ -30,7 +30,7 @@ public class AuthService {
     }
 
     public boolean register(String username, String password, boolean firstUser) {
-        if(firstUser || userDAO.selectById(username).isEmpty()) {
+        if(firstUser || userDAO.selectBy(username).isEmpty()) {
             User user = new User(username, password, firstUser); // If no users, set as admin
             userDAO.insert(user);
             context.setCurrentUser(user);
@@ -61,7 +61,11 @@ public class AuthService {
 
     public void logout() {
         context.setCurrentUser(null);
-        new File(Config.get(Config.Props.SESSION_FILE)).delete();
+        if (!new File(Config.get(Config.Props.SESSION_FILE)).delete()) {
+            var e = new IOException("Impossibile cancellare il file di sessione");
+            SystemLogger.log("Errore nella cancellazione del file di sessione", e);
+            throw new RuntimeException("Errore nella cancellazione del file di sessione", e);
+        }
     }
 
     public boolean noUsers(){

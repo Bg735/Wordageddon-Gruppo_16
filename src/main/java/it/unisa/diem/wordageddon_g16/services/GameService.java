@@ -525,7 +525,7 @@ public class GameService {
     private void loadWdmMap() {
         for (Document doc : params.documents) {
             WDM wdm;
-            var optionalWdm = wdmDAO.selectById(doc);
+            var optionalWdm = wdmDAO.selectBy(doc);
             // Se la matrice non esiste nel database, la creo e la salvo al volo
             if (optionalWdm.isEmpty()) {
                 throw new IllegalStateException("WDM not found for document: " + doc.title());

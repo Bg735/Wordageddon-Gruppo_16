@@ -62,15 +62,4 @@ public record GameReport (
     public int score() {
         return score;
     }
-
-    @Override
-    public boolean equals(Object o) {
-        if (!(o instanceof GameReport that)) return false;
-        return id == that.id;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(id);
-    }
 }

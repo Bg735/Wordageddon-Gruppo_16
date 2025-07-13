@@ -49,7 +49,7 @@ public class UserPanelService {
 
     public void loadWDM(WDM wdm) {
         // Controllo se il documento è già presente
-        if (wdmDAO.selectById(wdm.getDocument()).isPresent()) {
+        if (wdmDAO.selectBy(wdm.getDocument()).isPresent()) {
             documentDAO.update(wdm.getDocument());
             wdmDAO.update(wdm);
         }
@@ -101,7 +101,7 @@ public class UserPanelService {
      * @param username nome dell'utente da promuovere
      */
     public void promoteUser(String username) {
-        userDAO.selectById(username).ifPresent(user -> {
+        userDAO.selectBy(username).ifPresent(user -> {
             user.setAdmin(true);
             userDAO.update(user);
         });
@@ -113,7 +113,7 @@ public class UserPanelService {
      * @param username nome dell'utente da retrocedere
      */
     public void demoteUser(String username) {
-        userDAO.selectById(username).ifPresent(user -> {
+        userDAO.selectBy(username).ifPresent(user -> {
             user.setAdmin(false);
             userDAO.update(user);
         });
@@ -162,7 +162,7 @@ public class UserPanelService {
 
         // Sostituisco _ o - con spazio
         String[] words = baseName.replaceAll("[_-]", " ").toLowerCase().split(" ");
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         // Capitalizza la prima lettera di ogni parola
         for (String word : words) {
@@ -196,7 +196,7 @@ public class UserPanelService {
         Path filePath = docsDir.resolve(filename);
 
         // Controllo se il documento é giá presente nel database
-        if (documentDAO.selectByfilename(filename).isPresent()) {
+        if (documentDAO.selectBy(filename).isPresent()) {
             SystemLogger.log("Documento già presente: " + filename, null);
             throw new FileAlreadyExistsException("Documento già presente: " + filename);
         }
@@ -215,7 +215,7 @@ public class UserPanelService {
         documentDAO.delete(doc);
 
         // Se il documento non è più presente nel database, elimino il file fisico
-        if (documentDAO.selectByfilename(doc.filename()).isEmpty()) {
+        if (documentDAO.selectBy(doc.filename()).isEmpty()) {
             try {
                 Files.deleteIfExists(Resources.getDocPath(doc));
             } catch (IOException e) {
