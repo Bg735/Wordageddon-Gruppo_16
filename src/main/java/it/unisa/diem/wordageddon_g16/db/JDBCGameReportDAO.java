@@ -158,23 +158,17 @@ public class JDBCGameReportDAO extends JdbcDAO<GameReport> implements GameReport
         String insertReport = "INSERT INTO GameReport (user, timestamp, difficulty, max_time, used_time, question_count, score) VALUES (?, ?, ?, ?, ?, ?, ?)";
         String insertContent = "INSERT INTO Content (report, document) VALUES (?, ?)";
         try {
-            // Conversione diretta delle Duration in formato "HH:MM"
-            String maxTimeFormatted = String.format("%02d:%02d",
-                    gameReport.maxTime().toMinutes() / 60,
-                    gameReport.maxTime().toMinutes() % 60
-            );
-            String usedTimeFormatted = String.format("%02d:%02d",
-                    gameReport.usedTime().toMinutes() / 60,
-                    gameReport.usedTime().toMinutes() % 60
-            );
-
+            long usedTotalSeconds = gameReport.usedTime().getSeconds();
+            String usedTimeFormatted = preFormatTime(usedTotalSeconds);
+            long maxTotalSeconds = gameReport.maxTime().getSeconds();
+            String maxTimeFormatted = preFormatTime(maxTotalSeconds);
             long reportId = executeUpdateAndReturnGeneratedKey(
                     insertReport,
                     gameReport.user().getName(),
                     gameReport.timestamp(),
                     gameReport.difficulty().name(),
-                    maxTimeFormatted,      // Formattato come "HH:MM"
-                    usedTimeFormatted,     // Formattato come "HH:MM"
+                    maxTimeFormatted,
+                    usedTimeFormatted,
                     gameReport.questionCount(),
                     gameReport.score()
             );
@@ -185,6 +179,23 @@ public class JDBCGameReportDAO extends JdbcDAO<GameReport> implements GameReport
             SystemLogger.log("Error trying to insert game report", e);
             throw new QueryFailedException(e.getMessage());
         }
+    }
+    /**
+     * Formatta un valore temporale (in secondi) in una stringa nel formato MM:SS.
+     * Garantisce che il tempo formattato rispetti i vincoli del database:
+     * @param time il tempo da formattare
+     * @return una stringa nel formato "MM:SS" che rappresenta il tempo normalizzato
+     */
+    private String preFormatTime(long time) {
+        long minutes = Math.min(time / 60, 60);
+        long seconds = time % 60;
+        //Duration contiene frazioni di secondo, che vengono troncate per i vincoli del db
+        if (minutes == 60 && seconds > 0) {
+            minutes = 60;
+            seconds = 0;
+        }
+        String usedTimeFormatted = String.format("%02d:%02d", minutes, seconds);
+        return usedTimeFormatted;
     }
 
     /**

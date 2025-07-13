@@ -7,9 +7,7 @@ import it.unisa.diem.wordageddon_g16.models.GameReport;
 import it.unisa.diem.wordageddon_g16.services.GameService;
 import it.unisa.diem.wordageddon_g16.services.GameService.Question;
 import it.unisa.diem.wordageddon_g16.utility.ViewLoader;
-import javafx.animation.KeyFrame;
-import javafx.animation.PauseTransition;
-import javafx.animation.Timeline;
+import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -29,6 +27,7 @@ import javafx.scene.text.Text;
 import javafx.util.Duration;
 
 import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -41,54 +40,37 @@ import java.util.Map;
  * per mantenere la UI reattiva.
  */
 public class GameSessionController {
-    @FXML
-    private StackPane stackPane;
-    @FXML
-    private AnchorPane readingPane;
-    @FXML
-    private AnchorPane questionPane;
-    @FXML
-    private AnchorPane diffSelectionPane;
+    @FXML private StackPane stackPane;
+    @FXML private AnchorPane readingPane;
+    @FXML private AnchorPane questionPane;
+    @FXML private AnchorPane diffSelectionPane;
+    @FXML private Button diffEasyBTN;
+    @FXML private Button diffMediumBTN;
+    @FXML private Button diffHardBTN;
 
-    @FXML
-    private TextArea textDisplayArea;
-    @FXML
-    private ProgressBar timerBar;
-    @FXML
-    private Label timerLabelRead;
-    @FXML
-    private Label documentTitleLabel;
 
-    @FXML
-    private Label questionText;
-    @FXML
-    private VBox answerBox;
-    @FXML
-    private Label questionCountLabel;
-    @FXML
-    private ProgressBar timerBarQuestion;
-    @FXML
-    private Label timerLabelQuestion;
-    @FXML
-    private Button nextQuestionButton;
-    @FXML
-    private Button nextDocumentButton;
-    @FXML
-    private Button previousDocumentButton;
-    @FXML
-    private Button skipReadingBtn;
+    @FXML private TextArea textDisplayArea;
+    @FXML private ProgressBar timerBar;
+    @FXML private Label timerLabelRead;
+    @FXML private Label documentTitleLabel;
+    @FXML private Button nextDocumentButton;
+    @FXML private Button previousDocumentButton;
+    @FXML private Button skipReadingBtn;
 
-    @FXML
-    private Button answer1Btn;
-    @FXML
-    private Button answer2Btn;
-    @FXML
-    private Button answer3Btn;
-    @FXML
-    private Button answer4Btn;
+    @FXML private Label questionText;
+    @FXML private Label questionCountLabel;
+    @FXML private ProgressBar timerBarQuestion;
+    @FXML private Label timerLabelQuestion;
+    @FXML private Button answer1Btn;
+    @FXML private Button answer2Btn;
+    @FXML private Button answer3Btn;
+    @FXML private Button answer4Btn;
+
+
+
+
 
     Map<Document, String> documentToTextMap;
-
 
     private SimpleIntegerProperty currentQuestionIndex;
     private final SimpleIntegerProperty currentDocumentIndex;
@@ -104,6 +86,8 @@ public class GameSessionController {
     private int score = 0;
     private int numeroRisposteCorrette = 0;
     private int numeroRisposteSaltate = 0;
+    private Map<Question, Integer> domandaRisposte;
+
 
     private final AppContext appContext;
 
@@ -117,17 +101,7 @@ public class GameSessionController {
     private static final int MIN_TIME_FOR_SKIP = 1;
     private static final int QUESTION_TIME_LIMIT = 10;
     @FXML
-    private Button diffHardBTN;
-    @FXML
-    private StackPane leaderboardBtn;
-    @FXML
-    private VBox questionContainer;
-    @FXML
-    private StackPane showAnswersBtn;
-    @FXML
     private TableView answersTable;
-    @FXML
-    private StackPane menuBtn;
     @FXML
     private HBox actionBarBox;
     @FXML
@@ -135,31 +109,31 @@ public class GameSessionController {
     @FXML
     private Text scoreValue;
     @FXML
-    private StackPane playAgainBtn;
-    @FXML
-    private Button backButtonDiff;
-    @FXML
-    private Button diffEasyBTN;
-    @FXML
     private VBox heroBox;
     @FXML
     private VBox answersBox;
     @FXML
     private StackPane mainStack;
     @FXML
-    private VBox difficultyButtonsBox;
-    @FXML
     private Label viewAnswersBtnText;
     @FXML
     private Label rightValue;
-    @FXML
-    private Button diffMediumBTN;
     @FXML
     private Label completionValue;
     @FXML
     private AnchorPane reportPane;
     @FXML
     private Label questionNumber;
+
+    @FXML
+    private TableColumn<?, ?> domandaCln;
+    @FXML
+    private TableColumn<?, ?> punteggioCln;
+    @FXML
+    private TableColumn<?, ?> rispostaCorrettaCln;
+    @FXML
+    private TableColumn<?, ?> rispostaDataCln;
+
 
     /**
      * Costruisce il controller e inizializza il servizio di gioco.
@@ -174,6 +148,7 @@ public class GameSessionController {
         elapsedSeconds = new SimpleIntegerProperty(0);
         questionsReady = new SimpleBooleanProperty(false);
         minTimeElapsed = new SimpleBooleanProperty(false);
+        domandaRisposte = new LinkedHashMap<>();
 
     }
 
@@ -284,28 +259,28 @@ public class GameSessionController {
      */
 
     private void showQuestion(int index) {
-        if (index >= questions.size()) {
+        //Se il l'indice della prossima domanda da visualizzare è maggiore del numero di domande, viene chiamato loadPane(reportPane)
+        if (currentQuestionIndex.get() >= questions.size()) {
             loadPane(reportPane);
             return;
         }
-
-        if (index == 0) {
-            questionStartTime = LocalDateTime.now(); // Inizio della sessione di domande
+        // alla prima domanda da mostrare, viene segnato il tempo nella variabile questionStartTime.
+        // in showReport verrà calcolato il tempo che intercorre tra questionStartTime e questionEndTime
+        if (currentQuestionIndex.get() == 0) {
+            questionStartTime = LocalDateTime.now();
         }
 
         Question q = questions.get(index);
-        Platform.runLater(() -> {
-            questionText.setText(q.text());
-            questionCountLabel.setText((index + 1) + "/" + questions.size());
-        });
-
+        questionText.setText(q.text());
+        questionCountLabel.setText((index + 1) + "/" + questions.size());
         List<String> answers = q.answers();
         Button[] buttons = {answer1Btn, answer2Btn, answer3Btn, answer4Btn};
-        // Avvia il timer di 20 secondi per la domanda
+        // Avvia il timer tramite metodo startTimer
         if(questionTimer != null) {
             questionTimer.stop();
         }
         questionTimer = startTimer(QUESTION_TIME_LIMIT, timerLabelQuestion, timerBarQuestion, () -> Platform.runLater(() -> {
+            domandaRisposte.put(q, -1);
             // Alla fine del timer, se non è stata data risposta, mostra la risposta corretta
             numeroRisposteSaltate++;
             System.out.println("Risposta saltata. Numero risposte saltate: " + numeroRisposteSaltate);
@@ -331,16 +306,17 @@ public class GameSessionController {
         for (Button b : buttons) {
             b.setStyle("");
             b.setDisable(false);
-            b.setVisible(false); // Nascondi tutto all'inizio
         }
         // Mostra solo i bottoni necessari
         for (int i = 0; i < answers.size(); i++) {
             Button btn = buttons[i];
             String capitalizedAnswer = answers.get(i).substring(0, 1).toUpperCase() + answers.get(i).substring(1);
-            Platform.runLater(() -> btn.setText(capitalizedAnswer));
+            btn.setText(capitalizedAnswer);
             btn.setVisible(true);
             final int answerIndex = i;
+            // GESTIONE EVENTO OnClick su btn che mostra risposta alternativa
             btn.setOnAction(_ -> {
+                domandaRisposte.put(q, answerIndex); //Salva domanda e risposta
                 // Stoppa il timer se in corso
                 if (questionTimer != null) {
                     questionTimer.stop();
@@ -375,9 +351,8 @@ public class GameSessionController {
 
     private void showReport() {
         LocalDateTime questionEndTime = LocalDateTime.now();
-        // Calcola il tempo totale dedicato alla fase di gioco
-        java.time.Duration timeLimit = gameService.getTimeLimit().multipliedBy(gameService.getQuestionCount());
         java.time.Duration usedTime = java.time.Duration.between(questionStartTime, questionEndTime);
+        java.time.Duration timeLimit = gameService.getTimeLimit().multipliedBy(gameService.getQuestionCount());
 
         GameReport report = new GameReport(
                 0, // ID generato dal DB
@@ -415,12 +390,7 @@ public class GameSessionController {
      * @return oggetto Timeline che rappresenta il timer in esecuzione
      */
     private Timeline startTimer(int durationSeconds, Label label, ProgressBar bar, Runnable onFinished) {
-
-        label.setText(String.format("%02d:%02d", durationSeconds / 60, durationSeconds % 60));
-
-        // Metodo interno per aggiornare lo stile della progress bar
         Runnable updateBarStyle = () -> Platform.runLater(() -> {
-            // lookup funziona solo se il nodo è già nel scene graph
             var barNode = bar.lookup(".bar");
             if (barNode != null) {
                 barNode.getStyleClass().removeAll("low", "medium", "high");
@@ -436,39 +406,30 @@ public class GameSessionController {
         });
 
         Timeline timer = new Timeline();
-        timer.getKeyFrames().add(new KeyFrame(Duration.seconds(1), _ -> {
-            String[] parts = label.getText().split(":");
-            int minutes = Integer.parseInt(parts[0]);
-            int seconds = Integer.parseInt(parts[1]);
-            int totalSeconds = minutes * 60 + seconds - 1;
-            if (totalSeconds < 0) totalSeconds = 0;
-
-            elapsedSeconds.set(elapsedSeconds.get() + 1);
-
-            label.setText(String.format("%02d:%02d", totalSeconds / 60, totalSeconds % 60));
-
-            double progress = (double) (durationSeconds - totalSeconds) / durationSeconds;
-            bar.setProgress(progress);
-            updateBarStyle.run();
-
-            if (totalSeconds == 0) {
-                timer.stop();
-                onFinished.run();
-            }
-        }));
-
-
-        // Dopo che la ProgressBar è mostrata, applica lo stile iniziale
+        for (int i = 0; i <= durationSeconds; i++) {
+            int secondsRemaining = durationSeconds - i;
+            double progress = (double) i / durationSeconds;
+            timer.getKeyFrames().add(new KeyFrame(Duration.seconds(i), _ -> {
+                label.setText(String.format("%02d:%02d", secondsRemaining / 60, secondsRemaining % 60));
+                Platform.runLater(() -> {
+                    bar.setProgress(progress);
+                    updateBarStyle.run();
+                });
+                elapsedSeconds.set(elapsedSeconds.get() + 1);
+                if (secondsRemaining == 0) {
+                    onFinished.run();
+                }
+            }));
+        }
         bar.sceneProperty().addListener((_, _, newScene) -> {
             if (newScene != null) {
                 Platform.runLater(updateBarStyle);
             }
         });
-
-        timer.setCycleCount(durationSeconds);
         timer.play();
         return timer;
     }
+
 
     /**
      * Gestisce la visualizzazione dei diversi pannelli dell'interfaccia.
@@ -548,6 +509,9 @@ public class GameSessionController {
 
     @FXML
     public void toggleShowAnswers(Event event) {
+        heroBox.setVisible(!heroBox.isVisible());
+        answersBox.setVisible(!answersBox.isVisible());
+
 
 
     }
@@ -559,6 +523,6 @@ public class GameSessionController {
 
     @FXML
     public void handlePlayAgain(Event event) {
-        loadPane(readingPane);
+        ViewLoader.load(ViewLoader.View.GAME);
     }
 }
