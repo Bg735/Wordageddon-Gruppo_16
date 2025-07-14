@@ -28,10 +28,10 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Gestisce la logica della vista associata al pannello utente, inclusa la visualizzazione delle statistiche
@@ -286,6 +286,7 @@ public class UserPanelController {
      */
     @FXML
     private void handleStopWords() {
+        AtomicBoolean isSWChanged = new AtomicBoolean(false);
         Popup popup = new Popup("Gestione Stopwords", 400, 500);
 
         TextField tf = new TextField();
@@ -299,9 +300,9 @@ public class UserPanelController {
         Button btnAdd = new Button("Aggiungi");
 
         btnAdd.setOnAction(_ -> {
+            isSWChanged.set(true);
             service.addStopWords(tf.getText());
             sw.getItems().setAll(service.getStopwords()); // Aggiorna la ListView senza duplicati
-            calculateWDM();
             tf.clear();
         });
 
@@ -320,7 +321,7 @@ public class UserPanelController {
             try {
                 service.addStopwordsFromFile(file);
                 sw.getItems().setAll(service.getStopwords());
-                calculateWDM();
+                isSWChanged.set(true);
             } catch (IOException e) {
                 SystemLogger.log("Error reading stopwords file", e);
                 throw new RuntimeException("Error reading stopwords file");
@@ -337,7 +338,7 @@ public class UserPanelController {
                 try {
                     service.deleteStopword(selected);
                     sw.getItems().remove(selected);
-                    calculateWDM();
+                    isSWChanged.set(true);
                 } catch (Exception ex) {
                     SystemLogger.log("Errore durante la rimozione di una stopword", ex);
                 }
@@ -357,6 +358,13 @@ public class UserPanelController {
                 btnFile,
                 new Label("StopWords attuali:"),
                 sw, btnRemove);
+
+        // Ricalcolo le WDM alla chiusura del popup se sono state modificate le stopwords
+        popup.getStage().setOnHidden(_ -> {
+            if (isSWChanged.get()) {
+                calculateWDM();
+            }
+        });
         popup.show();
     }
 
@@ -368,23 +376,18 @@ public class UserPanelController {
             return;
         }
         // Se sono presenti documenti, creo un thread pool per l'elaborazione: un thread per ogni documento che ricalcola la WDM
+        // La chiamata é bloccante in quanto il listner del popup attende la chiusura del thread pool... in questo modo
+        // si impedisce che l'utente modichi le stopwords mentre il ricalcolo delle WDM é in corso
         try (ExecutorService executor = Executors.newFixedThreadPool(allDocs.size())) {
             System.out.println("[THREAD POOL]: " + allDocs.size() + " thread per il ricalcolo delle WDMs");
-            List<Callable<Void>> tasks = new ArrayList<>();
             for (Document doc : allDocs) {
-                tasks.add(() -> {
+                executor.submit(() -> {
                             System.out.println("Ricalcolo WDM per il documento: " + doc.title());
                             service.updateWDM(new WDM(doc, service.getStopwords()));
                             return null;
                         }
                 );
             }
-            // Invoco tutti i task in parallelo e attendo il completamento
-            executor.invokeAll(tasks);
-
-        } catch (InterruptedException e) {
-            SystemLogger.log("Errore durante il ricalcolo della WDM", e);
-            throw new RuntimeException("Errore durante il ricalcolo della WDM", e);
         }
     }
 
