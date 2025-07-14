@@ -97,6 +97,7 @@ public abstract class JdbcDAO<T> implements DAO<T> {
      * @param tableName il nome della tabella da controllare
      * @return true se la tabella contiene almeno una riga, false altrimenti
      */
+
     protected boolean isEmpty(String tableName) {
         String query = "SELECT 1 FROM " + tableName + " LIMIT 1";
         try (var stm = connection.createStatement();

@@ -159,7 +159,7 @@ package db {
     + update(WDM): void
     + selectAll(): List<WDM>
     }
-    class JdbcDAO<T> {
+    abstract class JdbcDAO<T> {
     # JdbcDAO(Connection):
     # connection: Connection
     # executeUpdate(String, Object[]): long
@@ -169,10 +169,10 @@ package db {
     }
 
     package exceptions{
-        class QueryFailedException {
+        exception QueryFailedException {
         + QueryFailedException(String):
         }
-        class UpdateFailedException {
+        exception UpdateFailedException {
         + UpdateFailedException(String):
         }
     }
@@ -484,28 +484,33 @@ class WordageddonApp {
 }
 }
 
-DifficultyIndex        +-[#820000,plain]-  GameParams
-DocumentDAO            -[#008200,plain]-^  DAO
-GameParams             +-[#820000,plain]-  GameService
-GameReportDAO          -[#008200,plain]-^  DAO
-JDBCDocumentDAO        -[#008200,dashed]-^  DocumentDAO
-JDBCDocumentDAO        -[#000082,plain]-^  JdbcDAO
-JDBCGameReportDAO      -[#008200,dashed]-^  GameReportDAO
-JDBCGameReportDAO      -[#000082,plain]-^  JdbcDAO
-JDBCStopWordDAO        -[#000082,plain]-^  JdbcDAO
-JDBCStopWordDAO        -[#008200,dashed]-^  StopWordDAO
-JDBCUserDAO            -[#000082,plain]-^  JdbcDAO
-JDBCUserDAO            -[#008200,dashed]-^  UserDAO
-JDBCWdmDAO             -[#000082,plain]-^  JdbcDAO
-JDBCWdmDAO             -[#008200,dashed]-^  WdmDAO
-JdbcDAO                -[#008200,dashed]-^  DAO
-JdbcRepository         -[#008200,dashed]-^  Repository
-LeaderboardEntry       +-[#820000,plain]-  LeaderboardService
-Props                  +-[#820000,plain]-  Config
-Question               +-[#820000,plain]-  GameService
-QuestionType           +-[#820000,plain]-  Question
-StopWordDAO            -[#008200,plain]-^  DAO
-UserDAO                -[#008200,plain]-^  DAO
-View                   +-[#820000,plain]-  ViewLoader
-WdmDAO                 -[#008200,plain]-^  DAO
+/'
+    verde: #348c1c  - implements
+    blu: #4287f5    - extends
+    rosso: #8c201c - inner class
+'/
+DifficultyIndex        +-[#8c201c,plain]-  GameParams  : inner class
+GameParams             +-[#8c201c,plain]-  GameService  : inner class
+LeaderboardEntry       +-[#8c201c,plain]-  LeaderboardService : inner class
+Props                  +-[#8c201c,plain]-  Config : inner class
+Question               +-[#8c201c,plain]-  GameService : inner class
+QuestionType           +-[#8c201c,plain]-  Question : inner class
+View                   +-[#8c201c,plain]-  ViewLoader : inner class
+WdmDAO                 -[#4287f5,plain]-^  DAO : extends
+StopWordDAO            -[#4287f5,plain]-^  DAO : extends
+GameReportDAO          -[#4287f5,plain]-^  DAO : extends
+UserDAO                -[#4287f5,plain]-^  DAO : extends
+DocumentDAO            -[#4287f5,plain]-^  DAO : extends
+JDBCDocumentDAO        -[#348c1c,dashed]-^  DocumentDAO : implements
+JDBCDocumentDAO        -[#4287f5,plain]-^  JdbcDAO : extends
+JDBCGameReportDAO      -[#348c1c,dashed]-^  GameReportDAO : implements
+JDBCGameReportDAO      -[#4287f5,plain]-^  JdbcDAO : extends
+JDBCStopWordDAO        -[#4287f5,plain]-^  JdbcDAO : extends
+JDBCStopWordDAO        -[#348c1c,dashed]-^  StopWordDAO  : implements
+JDBCUserDAO            -[#4287f5,plain]-^  JdbcDAO  : extends
+JDBCUserDAO            -[#348c1c,dashed]-^  UserDAO : implements
+JDBCWdmDAO             -[#4287f5,plain]-^  JdbcDAO  : extends
+JDBCWdmDAO             -[#348c1c,dashed]-^  WdmDAO   : implements
+JdbcDAO                -[#348c1c,dashed]-^  DAO  : implements
+JdbcRepository         -[#348c1c,dashed]-^  Repository   : implements
 @enduml
