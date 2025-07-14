@@ -24,7 +24,6 @@ public class WordageddonApp extends Application {
             case "GameSessionController" -> new GameSessionController(context);
             case "LeaderboardController" -> new LeaderboardController(context);
             case "UserPanelController" -> new UserPanelController(context);
-            //case "ReportController" -> new ReportController(context);
 
             default -> throw new RuntimeException("Failed to create controller");
         };
@@ -50,8 +49,6 @@ public class WordageddonApp extends Application {
         stage.setTitle("Wordageddon");
         stage.show();
     }
-
-
 
     public static void main(String[] args) {
         launch();

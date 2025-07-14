@@ -59,7 +59,7 @@ public class AuthController  {
 
 
     @FXML
-    void handleLoginBtn(ActionEvent event) {
+    private void handleLoginBtn(ActionEvent event) {
         String username = usernameField.getText().trim();
         String password = passwordPF.getText().trim();
         if (username.isEmpty() || password.isEmpty()) {
@@ -75,7 +75,7 @@ public class AuthController  {
     }
 
     @FXML
-    void handleRegisterBtn(ActionEvent event) {
+    private void handleRegisterBtn(ActionEvent event) {
         String username = usernameField.getText().trim();
         String password = passwordPF.getText().trim();
         int maxUsernameLength = Integer.parseInt(Config.get(Config.Props.USR_CHAR_MAX_LENGTH));

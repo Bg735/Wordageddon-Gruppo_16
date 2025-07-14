@@ -64,7 +64,7 @@ public class GameSessionController {
     @FXML private Button answer3Btn;
     @FXML private Button answer4Btn;
 
-    Map<Document, String> documentToTextMap;
+    private Map<Document, String> documentToTextMap;
 
     private SimpleIntegerProperty currentQuestionIndex;
     private final SimpleIntegerProperty currentDocumentIndex;
