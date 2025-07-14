@@ -46,17 +46,17 @@ public class MainMenuController implements Initializable {
     }
 
     @FXML
-    void onLeaderboardRequested(ActionEvent event) {
+    private void onLeaderboardRequested(ActionEvent event) {
         ViewLoader.load(ViewLoader.View.LEADERBOARD);
     }
 
     @FXML
-    void onUserPanelRequested(MouseEvent event) {
+    private void onUserPanelRequested(MouseEvent event) {
         ViewLoader.load(ViewLoader.View.USER_PANEL);
     }
 
     @FXML
-    void playGame(ActionEvent event) {
+    private void playGame(ActionEvent event) {
         if(!(context.getRepo().<Document,DocumentDAO>getDAO("document")).selectAll().isEmpty())
             ViewLoader.load(ViewLoader.View.GAME);
         else{

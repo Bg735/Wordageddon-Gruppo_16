@@ -1,0 +1,511 @@
+@startuml
+top to bottom direction
+set namespaceSeparator none
+
+package "it.unisa.diem.wordageddon_g16"{
+package controllers {
+    class AuthController {
+    + AuthController(AppContext):
+    - authService: AuthService
+    - passwordPF: PasswordField
+    - initialize(): void
+    + handleLoginBtn(ActionEvent): void
+    + showDialog(AlertType, String, String): void
+    + handleRegisterBtn(ActionEvent): void
+    }
+    class GameSessionController {
+    + GameSessionController(AppContext):
+    - minTimeElapsed: BooleanProperty
+    - appContext: AppContext
+    - domandaRisposte: Map<Question, Integer>
+    - elapsedSeconds: SimpleIntegerProperty
+    - QUESTION_TIME_LIMIT: Duration
+    - questionTimer: Timeline
+    - documentToTextMap: Map<Document, String>
+    - readingTimer: Timeline
+    - currentQuestionIndex: SimpleIntegerProperty
+    - numeroRisposteSaltate: int
+    - questionsReady: BooleanProperty
+    - questionSetupService: Service<List<Question>>
+    - gameService: GameService
+    - readingSetupService: Service<Map<Document, String>>
+    - questionStartTime: LocalDateTime
+    - questions: List<Question>
+    - currentDocumentIndex: SimpleIntegerProperty
+    - numeroRisposteCorrette: int
+    - MIN_TIME_FOR_SKIP: int
+    - score: int
+    + skipReading(): void
+    - showReport(): void
+    - loadPane(Node): void
+    - onBackPressed(): void
+    - populateAnswerTable(): void
+    + initialize(): void
+    - showQuestion(int): void
+    + toggleShowAnswers(Event): void
+    - switchToQuestions(): void
+    + handlePlayAgain(Event): void
+    - setDocument(int): void
+    - startTimer(Duration, Label, ProgressBar, Runnable): Timeline?
+    + onDifficultySelected(ActionEvent): void
+    - onChangeDocument(ActionEvent): void
+    + handleShowLeaderboard(Event): void
+    + handleGoMenu(Event): void
+    }
+    class UserPanelController {
+    + UserPanelController(AppContext):
+    - currentUser: User
+    - appContext: AppContext
+    - service: UserPanelService
+    - handleStopWords(ActionEvent): void
+    - handleAdmin(ActionEvent): void
+    - handleGoBack(ActionEvent): void
+    - handleDocumenti(ActionEvent): void
+    - handleLogOut(ActionEvent): void
+    + initialize(): void
+    }
+    class LeaderboardController {
+    + LeaderboardController(AppContext):
+    - leaderboardService: LeaderboardService
+    - back(ActionEvent): void
+    + initialize(URL, ResourceBundle): void
+    }
+    class MainMenuController {
+    + MainMenuController(AppContext):
+    - context: AppContext
+    - onUserPanelRequested(MouseEvent): void
+    - playGame(ActionEvent): void
+    - onLeaderboardRequested(ActionEvent): void
+    + initialize(URL, ResourceBundle): void
+    }
+}
+
+package db {
+    package contracts {
+    interface DAO<T> << interface >> {
+    + insert(T): void
+    + delete(T): void
+    + selectAll(): Collection<T>
+    + update(T): void
+    }
+    interface DocumentDAO << interface >> {
+    + isEmpty(): boolean
+    + selectBy(String): Optional<Document>
+    }
+    interface GameReportDAO << interface >> {
+    + selectBy(User, Timestamp): Optional<GameReport>
+    }
+    interface StopWordDAO << interface >> {
+    + selectAll(): Set<String>
+    + isEmpty(): boolean
+    }
+
+    interface WdmDAO << interface >> {
+    + selectBy(Document): Optional<WDM>
+    }
+
+    interface UserDAO << interface >> {
+    + selectBy(String): Optional<User>
+    }
+    }
+
+    class JDBCDocumentDAO {
+    + JDBCDocumentDAO(Connection):
+    + delete(Document): void
+    + isEmpty(): boolean
+    + update(Document): void
+    + selectAll(): List<Document>
+    + insert(Document): void
+    + selectBy(String): Optional<Document>
+    }
+    class JDBCGameReportDAO {
+    + JDBCGameReportDAO(Connection, DAO<Document>, DAO<User>):
+    - documentDAO: DocumentDAO
+    - userDAO: UserDAO
+    + selectBy(User, Timestamp): Optional<GameReport>
+    - preFormatTime(long): String
+    + delete(GameReport): void
+    + selectWhere(String, Object[]): List<GameReport>
+    + update(GameReport): void
+    + selectAll(): List<GameReport>
+    - selectBase(String, Object[]): List<GameReport>
+    + insert(GameReport): void
+    }
+    class JDBCStopWordDAO {
+    + JDBCStopWordDAO(Connection):
+    + isEmpty(): boolean
+    + update(String): void
+    + selectAll(): Set<String>
+    + insert(String): void
+    + delete(String): void
+    }
+    class JDBCUserDAO {
+    + JDBCUserDAO(Connection):
+    + insert(User): void
+    + delete(User): void
+    + update(User): void
+    + selectAll(): List<User>
+    + selectBy(String): Optional<User>
+    + isEmpty(): boolean
+    }
+    class JDBCWdmDAO {
+    + JDBCWdmDAO(Connection, DocumentDAO):
+    - documentDAO: DocumentDAO
+    - selectBase(String, Object[]): List<WDM>
+    + selectBy(Document): Optional<WDM>
+    + insert(WDM): void
+    + selectWhere(String, Object[]): List<WDM>
+    + delete(WDM): void
+    + update(WDM): void
+    + selectAll(): List<WDM>
+    }
+    class JdbcDAO<T> {
+    # JdbcDAO(Connection):
+    # connection: Connection
+    # executeUpdate(String, Object[]): long
+    # executeQuery(String, Callback<ResultSet, R>, Object[]): R
+    # executeQuery(String, Callback<ResultSet, R>): R
+    # isEmpty(String): boolean
+    }
+
+    package exceptions{
+        class QueryFailedException {
+        + QueryFailedException(String):
+        }
+        class UpdateFailedException {
+        + UpdateFailedException(String):
+        }
+    }
+}
+
+package models {
+    enum Difficulty << enumeration >> {
+    - Difficulty(String):
+    + HARD:
+    + MEDIUM:
+    + EASY:
+    - label: String
+    + values(): Difficulty[]
+    + toString(): String
+    + getMaxScoreDifficulty(Difficulty): int
+    + valueOf(String): Difficulty
+    }
+    class AppContext {
+    + AppContext(Repository):
+    - currentGameReport: GameReport
+    - gameService: GameService
+    - repo: Repository
+    - authService: AuthService
+    + userPanelService: UserPanelService
+    - currentUser: User
+    - leaderboardService: LeaderboardService
+    + getGameService(): GameService
+    + getUserPanelService(): UserPanelService
+    + getLeaderboardService(): LeaderboardService
+    + setCurrentUser(User): void
+    + getCurrentUser(): User
+    + getRepo(): Repository
+    + getAuthService(): AuthService
+    }
+    entity Document << record >> {
+    + Document(String, String, Integer):
+    - wordCount: Integer
+    - filename: String
+    - title: String
+    + hashCode(): int
+    + title(): String
+    + filename(): String
+    + equals(Object): boolean
+    + wordCount(): Integer
+    }
+
+    entity GameReport << record >> {
+    + GameReport(User, List<Document>, LocalDateTime, Difficulty, Duration, Duration, int, int):
+    - usedTime: Duration
+    - timestamp: LocalDateTime
+    - questionCount: int
+    - maxTime: Duration
+    - score: int
+    - user: User
+    - documents: List<Document>
+    - difficulty: Difficulty
+    + difficulty(): Difficulty
+    + score(): int
+    + questionCount(): int
+    + timestamp(): LocalDateTime
+    + usedTime(): Duration
+    + documents(): List<Document>
+    + maxTime(): Duration
+    + user(): User
+    }
+    class WDM {
+    + WDM(String, String, Set<String>):
+    + WDM(Document, Map<String, Integer>):
+    - words: Map<String, Integer>
+    - document: Document
+    + getWords(): Map<String, Integer>
+    + getDocument(): Document
+    }
+
+    class JdbcRepository {
+    + JdbcRepository():
+    - daos: Map<String, JdbcDAO<?>>
+    - conn: Connection
+    + getDAO(String): TDAO
+    + close(): void
+    }
+    class User {
+    + User(String, String, boolean):
+    - isAdmin: boolean
+    - password: String
+    - name: String
+    + getName(): String
+    + setAdmin(boolean): void
+    + setName(String): void
+    + isAdmin(): boolean
+    + equals(Object): boolean
+    + hashCode(): int
+    + getPassword(): String
+    + setPassword(String): void
+    }
+
+    package interfaces {
+        interface Repository << interface >> {
+        + getDAO(String): TDAO
+        + close(): void
+        }
+    }
+}
+
+package services {
+    class AuthService {
+    + AuthService(AppContext, JDBCUserDAO):
+    - userDAO: JDBCUserDAO
+    - context: AppContext
+    + login(String, String): boolean
+    + noUsers(): boolean
+    + logout(): void
+    + loadSession(): boolean
+    + register(String, String, boolean): boolean
+    - saveSession(User): void
+    }
+    class UserPanelService {
+    + UserPanelService(GameReportDAO, JDBCUserDAO, DocumentDAO, JDBCStopWordDAO, JDBCWdmDAO, AppContext):
+    - userDAO: JDBCUserDAO
+    - documentDAO: DocumentDAO
+    - appContext: AppContext
+    - gameReportDAO: GameReportDAO
+    - wdmDAO: JDBCWdmDAO
+    - stopWordDAO: JDBCStopWordDAO
+    + promoteUser(String): void
+    + getUserStatsForCurrentUser(): Map<String, Object>
+    - stopWordsParser(String): Set<String>
+    + deleteStopword(String): void
+    + loadWDM(WDM): void
+    + getCurrentUserReports(): List<GameReport>
+    + addStopWords(String): void
+    + getStopwords(): Set<String>
+    + addStopwordsFromFile(File): void
+    + addDocument(File): void
+    + demoteUser(String): void
+    + getAllUsersExceptCurrent(): List<User>
+    + deleteDocument(Document): void
+    + symbolicNameOf(String): String
+    + getAllDocuments(): Collection<Document>
+    }
+    class GameService {
+    + GameService(AppContext, GameReportDAO, JDBCWdmDAO, DocumentDAO, StopWordDAO):
+    - context: AppContext
+    - documentDAO: DocumentDAO
+    - wdmDAO: JDBCWdmDAO
+    - params: GameParams
+    - wdmMap: Map<Document, WDM>
+    - stopwordDAO: StopWordDAO
+    - gameReportDAO: GameReportDAO
+    - absoluteFrequencyQuestionSingle(): Question
+    + getQuestionCount(): int
+    + getDocuments(): List<Document>
+    - loadWdmMap(): void
+    - whichLessQuestion(): Question
+    + getDifficulty(): Difficulty
+    - whichMoreQuestion(): Question
+    + getScorePerQuestion(): int
+    - whichLessQuestionSingle(): Question
+    + setupReadingPhase(): Map<Document, String>
+    - whichAbsentQuestion(): Question
+    - absoluteFrequencyQuestion(): Question
+    + saveGameReport(GameReport): void
+    - whichMoreQuestionSingle(): Question
+    - generateAbsentWord(Set<String>): String
+    - whichDocumentQuestion(): Question
+    + init(Difficulty): void
+    + getTimeLimit(): Duration
+    + getQuestions(): List<Question>
+    }
+    class LeaderboardService {
+    + LeaderboardService(AppContext, JDBCGameReportDAO, UserDAO):
+    - gameReportDAO: JDBCGameReportDAO
+    - currentUser: User
+    - users: Collection<User>
+    + getGloablLeaderboard(): List<LeaderboardEntry>
+    + getLeaderboardByDifficulty(Difficulty): List<LeaderboardEntry>
+    - getLeaderboardBase(Difficulty): List<LeaderboardEntry>
+    }
+    class GameParams {
+    - GameParams(Difficulty):
+    - random: Random
+    - documents: List<Document>
+    - difficulty: Difficulty
+    - timer: Duration
+    - questionCount: int
+    - generateTimer(float): Duration
+    - generateDocuments(float): List<Document>
+    - generateQuestionCount(float): int
+    }
+    class DifficultyIndex {
+    + DifficultyIndex(float):
+    - cap: float
+    - value: float
+    + getCap(): float
+    + getNext(): float
+    + getRemaining(): float
+    + getNextRelative(): float
+    }
+    entity Question << record >> {
+    + Question(String, List<String>, int):
+    - text: String
+    - answers: List<String>
+    - correctAnswerIndex: int
+    + correctAnswerIndex(): int
+    + text(): String
+    + create(String, List<String>, int): Question
+    + answers(): List<String>
+    }
+    enum QuestionType << enumeration >> {
+    - QuestionType(float):
+    + WHICH_MORE:
+    - weight: float
+    + WHICH_LESS:
+    + WHICH_DOCUMENT:
+    + WHICH_ABSENT:
+    + ABSOLUTE_FREQUENCY:
+    + valueOf(String): QuestionType
+    + values(): QuestionType[]
+    + getRandomType(): QuestionType
+    }
+    entity LeaderboardEntry << record >> {
+    + LeaderboardEntry(String, Difficulty, int, int, int):
+    - totalScore: int
+    - username: String
+    - averageScore: int
+    - gamesPlayed: int
+    - favouriteDifficulty: Difficulty
+    + favouriteDifficulty(): Difficulty
+    + averageScore(): int
+    + totalScore(): int
+    + username(): String
+    + gamesPlayed(): int
+    }
+}
+
+package utility{
+    class Config {
+    + Config():
+    - PROPS: Properties
+    + get(Props): String
+    }
+    class Resources {
+    - Resources():
+    - VOCABULARY: List<String>
+    ~ RES_PATH: String
+    + getStyle(String): String
+    + getDocumentContent(String): String
+    + getVocabulary(): List<String>
+    + getDocPath(Document): Path
+    + getAsset(String): InputStream
+    + getDocsDirPath(): Path
+    }
+    class SystemLogger {
+    + SystemLogger():
+    - logger: Logger
+    + log(Throwable): void
+    + log(String, Throwable): void
+    }
+    class ViewLoader {
+    + ViewLoader():
+    - controllerFactory: Callback<Class<?>, Object>
+    - stage: Stage
+    + load(View): void
+    + setStage(Stage): void
+    + setControllerFactory(Callback<Class<?>, Object>): void
+    }
+    enum Props << enumeration >> {
+    - Props(String):
+    + SESSION_FILE:
+    + PW_CHAR_MIN_LENGTH:
+    + DOCUMENTS_DIR:
+    + DB_URL:
+    - key: String
+    + USR_CHAR_MAX_LENGTH:
+    + values(): Props[]
+    + get(): String
+    + valueOf(String): Props
+    }
+    enum View << enumeration >> {
+    - View(String):
+    + AUTH:
+    + LEADERBOARD:
+    + GAME:
+    + USER_PANEL:
+    + REPORT:
+    + MENU:
+    - viewName: String
+    + values(): View[]
+    + get(): String
+    + valueOf(String): View
+    }
+    class Popup {
+    + Popup(String):
+    + Popup(String, int, int):
+    - stage: Stage
+    - root: VBox
+    + addAll(Node): Popup
+    + show(): void
+    + getStage(): Stage
+    + addAll(Node[]): Popup
+    }
+}
+
+
+class WordageddonApp {
+  + WordageddonApp():
+  + start(Stage): void
+  + main(String[]): void
+}
+}
+
+DifficultyIndex        +-[#820000,plain]-  GameParams
+DocumentDAO            -[#008200,plain]-^  DAO
+GameParams             +-[#820000,plain]-  GameService
+GameReportDAO          -[#008200,plain]-^  DAO
+JDBCDocumentDAO        -[#008200,dashed]-^  DocumentDAO
+JDBCDocumentDAO        -[#000082,plain]-^  JdbcDAO
+JDBCGameReportDAO      -[#008200,dashed]-^  GameReportDAO
+JDBCGameReportDAO      -[#000082,plain]-^  JdbcDAO
+JDBCStopWordDAO        -[#000082,plain]-^  JdbcDAO
+JDBCStopWordDAO        -[#008200,dashed]-^  StopWordDAO
+JDBCUserDAO            -[#000082,plain]-^  JdbcDAO
+JDBCUserDAO            -[#008200,dashed]-^  UserDAO
+JDBCWdmDAO             -[#000082,plain]-^  JdbcDAO
+JDBCWdmDAO             -[#008200,dashed]-^  WdmDAO
+JdbcDAO                -[#008200,dashed]-^  DAO
+JdbcRepository         -[#008200,dashed]-^  Repository
+LeaderboardEntry       +-[#820000,plain]-  LeaderboardService
+Props                  +-[#820000,plain]-  Config
+Question               +-[#820000,plain]-  GameService
+QuestionType           +-[#820000,plain]-  Question
+StopWordDAO            -[#008200,plain]-^  DAO
+UserDAO                -[#008200,plain]-^  DAO
+View                   +-[#820000,plain]-  ViewLoader
+WdmDAO                 -[#008200,plain]-^  DAO
+@enduml

@@ -91,7 +91,7 @@ public class UserPanelController {
     }
 
     @FXML
-    void handleAdmin(ActionEvent event) {
+    private void handleAdmin(ActionEvent event) {
         Popup popup = new Popup("Gestione Ruoli Utenti");
         List<User> otherUsers = service.getAllUsersExceptCurrent();
 
@@ -159,7 +159,7 @@ public class UserPanelController {
      * @param event L'evento ActionEvent generato dal click sul menu.
      */
     @FXML
-    void handleDocumenti(ActionEvent event) {
+    private void handleDocumenti(ActionEvent event) {
         Popup popup = new Popup("Gestione Documenti", 400, 300);
         ObservableList<Document> documentList = FXCollections.observableArrayList(service.getAllDocuments());
         Executor dbExecutor = Executors.newSingleThreadExecutor();
@@ -269,7 +269,7 @@ public class UserPanelController {
      * @param event L'evento ActionEvent generato dal click sul pulsante "Logout".
      */
     @FXML
-    void handleLogOut(ActionEvent event) {
+    private void handleLogOut(ActionEvent event) {
         appContext.getAuthService().logout();
         ViewLoader.load(ViewLoader.View.AUTH);
     }
@@ -280,7 +280,7 @@ public class UserPanelController {
      * @param event L'evento ActionEvent generato dal click sul pulsante "Indietro".
      */
     @FXML
-    void handleGoBack(ActionEvent event) {
+    private void handleGoBack(ActionEvent event) {
         ViewLoader.load(ViewLoader.View.MENU);
     }
 
@@ -293,7 +293,7 @@ public class UserPanelController {
      * @param event L'evento ActionEvent generato dal click sul menu.
      */
     @FXML
-    void handleStopWords(ActionEvent event) {
+    private void handleStopWords(ActionEvent event) {
         Popup popup = new Popup("Gestione Documenti", 400, 500);
 
         TextField tf = new TextField();
