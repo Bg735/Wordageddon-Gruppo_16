@@ -352,9 +352,6 @@ public class UserPanelController {
         btnAdd.defaultButtonProperty().bind(tf.focusedProperty());
         btnRemove.defaultButtonProperty().bind(tf.focusedProperty().not());
         tf.focusedProperty().addListener((observable, oldValue, newValue) -> {
-            System.out.println("TextField focused: " + newValue);
-            System.out.println("Button Add default button: " + btnAdd.isDefaultButton());
-            System.out.println("Button Remove default button: " + btnRemove.isDefaultButton());
         });
 
         popup.addAll(
