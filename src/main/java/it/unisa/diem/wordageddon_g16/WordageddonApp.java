@@ -11,8 +11,28 @@ import javafx.stage.Stage;
 import javafx.util.Callback;
 import javafx.scene.image.Image;
 
+/**
+ * Classe principale dell'applicazione Wordageddon.
+ * <p>
+ * Avvia l'interfaccia JavaFX, inizializza il {@link AppContext}, registra i controller necessari tramite
+ * {@link javafx.util.Callback} e carica la vista iniziale tramite {@link ViewLoader}.
+ * <br>
+ * La finestra viene configurata con dimensioni iniziali, icona personalizzata e gestione della chiusura.
+ */
 public class WordageddonApp extends Application {
 
+    /**
+     * Punto di ingresso principale dell'applicazione JavaFX.
+     * <p>
+     * Inizializza le dipendenze e il repository, costruisce il {@link AppContext} condiviso e imposta
+     * la factory dei controller per la navigazione tra viste.
+     * <br>
+     * Configura la finestra ({@link Stage}) con dimensioni, icona, e comportamento al termine.
+     * Se esiste una sessione utente attiva, apre il menu; altrimenti la schermata di autenticazione.
+     * </p>
+     *
+     * @param stage finestra primaria dell'applicazione
+     */
     @Override
     public void start(Stage stage){
         var repo = new JdbcRepository();
@@ -50,6 +70,14 @@ public class WordageddonApp extends Application {
         stage.show();
     }
 
+    /**
+     * Metodo main dell'applicazione.
+     * <p>
+     * Lancia l'applicazione JavaFX.
+     * </p>
+     *
+     * @param args argomenti da linea di comando (non utilizzati)
+     */
     public static void main(String[] args) {
         launch();
     }

@@ -3,16 +3,39 @@ package it.unisa.diem.wordageddon_g16.utility;
 import java.io.IOException;
 import java.util.logging.*;
 
+/**
+ * Logger centralizzato per la gestione degli errori nell'applicazione.
+ * <p>
+ * Configura un {@link Logger} personalizzato che scrive solo messaggi di livello {@code SEVERE}
+ * in un file chiamato {@code error.log}, evitando l'output sulla console. Include anche lo stack trace.
+ */
 public class SystemLogger {
+    /**
+     * Istanza del logger Java associata alla classe {@code SystemLogger}.
+     * <p>
+     * Configurata per registrare solo eventi gravi ({@code Level.SEVERE}) su file.
+     */
     private static final Logger logger = Logger.getLogger(SystemLogger.class.getName());
 
+    /**
+     * Registra un errore con un messaggio personalizzato e una {@link Throwable}.
+     *
+     * @param msg messaggio esplicativo dell'errore
+     * @param e   eccezione da registrare nel log
+     */
     public static void log(String msg, Throwable e) {
         logger.log(Level.SEVERE, msg, e);
     }
+
+    /**
+     * Registra un errore generico con messaggio predefinito e una {@link Throwable}.
+     *
+     * @param e eccezione da registrare nel log
+     */
     public static void log(Throwable e) {
         logger.log(Level.SEVERE, "An error occurred", e);
     }
-
+    
     static {
         try {
             // Imposta livello minimo a SEVERE (errori ed eccezioni)

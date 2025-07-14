@@ -11,8 +11,10 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Classe di utilità per la gestione delle risorse dell'applicazione,
- * come asset, stili e percorsi di upload.
+ * Utility centralizzata per la gestione delle risorse statiche dell'applicazione Wordageddon.
+ * <p>
+ * Fornisce accesso ad asset grafici, fogli di stile, file di documento e vocabolario predefinito.
+ * Opera sul classpath e su directory di configurazione definite tramite {@link Config}.
  */
 public class Resources {
     private static final List<String> VOCABULARY = Arrays.asList(
@@ -29,34 +31,47 @@ public class Resources {
     static final String RES_PATH = "/it/unisa/diem/wordageddon_g16/";
 
     /**
-     * Restituisce uno stream di input per un asset presente nella cartella delle risorse.
+     * Restituisce uno {@link InputStream} per un asset (es. immagini, icone) contenuto nella directory {@code assets}.
      *
-     * @param filename il nome del file asset da caricare (ad esempio "logo.png")
-     * @return uno {@link InputStream} per leggere il file asset, oppure {@code null} se non trovato
+     * @param filename nome del file asset da recuperare (es. {@code "logo.png"})
+     * @return stream per leggere il contenuto del file, oppure {@code null} se non trovato
      */
     public static InputStream getAsset(String filename) {
         return Resources.class.getResourceAsStream(RES_PATH + "assets/" + filename);
     }
 
     /**
-     * Restituisce il percorso esterno (URL) di un file di stile CSS presente nelle risorse.
+     * Restituisce l'URL esterno di un file CSS presente nella directory {@code style}.
+     * <p>
+     * Utile per aggiungere fogli di stile alla scena con {@code Scene.getStylesheets().add(...)}.
+     * </p>
      *
-     * @param name il nome del file di stile (senza estensione)
-     * @return la stringa URL del file CSS da usare, ad esempio per {@code Scene.getStylesheets().add()}
+     * @param name nome del file di stile (senza estensione)
+     * @return URL esterno del file CSS da usare come stringa
+     * @throws NullPointerException se il file non viene trovato
      */
     public static String getStyle(String name) {
         return Objects.requireNonNull(Resources.class.getResource(RES_PATH + "style/" + name + ".css")).toExternalForm();
     }
 
     /**
-     * Restituisce il percorso della sottocartella "documents" all'interno della cartella di upload.
+     * Restituisce il {@link Path} completo al file associato a un documento.
+     * <p>
+     * Il percorso è calcolato sulla base della directory definita in {@link Config.Props#DOCUMENTS_DIR}.
+     * </p>
      *
-     * @return il {@link Path} relativo a "uploads/documents"
+     * @param document oggetto {@link Document} contenente il nome del file
+     * @return percorso completo al file di documento
      */
     public static Path getDocPath(Document document) {
         return Path.of(Config.get(Config.Props.DOCUMENTS_DIR), document.filename());
     }
 
+    /**
+     * Restituisce il {@link Path} della directory dei documenti configurata.
+     *
+     * @return percorso alla directory contenente i documenti caricati
+     */
     public static Path getDocsDirPath() {
         return Path.of(Config.get(Config.Props.DOCUMENTS_DIR));
     }
