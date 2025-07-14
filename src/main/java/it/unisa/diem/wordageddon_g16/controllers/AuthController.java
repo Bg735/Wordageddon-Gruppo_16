@@ -11,7 +11,14 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
-public class AuthController  {
+/**
+ * Controller JavaFX per la schermata di autenticazione dell'applicazione Wordageddon.
+ * <p>
+ * Gestisce il login e la registrazione degli utenti, la visualizzazione dinamica della password,
+ * e la validazione dei campi tramite {@link AuthService}. Utilizza {@link ViewLoader} per la navigazione
+ * e {@link Resources} per applicare lo stile ai popup di dialogo.
+ */
+public class AuthController {
 
     private final AuthService authService;
     @FXML
@@ -37,6 +44,12 @@ public class AuthController  {
 
     private boolean noUsers;
 
+    /**
+     * Inizializza la schermata di autenticazione.
+     * <p>
+     * Mostra il pulsante di registrazione se non ci sono utenti, e nasconde il login.
+     * Configura anche il binding tra {@link PasswordField} e {@link TextField} per la visualizzazione della password.
+     */
     @FXML
     private void initialize() {
         noUsers = authService.noUsers();
@@ -57,7 +70,14 @@ public class AuthController  {
         passwordTF.textProperty().bindBidirectional(passwordPF.textProperty());
     }
 
-
+    /**
+     * Gestisce il clic sul pulsante di login.
+     * <p>
+     * Verifica che i campi siano compilati, tenta l'autenticazione e reindirizza al menu se riuscita.
+     * Se fallisce, mostra un messaggio di errore tramite {@link #showDialog(Alert.AlertType, String, String)}.
+     *
+     * @param event evento generato dal clic
+     */
     @FXML
     private void handleLoginBtn(ActionEvent event) {
         String username = usernameField.getText().trim();
@@ -74,6 +94,14 @@ public class AuthController  {
 
     }
 
+    /**
+     * Gestisce la registrazione di un nuovo utente.
+     * <p>
+     * Valida l'input rispetto ai vincoli definiti in {@link Config}, registra l'utente e carica il menu se riuscito.
+     * Altrimenti, mostra un messaggio di errore.
+     *
+     * @param event evento generato dal clic
+     */
     @FXML
     private void handleRegisterBtn(ActionEvent event) {
         String username = usernameField.getText().trim();
@@ -103,6 +131,15 @@ public class AuthController  {
 
     }
 
+    /**
+     * Mostra una finestra di dialogo personalizzata con stile dinamico basato sul tipo di {@link Alert}.
+     * <p>
+     * Se il tipo è {@code INFORMATION}, mostra un'icona di conferma.
+     *
+     * @param type      tipo di alert da visualizzare
+     * @param titolo    titolo della finestra
+     * @param messaggio contenuto testuale del messaggio
+     */
     public void showDialog(Alert.AlertType type, String titolo, String messaggio) {
         Alert alert = new Alert(type);
         alert.setTitle(titolo);
@@ -127,6 +164,11 @@ public class AuthController  {
         alert.showAndWait();
     }
 
+    /**
+     * Costruisce il controller associando il servizio di autenticazione tramite {@link AppContext}.
+     *
+     * @param context contesto applicativo contenente l'istanza di {@link AuthService}
+     */
     public <T> AuthController(AppContext context) {
         this.authService = context.getAuthService();
     }

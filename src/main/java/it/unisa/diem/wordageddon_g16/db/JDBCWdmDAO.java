@@ -15,9 +15,10 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Data Access Object (DAO) per la gestione della matrice parola-documento (WDM).
- * Permette di eseguire operazioni CRUD sulla tabella WDM del database,
- * associando ogni documento alle sue parole e relative frequenze.
+ * Implementazione JDBC del {@link WdmDAO}, che gestisce le operazioni sulla matrice parola-documento (WDM).
+ * <p>
+ * Le informazioni sono salvate nella tabella {@code WDM}, dove ogni riga rappresenta una parola contenuta in un documento
+ * e la sua frequenza (numero di occorrenze). Il DAO collega ciascuna entry al relativo {@link Document}.
  */
 public class JDBCWdmDAO extends JdbcDAO<WDM> implements WdmDAO {
 
@@ -26,8 +27,9 @@ public class JDBCWdmDAO extends JdbcDAO<WDM> implements WdmDAO {
      */
     private final DocumentDAO documentDAO;
 
+
     /**
-     * Costruisce un nuovo WdmDAO utilizzando la connessione e il DAO dei documenti specificati.
+     * Costruisce un nuovo {@code JDBCWdmDAO} utilizzando la connessione e il DAO dei documenti specificati.
      *
      * @param conn la connessione al database da utilizzare per le operazioni
      * @param documentDAO il DAO per la gestione dei documenti
@@ -38,20 +40,23 @@ public class JDBCWdmDAO extends JdbcDAO<WDM> implements WdmDAO {
     }
 
     /**
-     * Recupera una singola istanza di WDM in base al documento fornito.
+     * Recupera una singola istanza di {@link WDM} in base al documento fornito.
      *
-     * @param document il documento di cui recuperare la matrice parola-frequenza
-     * @return un Optional contenente la WDM trovata, o vuoto se non esiste
+     * @param document il documento di cui recuperare la mappa parola-frequenza
+     * @return un {@code Optional} contenente l'oggetto WDM, oppure vuoto se non esiste
      */
     @Override
     public Optional<WDM> selectBy(Document document) {
         return selectWhere("document = ?", (document).filename()).stream().findFirst();
     }
 
+
     /**
-     * Recupera tutte le istanze di WDM presenti nella tabella.
+     * Recupera tutte le istanze della matrice WDM presenti nel database.
+     * <p>
+     * Ogni WDM rappresenta un documento e la mappa delle parole contenute al suo interno con la relativa frequenza.
      *
-     * @return una lista di tutte le WDM nel database
+     * @return una lista di tutte le WDM disponibili
      */
     @Override
     public List<WDM> selectAll() {
@@ -59,11 +64,11 @@ public class JDBCWdmDAO extends JdbcDAO<WDM> implements WdmDAO {
     }
 
     /**
-     * Recupera tutte le istanze di WDM che soddisfano una specifica clausola SQL.
+     * Recupera le istanze di WDM che soddisfano una specifica clausola SQL.
      *
-     * @param sqlClause la clausola WHERE da applicare (senza la parola chiave WHERE)
+     * @param sqlClause la clausola WHERE da applicare (senza includere la parola chiave {@code WHERE})
      * @param params i parametri da sostituire nella query
-     * @return una lista di WDM corrispondenti alla clausola specificata
+     * @return una lista di WDM corrispondenti ai criteri forniti
      */
     public List<WDM> selectWhere(String sqlClause, Object... params) {
         String query = "SELECT * FROM WDM WHERE " + sqlClause;
@@ -71,11 +76,14 @@ public class JDBCWdmDAO extends JdbcDAO<WDM> implements WdmDAO {
     }
 
     /**
-     * Metodo di utilità per eseguire una query e mappare i risultati in oggetti WDM.
+     * Metodo interno di utilità per eseguire una query e convertire i risultati in oggetti {@link WDM}.
+     * <p>
+     * Costruisce dinamicamente le istanze WDM aggregando le parole e le frequenze associate a ciascun documento.
      *
      * @param query la query SQL da eseguire
      * @param params i parametri da sostituire nella query
-     * @return una lista di WDM ottenute dai risultati della query
+     * @return una lista di oggetti WDM ottenuti dai risultati della query
+     * @throws QueryFailedException se si verifica un errore durante l'elaborazione
      */
     private List<WDM> selectBase(String query, Object... params) {
         Callback<ResultSet, List<WDM>> callback = res -> {
@@ -101,10 +109,10 @@ public class JDBCWdmDAO extends JdbcDAO<WDM> implements WdmDAO {
     }
 
     /**
-     * Elimina tutte le occorrenze di parole associate a un documento dalla tabella WDM.
+     * Elimina tutte le parole associate a un documento dalla tabella WDM.
      *
      * @param wdm la matrice parola-documento da eliminare
-     * @throws QueryFailedException se si verifica un errore durante l'eliminazione
+     * @throws QueryFailedException se si verifica un errore durante la cancellazione
      */
     @Override
     public void delete(WDM wdm) {
@@ -117,9 +125,11 @@ public class JDBCWdmDAO extends JdbcDAO<WDM> implements WdmDAO {
     }
 
     /**
-     * Aggiorna le frequenze delle parole associate a un documento nella tabella WDM.
+     * Aggiorna le frequenze delle parole per un documento nella tabella WDM.
+     * <p>
+     * Per ogni parola nella mappa associata al documento, aggiorna la relativa frequenza.
      *
-     * @param wdm la matrice parola-documento da aggiornare
+     * @param wdm la matrice parola-documento contenente i nuovi valori
      * @throws QueryFailedException se si verifica un errore durante l'aggiornamento
      */
     @Override
@@ -135,7 +145,9 @@ public class JDBCWdmDAO extends JdbcDAO<WDM> implements WdmDAO {
     }
 
     /**
-     * Inserisce tutte le parole e relative frequenze di un documento nella tabella WDM.
+     * Inserisce una nuova matrice parola-documento nella tabella WDM.
+     * <p>
+     * Per ogni parola nel documento, viene inserita una riga con il numero di occorrenze.
      *
      * @param wdm la matrice parola-documento da inserire
      * @throws QueryFailedException se si verifica un errore durante l'inserimento

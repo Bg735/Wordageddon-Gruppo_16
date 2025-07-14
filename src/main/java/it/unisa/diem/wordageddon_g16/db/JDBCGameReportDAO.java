@@ -18,9 +18,10 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Data Access Object (DAO) per la gestione dei report di gioco (GameReport) nel database.
- * Consente di eseguire operazioni CRUD sulla tabella GameReport e di gestire le relazioni
- * con utenti e documenti associati a ciascun report.
+ * Implementazione JDBC del {@link DocumentDAO}, che gestisce le operazioni sui report.
+ * <p>
+ * I report sono salvati nella tabella {@code GameReport} e rappresentati tramite il model {@link GameReport}.
+ * Tutte le interazioni con il database sono gestite tramite {@link JdbcDAO}, con logging automatico via {@link SystemLogger}.
  */
 public class JDBCGameReportDAO extends JdbcDAO<GameReport> implements GameReportDAO {
 
@@ -35,11 +36,11 @@ public class JDBCGameReportDAO extends JdbcDAO<GameReport> implements GameReport
     private final DocumentDAO documentDAO;
 
     /**
-     * Costruisce un nuovo GameReportDAO utilizzando la connessione e i DAO specificati.
+     * Costruisce un nuovo {@code JDBCGameReportDAO} utilizzando la connessione e i DAO specificati.
      *
-     * @param conn la connessione al database da utilizzare per le operazioni
+     * @param conn        la connessione al database da utilizzare per le operazioni
      * @param documentDAO il DAO per la gestione dei documenti
-     * @param userDAO il DAO per la gestione degli utenti
+     * @param userDAO     il DAO per la gestione degli utenti
      */
     public JDBCGameReportDAO(Connection conn, DAO<Document> documentDAO, DAO<User> userDAO) {
         super(conn);
@@ -48,9 +49,11 @@ public class JDBCGameReportDAO extends JdbcDAO<GameReport> implements GameReport
     }
 
     /**
-     * Recupera un report di gioco dal database tramite il suo identificativo.
+     * Recupera un report di gioco dal database sulla base dell'utente e del timestamp.
      *
-* @return un Optional contenente il report trovato, o vuoto se non esiste
+     * @param user      l'utente autore del report
+     * @param timestamp il timestamp univoco della partita
+     * @return un {@code Optional} contenente il report trovato, o vuoto se non esiste
      * @throws QueryFailedException se si verifica un errore durante la query
      */
     @Override
@@ -59,9 +62,9 @@ public class JDBCGameReportDAO extends JdbcDAO<GameReport> implements GameReport
     }
 
     /**
-     * Recupera tutti i report di gioco presenti nella tabella GameReport.
+     * Recupera tutti i report di gioco presenti nella tabella {@code GameReport}.
      *
-     * @return una lista di tutti i report di gioco nel database
+     * @return una lista di tutti i report presenti nel database
      * @throws QueryFailedException se si verifica un errore durante la query
      */
     @Override
@@ -70,11 +73,11 @@ public class JDBCGameReportDAO extends JdbcDAO<GameReport> implements GameReport
     }
 
     /**
-     * Recupera tutti i report di gioco che soddisfano una specifica clausola SQL.
+     * Recupera i report di gioco che soddisfano una specifica clausola SQL.
      *
-     * @param sqlClause la clausola WHERE da applicare (senza la parola chiave WHERE)
-     * @param params i parametri da sostituire nella query
-     * @return una lista di report di gioco corrispondenti alla clausola specificata
+     * @param sqlClause la clausola {@code WHERE} da applicare (senza la parola chiave {@code WHERE})
+     * @param params    i parametri da sostituire nella query
+     * @return una lista di report che corrispondono ai criteri specificati
      * @throws QueryFailedException se si verifica un errore durante la query
      */
     public List<GameReport> selectWhere(String sqlClause, Object... params) {
@@ -83,12 +86,13 @@ public class JDBCGameReportDAO extends JdbcDAO<GameReport> implements GameReport
     }
 
     /**
-     * Metodo di utilità per eseguire una query e mappare i risultati in oggetti GameReport.
+     * Metodo interno di utilità per eseguire una query di selezione e mappare i risultati in oggetti {@link GameReport}.
+     * Recupera anche i documenti associati tramite la tabella {@code Content}.
      *
-     * @param query la query SQL da eseguire
-     * @param params i parametri da sostituire nella query
-     * @return una lista di GameReport ottenuti dai risultati della query
-     * @throws QueryFailedException se si verifica un errore durante la query
+     * @param query  la query SQL completa da eseguire
+     * @param params i parametri da usare nella query
+     * @return una lista di {@link GameReport} risultanti
+     * @throws QueryFailedException se si verifica un errore durante l'elaborazione dei risultati
      */
     private List<GameReport> selectBase(String query, Object... params) {
         var result = new ArrayList<GameReport>();
@@ -145,10 +149,10 @@ public class JDBCGameReportDAO extends JdbcDAO<GameReport> implements GameReport
     }
 
     /**
-     * Inserisce un nuovo report di gioco nella tabella GameReport e aggiorna la tabella Content
-     * per associare i documenti utilizzati.
+     * Inserisce un nuovo {@link GameReport} nel database e associa i documenti
+     * tramite la tabella {@code Content}.
      *
-     * @param gameReport il report di gioco da inserire
+     * @param gameReport il report da salvare
      * @throws QueryFailedException se si verifica un errore durante l'inserimento
      */
     @Override
@@ -182,7 +186,7 @@ public class JDBCGameReportDAO extends JdbcDAO<GameReport> implements GameReport
      * Formatta un valore temporale (in secondi) in una stringa nel formato MM:SS.
      * Garantisce che il tempo formattato rispetti i vincoli del database:
      * @param time il tempo da formattare
-     * @return una stringa nel formato "MM:SS" che rappresenta il tempo normalizzato
+     * @return una {@code String} nel formato "MM:SS" che rappresenta il tempo normalizzato
      */
     private String preFormatTime(long time) {
         long minutes = Math.min(time / 60, 60);
@@ -195,9 +199,12 @@ public class JDBCGameReportDAO extends JdbcDAO<GameReport> implements GameReport
     }
 
     /**
-     * Aggiorna le informazioni di un report di gioco esistente nella tabella GameReport.
+     * Aggiorna un {@link GameReport} esistente nel database.
+     * <p>
+     * Nota: questa operazione modifica solo la tabella {@code GameReport},
+     * non la tabella {@code Content}.
      *
-     * @param gameReport il report di gioco da aggiornare
+     * @param gameReport il report aggiornato
      * @throws UpdateFailedException se si verifica un errore durante l'aggiornamento
      */
     @Override
@@ -220,12 +227,13 @@ public class JDBCGameReportDAO extends JdbcDAO<GameReport> implements GameReport
     }
 
     /**
-     * Elimina un report di gioco dalla tabella GameReport.
-     * L'eliminazione comporta anche la cancellazione dei record associati nella tabella Content
-     * grazie ai vincoli di integrità (ON DELETE CASCADE).
+     * Elimina un {@link GameReport} dal database.
+     * <p>
+     * Grazie al vincolo {@code ON DELETE CASCADE}, i documenti associati nella
+     * tabella {@code Content} vengono eliminati automaticamente.
      *
-     * @param gameReport il report di gioco da eliminare
-     * @throws UpdateFailedException se si verifica un errore durante l'eliminazione
+     * @param gameReport il report da eliminare
+     * @throws UpdateFailedException se si verifica un errore durante la rimozione
      */
     @Override
     public void delete(GameReport gameReport) {

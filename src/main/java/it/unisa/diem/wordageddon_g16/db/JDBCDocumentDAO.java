@@ -14,12 +14,12 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Data Access Object (DAO) per la gestione dei documenti nel database.
- * Consente di eseguire operazioni CRUD sulla tabella Document,
- * rappresentando ogni documento come un oggetto {@link Document}.
+ * Implementazione JDBC del {@link DocumentDAO}, che gestisce le operazioni sui documenti.
+ * <p>
+ * I documenti sono salvati nella tabella {@code Document} e rappresentati tramite il model {@link Document}.
+ * Tutte le interazioni con il database sono gestite tramite {@link JdbcDAO}, con logging automatico via {@link SystemLogger}.
  */
 public class JDBCDocumentDAO extends JdbcDAO<Document> implements DocumentDAO {
-
 
     /**
      * Costruisce un nuovo DocumentDAO utilizzando la connessione specificata.
@@ -31,11 +31,13 @@ public class JDBCDocumentDAO extends JdbcDAO<Document> implements DocumentDAO {
     }
 
     /**
-     * Recupera un documento dal database tramite il suo identificativo.
+     * Recupera un documento dal database in base al suo identificativo (rappresentato dal {@code filename}).
+     * <p>
+     * Se il documento esiste, viene restituito incapsulato in un {@link Optional}. Se non esiste, il risultato sarà vuoto.
      *
-     * @param obj l'identificativo del documento da recuperare
-     * @return un Optional contenente il documento trovato, o vuoto se non esiste
-     * @throws QueryFailedException se si verifica un errore durante la query
+     * @param filename identificativo univoco del documento
+     * @return {@code Optional} contenente il documento trovato, oppure vuoto
+     * @throws QueryFailedException se l'esecuzione della query fallisce
      */
     @Override
     public Optional<Document> selectBy(String filename) {
@@ -61,10 +63,10 @@ public class JDBCDocumentDAO extends JdbcDAO<Document> implements DocumentDAO {
 
 
     /**
-     * Recupera tutti i documenti presenti nella tabella Document.
+     * Recupera tutti i documenti presenti nella tabella {@code Document}.
      *
-     * @return una lista di tutti i documenti nel database
-     * @throws QueryFailedException se si verifica un errore durante la query
+     * @return lista di {@link Document} recuperati dal database
+     * @throws QueryFailedException se l'esecuzione della query fallisce
      */
     @Override
     public List<Document> selectAll() {
@@ -92,9 +94,9 @@ public class JDBCDocumentDAO extends JdbcDAO<Document> implements DocumentDAO {
     }
 
     /**
-     * Inserisce un nuovo documento nella tabella Document.
+     * Inserisce un nuovo {@link Document} nella tabella. Se il documento esiste già (stesso {@code id}), l'operazione viene ignorata.
      *
-     * @param document il documento da inserire
+     * @param document documento da inserire
      * @throws QueryFailedException se si verifica un errore durante l'inserimento
      */
     @Override
@@ -109,10 +111,10 @@ public class JDBCDocumentDAO extends JdbcDAO<Document> implements DocumentDAO {
     }
 
     /**
-     * Aggiorna le informazioni di un documento esistente nella tabella Document.
+     * Aggiorna i dati di un {@link Document} esistente nella tabella, modificandone titolo e numero di parole.
      *
-     * @param document il documento da aggiornare
-     * @throws UpdateFailedException se si verifica un errore durante l'aggiornamento
+     * @param document documento da aggiornare
+     * @throws UpdateFailedException se si verifica un errore durante l’aggiornamento
      */
     @Override
     public void update(Document document) {
@@ -126,12 +128,12 @@ public class JDBCDocumentDAO extends JdbcDAO<Document> implements DocumentDAO {
     }
 
     /**
-     * Elimina un documento dalla tabella Document.
-     * L'eliminazione di un documento comporta anche l'eliminazione delle entità associate (ad esempio Content e WDM)
-     * grazie ai vincoli di integrità (ON DELETE CASCADE).
+     * Elimina un {@link Document} dalla tabella.
+     * <p>
+     * Grazie ai vincoli di integrità {@code ON DELETE CASCADE}, vengono rimossi anche i record associati (es. {@code Content}, {@code WDM}).
      *
-     * @param document il documento da eliminare
-     * @throws UpdateFailedException se si verifica un errore durante l'eliminazione
+     * @param document documento da eliminare
+     * @throws UpdateFailedException se l'eliminazione fallisce
      */
     @Override
     public void delete(Document document) {
@@ -144,6 +146,11 @@ public class JDBCDocumentDAO extends JdbcDAO<Document> implements DocumentDAO {
         }
     }
 
+    /**
+     * Verifica se la tabella {@code Document} contiene almeno una riga.
+     *
+     * @return {@code true} se la tabella è vuota, {@code false} altrimenti
+     */
     @Override
     public boolean isEmpty() {
         return super.isEmpty("Document");

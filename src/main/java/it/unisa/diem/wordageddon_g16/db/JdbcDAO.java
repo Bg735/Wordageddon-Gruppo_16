@@ -11,11 +11,12 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 /**
- * Classe astratta che implementa il pattern Data Access Object (DAO) per la gestione
- * delle operazioni di accesso al database tramite JDBC.
- * Fornisce metodi di utilità per l'esecuzione di query e aggiornamenti parametrizzati.
+ * Classe astratta base per l'accesso ai dati tramite JDBC.
+ * <p>
+ * Implementa il pattern DAO e fornisce metodi comuni per eseguire query SQL parametrizzate,
+ * operazioni di aggiornamento e verifiche strutturali. Ogni DAO specifico estende questa classe.
  *
- * @param <T> il tipo di oggetto gestito dal DAO
+ * @param <T> tipo dell'entità gestita dal DAO
  */
 public abstract class JdbcDAO<T> implements DAO<T> {
 
@@ -34,14 +35,14 @@ public abstract class JdbcDAO<T> implements DAO<T> {
     }
 
     /**
-     * Esegue una query parametrizzata sul database e applica una callback per processare il ResultSet.
+     * Esegue una query SQL con parametri e applica una {@link Callback} per elaborare il {@link ResultSet}.
      *
-     * @param sql la query SQL da eseguire
-     * @param cb la callback per processare il ResultSet
-     * @param params i parametri da sostituire nella query
-     * @param <R> il tipo di risultato restituito dalla callback
-     * @return il risultato elaborato dalla callback
-     * @throws QueryFailedException se si verifica un errore durante l'esecuzione della query
+     * @param sql     query SQL parametrizzata
+     * @param cb      callback che processa il risultato della query
+     * @param params  parametri da sostituire nella query
+     * @param <R>     tipo di dato restituito dalla callback
+     * @return risultato ottenuto dalla callback
+     * @throws QueryFailedException se la query fallisce durante l'esecuzione
      */
     protected <R> R executeQuery(String sql, Callback<ResultSet, R> cb, Object... params) {
         try (var stm = connection.prepareStatement(sql)) {
@@ -56,13 +57,13 @@ public abstract class JdbcDAO<T> implements DAO<T> {
     }
 
     /**
-     * Esegue una query senza parametri sul database e applica una callback per processare il ResultSet.
+     * Esegue una query SQL semplice (senza parametri) e ne elabora il risultato tramite {@link Callback}.
      *
-     * @param sql la query SQL da eseguire
-     * @param cb la callback per processare il ResultSet
-     * @param <R> il tipo di risultato restituito dalla callback
-     * @return il risultato elaborato dalla callback
-     * @throws QueryFailedException se si verifica un errore durante l'esecuzione della query
+     * @param sql query SQL da eseguire
+     * @param cb  callback che processa il {@link ResultSet}
+     * @param <R> tipo di risultato prodotto dalla callback
+     * @return risultato ottenuto dalla callback
+     * @throws QueryFailedException se la query fallisce
      */
     protected <R> R executeQuery(String sql, Callback<ResultSet, R> cb) {
         try (var stm = connection.createStatement()) {
@@ -74,12 +75,14 @@ public abstract class JdbcDAO<T> implements DAO<T> {
     }
 
     /**
-     * Esegue un'operazione di aggiornamento (INSERT, UPDATE, DELETE) sul database con parametri.
+     * Esegue un'operazione di modifica (INSERT, UPDATE, DELETE) sul database.
+     * <p>
+     * Se l'operazione è una INSERT, restituisce l'ID generato dalla riga appena inserita.
      *
-     * @param sql la query SQL da eseguire
-     * @param params i parametri da sostituire nella query
-     * @throws SQLException se si verifica un errore durante l'esecuzione dell'update
-     * @return l'ID generato per la riga inserita, se l'operazione è un INSERT e ne ha uno.
+     * @param sql    istruzione SQL da eseguire
+     * @param params parametri per l'inserimento
+     * @return ID generato, oppure {@code -1} se assente
+     * @throws SQLException se l'esecuzione fallisce
      */
     protected long executeUpdate(String sql, Object... params) throws SQLException {
         try (var stm = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -92,12 +95,11 @@ public abstract class JdbcDAO<T> implements DAO<T> {
     }
 
     /**
-     * Verifica se una tabella del database è vuota.
+     * Verifica se una tabella contiene almeno una riga.
      *
-     * @param tableName il nome della tabella da controllare
-     * @return true se la tabella contiene almeno una riga, false altrimenti
+     * @param tableName nome della tabella da controllare
+     * @return {@code true} se contiene righe, {@code false} se è vuota o se la query fallisce
      */
-
     protected boolean isEmpty(String tableName) {
         String query = "SELECT 1 FROM " + tableName + " LIMIT 1";
         try (var stm = connection.createStatement();

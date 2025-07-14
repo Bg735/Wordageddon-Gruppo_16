@@ -1,7 +1,9 @@
 package it.unisa.diem.wordageddon_g16.db;
 
+import it.unisa.diem.wordageddon_g16.db.contracts.DocumentDAO;
 import it.unisa.diem.wordageddon_g16.db.contracts.StopWordDAO;
 import it.unisa.diem.wordageddon_g16.db.exceptions.QueryFailedException;
+import it.unisa.diem.wordageddon_g16.models.Document;
 import it.unisa.diem.wordageddon_g16.utility.SystemLogger;
 import javafx.util.Callback;
 
@@ -11,14 +13,15 @@ import java.sql.SQLException;
 import java.util.*;
 
 /**
- * Data Access Object (DAO) per la gestione delle stopword nel database.
- * Permette di eseguire operazioni CRUD (eccetto update e selectById) sulla tabella StopWord.
- * Ogni stopword è rappresentata come una stringa.
+ * Implementazione JDBC del {@link StopWordDAO}, che gestisce le operazioni sulle stopwords.
+ * <p>
+ * Le stopwords sono salvati nella tabella {@code StopWord}.
+ * Tutte le interazioni con il database sono gestite tramite {@link JdbcDAO}, con logging automatico via {@link SystemLogger}.
  */
 public class JDBCStopWordDAO extends JdbcDAO<String> implements StopWordDAO {
 
     /**
-     * Costruisce un nuovo StopWordDAO utilizzando la connessione specificata.
+     * Costruisce un nuovo {@code JDBCStopWordDAO} utilizzando la connessione specificata.
      *
      * @param conn la connessione al database da utilizzare per le operazioni
      */
@@ -27,9 +30,9 @@ public class JDBCStopWordDAO extends JdbcDAO<String> implements StopWordDAO {
     }
 
     /**
-     * Recupera tutte le stopword presenti nella tabella StopWord.
+     * Recupera tutte le stopword presenti nel database.
      *
-     * @return un Set contenente tutte le stopword del database
+     * @return un insieme di stringhe contenente tutte le stopword registrate
      * @throws QueryFailedException se si verifica un errore durante la query
      */
     @Override
@@ -51,7 +54,9 @@ public class JDBCStopWordDAO extends JdbcDAO<String> implements StopWordDAO {
     }
 
     /**
-     * Inserisce una nuova stopword nella tabella StopWord.
+     * Inserisce una nuova stopword nel database.
+     * <p>
+     * Se la parola è già presente, non viene eseguita alcuna operazione grazie all'uso di {@code INSERT OR IGNORE}.
      *
      * @param s la stopword da inserire
      * @throws QueryFailedException se si verifica un errore durante l'inserimento
@@ -68,10 +73,10 @@ public class JDBCStopWordDAO extends JdbcDAO<String> implements StopWordDAO {
     }
 
     /**
-     * Operazione non supportata: l'aggiornamento delle stopword non è previsto.
+     * Operazione non supportata: l'aggiornamento di una stopword non è previsto.
      *
      * @param s la stopword da aggiornare (non utilizzata)
-     * @throws UnsupportedOperationException sempre lanciata per questa operazione
+     * @throws UnsupportedOperationException sempre sollevata, perché l'operazione è disabilitata
      */
     @Override
     public void update(String s) {
@@ -79,10 +84,10 @@ public class JDBCStopWordDAO extends JdbcDAO<String> implements StopWordDAO {
     }
 
     /**
-     * Elimina una stopword dalla tabella StopWord.
+     * Elimina una stopword specifica dal database.
      *
      * @param s la stopword da eliminare
-     * @throws QueryFailedException se si verifica un errore durante l'eliminazione
+     * @throws QueryFailedException se si verifica un errore durante la cancellazione
      */
     @Override
     public void delete(String s) {
@@ -95,6 +100,11 @@ public class JDBCStopWordDAO extends JdbcDAO<String> implements StopWordDAO {
         }
     }
 
+    /**
+     * Verifica se la tabella {@code StopWord} è vuota.
+     *
+     * @return {@code true} se la tabella non contiene alcuna stopword, {@code false} altrimenti
+     */
     @Override
     public boolean isEmpty() {
         return super.isEmpty("StopWord");

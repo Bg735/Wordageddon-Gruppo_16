@@ -35,7 +35,7 @@ public class SystemLogger {
     public static void log(Throwable e) {
         logger.log(Level.SEVERE, "An error occurred", e);
     }
-    
+
     static {
         try {
             // Imposta livello minimo a SEVERE (errori ed eccezioni)

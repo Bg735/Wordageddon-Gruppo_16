@@ -11,8 +11,9 @@ import java.util.*;
 /**
  * La classe WDM (Word Document Matrix) rappresenta l'associazione tra un documento
  * e la mappa delle frequenze delle parole significative in esso contenute.
- * Permette di analizzare un documento escludendo le stopwords e di accedere
- * facilmente ai risultati dell'analisi.
+ * <p>
+ * Permette di analizzare un documento escludendo le stopword, costruendo così una struttura utile
+ * per analisi lessicali e generazione di domande basate sui contenuti testuali.
  */
 public class WDM {
     /**
@@ -28,6 +29,8 @@ public class WDM {
 
     /**
      * Costruisce un oggetto WDM associando direttamente una mappa di frequenze a un documento.
+     * <p>
+     * Questo costruttore è utile quando l'analisi è già stata eseguita e le frequenze sono note.
      *
      * @param document il documento di riferimento
      * @param words    la mappa delle parole e delle loro frequenze
@@ -37,6 +40,16 @@ public class WDM {
         this.words = words;
     }
 
+    /**
+     * Costruisce un oggetto WDM eseguendo l'analisi del contenuto testuale di un documento.
+     * <p>
+     * Vengono escluse le parole presenti nella lista di stopword. Il contenuto viene letto
+     * dal file associato al documento tramite la classe {@link Resources}.
+     *
+     * @param doc        il documento da analizzare
+     * @param stopWords  l'insieme delle parole da ignorare durante l'analisi
+     * @throws RuntimeException se si verifica un errore durante la lettura del contenuto del documento
+     */
     public WDM(Document doc, Set<String> stopWords) {
         String filename = doc.filename();
         String title = doc.title();
@@ -61,7 +74,7 @@ public class WDM {
     /**
      * Restituisce la mappa delle parole significative e delle loro frequenze.
      *
-     * @return la mappa parola→frequenza
+     * @return la mappa parola, frequenza
      */
     public Map<String, Integer> getWords() {
         return words;

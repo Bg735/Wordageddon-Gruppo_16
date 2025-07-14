@@ -4,21 +4,21 @@ import java.nio.file.Path;
 import java.util.Objects;
 
 /**
- * Rappresenta un documento testuale con titolo, percorso e numero di parole.
+ * Rappresenta un documento testuale nell'applicazione Wordageddon.
  * <p>
- * Due documenti sono considerati uguali se hanno lo stesso percorso.
+ * Ogni documento è identificato dal suo percorso ({@code filename}), ha un titolo e un conteggio di parole.
+ * Due documenti sono considerati uguali se condividono lo stesso percorso.
  *
- * @param title     il titolo del documento
- * @param filename      il percorso del file del documento
- * @param wordCount il numero di parole nel documento
+ * @param filename  nome del file associato al documento
+ * @param title     titolo descrittivo del documento
+ * @param wordCount numero di parole contenute nel documento
  */
 public record Document(String filename, String title, Integer wordCount) {
 
     /**
-     * Verifica l'uguaglianza tra questo documento e un altro oggetto.
-     * Due documenti sono uguali se hanno lo stesso percorso.
+     * Verifica se questo documento è uguale a un altro oggetto in base al percorso ({@code filename}).
      *
-     * @param o l'oggetto da confrontare
+     * @param o oggetto da confrontare
      * @return {@code true} se i percorsi coincidono, {@code false} altrimenti
      */
     @Override
@@ -28,9 +28,9 @@ public record Document(String filename, String title, Integer wordCount) {
     }
 
     /**
-     * Restituisce l'hash code del documento, calcolato sul percorso.
+     * Restituisce l'hash code del documento calcolato sul campo {@code filename}.
      *
-     * @return l'hash code basato sul percorso
+     * @return valore hash del percorso
      */
     @Override
     public int hashCode() {
@@ -40,7 +40,7 @@ public record Document(String filename, String title, Integer wordCount) {
     /**
      * Restituisce il titolo del documento.
      *
-     * @return il titolo
+     * @return titolo come {@code String}
      */
     @Override
     public String title() {
@@ -48,9 +48,10 @@ public record Document(String filename, String title, Integer wordCount) {
     }
 
     /**
-     * Restituisce il percorso del documento.
+     /**
+     * Restituisce il nome del file associato al documento.
      *
-     * @return il percorso come {@link Path}
+     * @return percorso del file come {@code String}
      */
     @Override
     public String filename() {
@@ -58,9 +59,9 @@ public record Document(String filename, String title, Integer wordCount) {
     }
 
     /**
-     * Restituisce il numero di parole del documento.
+     * Restituisce il numero di parole contenute nel documento.
      *
-     * @return il conteggio delle parole
+     * @return conteggio parole come {@code Integer}
      */
     @Override
     public Integer wordCount() {
