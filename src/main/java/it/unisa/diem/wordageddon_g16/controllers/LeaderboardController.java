@@ -16,7 +16,12 @@ import javafx.scene.image.ImageView;
 
 import java.net.URL;
 import java.util.ResourceBundle;
-
+/**
+ * Controller JavaFX responsabile della gestione e visualizzazione della schermata di classifica.
+ * <p>
+ * Carica dinamicamente le classifiche globali e filtrate per difficoltà nella rispettiva {@link TableView}.
+ * Utilizza {@link LeaderboardService} per ottenere i dati di gioco e {@link ViewLoader} per la navigazione.
+ */
 public class LeaderboardController implements Initializable {
 
     @FXML
@@ -36,10 +41,28 @@ public class LeaderboardController implements Initializable {
 
     private final LeaderboardService leaderboardService;
 
+    /**
+     * Costruttore del controller utilizzando il {@link AppContext} per recuperare il {@link LeaderboardService}.
+     *
+     * @param context contesto applicativo condiviso con il servizio di classifica
+     */
     public LeaderboardController(AppContext context) {
         this.leaderboardService = context.getLeaderboardService();
     }
-
+    /**
+     * Inizializza la schermata di classifica e popola le tabelle con i dati ottenuti da {@link LeaderboardService}.
+     * <p>
+     * Per ogni {@link TableView} (globale e per difficoltà):
+     * <ul>
+     *   <li>Configura la colonna dell'indice con un {@link TableCell} personalizzato</li>
+     *   <li>Collega le colonne ai campi di {@link LeaderboardService.LeaderboardEntry}</li>
+     *   <li>Popola i dati con {@code FXCollections.observableList(...)} per la difficoltà corrispondente</li>
+     * </ul>
+     * </p>
+     *
+     * @param url non utilizzato
+     * @param resourceBundle non utilizzato
+     */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         for (TableView<LeaderboardService.LeaderboardEntry> tableView : new TableView[]{globalTW, easyTW, mediumTW, hardTW}) {
@@ -79,6 +102,11 @@ public class LeaderboardController implements Initializable {
         mediumTW.setItems(FXCollections.observableList(leaderboardService.getLeaderboardByDifficulty(Difficulty.MEDIUM)));
         hardTW.setItems(FXCollections.observableList(leaderboardService.getLeaderboardByDifficulty(Difficulty.HARD)));
     }
+    /**
+     * Gestisce il click sul pulsante "Indietro" e ritorna al menu principale.
+     *
+     * @param event evento generato dall'interazione con il pulsante
+     */
 
     @FXML
     private void back(ActionEvent event) {
