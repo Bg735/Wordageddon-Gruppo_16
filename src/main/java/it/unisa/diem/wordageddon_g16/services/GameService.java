@@ -143,7 +143,7 @@ public class GameService {
             allowedTypes.add(Question.QuestionType.WHICH_DOCUMENT);
             allowedTypes.add(Question.QuestionType.WHICH_ABSENT);
         } else {
-            System.out.println("Sono presenti meno di 4 documenti, le domande generate saranno di tipo SINGLE (riguardano un singolo documento)");
+            System.out.println("Il sistema ha selezionato meno di 4 documenti, le domande generate saranno di tipo SINGLE (riguardano un singolo documento)");
         }
 
         for (int i = 0; i < params.questionCount; i++) {
@@ -219,7 +219,7 @@ public class GameService {
 
         // Crea la domanda
         return Question.create(
-                "Quante volte la parola \"" + chosenWord.toUpperCase() + "\" appare nel documento \"" + document.title() + "\"?",
+                "Quante volte la parola \"" + chosenWord.toUpperCase() + "\" appare nel documento \"" + document.title().toUpperCase() + "\"?",
                 answers,
                 correctIndex
         );
@@ -343,7 +343,7 @@ public class GameService {
                 correctIndex = i;
             }
         }
-        return Question.create("Quale di queste parole appare più frequentemente nel documento " + document.title() + "?", answers, correctIndex);
+        return Question.create("Quale di queste parole appare più frequentemente nel documento \"" + document.title().toUpperCase() + "\"?", answers, correctIndex);
     }
 
     private Question whichLessQuestionSingle() {
@@ -371,7 +371,7 @@ public class GameService {
         for (var entry : selected) {
             answers.add(entry.getKey());
         }
-        return Question.create("Quale delle seguenti parole appare meno frequentemente nel documento " + document.title() + "?", answers, correctIndex);
+        return Question.create("Quale delle seguenti parole appare meno frequentemente nel documento \"" + document.title().toUpperCase() + "\"?", answers, correctIndex);
     }
 
     private Question whichLessQuestion() {
@@ -462,7 +462,7 @@ public class GameService {
 
     private Question whichAbsentQuestion() {
         // Recupera tutti i documenti e tutte le parole presenti
-        List<Document> docs = params.documents;
+        List<Document> docs = getDocuments();
         Set<String> allWords = new HashSet<>();
         for (WDM wdm : wdmMap.values()) {
             allWords.addAll(wdm.getWords().keySet());
@@ -474,6 +474,7 @@ public class GameService {
         // Crea una lista di parole presenti e seleziona 3 parole casuali
         List<String> presentWords = new ArrayList<>(allWords);
         Collections.shuffle(presentWords);
+
         List<String> answers = new ArrayList<>();
         answers.add(presentWords.get(0));
         answers.add(presentWords.get(1));
@@ -504,20 +505,71 @@ public class GameService {
      * @return una parola sicuramente assente
      */
     private String generateAbsentWord(Set<String> presentWords) {
-        Random rand = new Random();
-        String[] candidateSyllables = {"tra", "spo", "gle", "fro", "zan", "qui", "lop"};
-        String absentWord;
-        do {
-            // Costruisce una parola casuale di 2-3 sillabe
-            int syllableCount = 2 + rand.nextInt(2); // 2 o 3 sillabe
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < syllableCount; i++) {
-                sb.append(candidateSyllables[rand.nextInt(candidateSyllables.length)]);
+        // True: la parola è prelevata da un vocabolario statico
+        // False: la parola è prelevata dalla WDM di un documento non utilizzato durante la partita
+        boolean useVocabulary = false;
+
+        // Creo una lista di documenti non utilizzati
+        List<Document> usedDocsList = getDocuments();
+        List<Document> allDocsList = documentDAO.selectAll().stream().toList();
+        List<Document> unusedDocsList = allDocsList.stream()
+                .filter(doc -> !usedDocsList.contains(doc))
+                .collect(Collectors.toList());
+
+        // Se non ci sono documenti inutilizzati, uso il vocabolario statico
+        if (unusedDocsList.isEmpty()) {
+            System.out.println("Nessun documento inutilizzato, uso il vocabolario statico");
+            useVocabulary = true;
+        }
+
+        String word = null;
+
+        // Prelevo la parola da un documento inutilizzato
+        if (useVocabulary ==  false) {
+            Collections.shuffle(unusedDocsList);
+
+            // Trova una parola valida da una WDM di un documento inutilizzato
+            for (Document unusedDoc : unusedDocsList) {
+                WDM unusedDocWdm = wdmMap.get(unusedDoc);
+                if (unusedDocWdm == null) continue;
+
+                List<String> unusedDocWords = new ArrayList<>(unusedDocWdm.getWords().keySet());
+
+                // Rimuovo le parole già presenti nei documenti utilizzati
+                unusedDocWords.removeIf(presentWords::contains);
+
+                if (!unusedDocWords.isEmpty()) {
+                    // Prelevo una parola casuale da quelle rimaste nella collezione
+                    Collections.shuffle(unusedDocWords);
+                    word = unusedDocWords.get(0);
+                    break;
+                }
             }
-            absentWord = sb.toString();
-        } while (presentWords.contains(absentWord));
-        return absentWord;
+
+            // Se non trovata, fallback al vocabolario statico
+            if (word == null) {
+                useVocabulary = true;
+            }
+        }
+
+        if (useVocabulary) {
+            // Prelevo una parola dal vocabolario statico
+            // Bisogna creare una nuova lista in quanto quella restituita da Resources.getVocabulary() é immutabile
+            // avendola ottenuta mediante il costruttore Arrays.
+            List<String> vocabWords = new ArrayList<>(Resources.getVocabulary());
+            vocabWords.removeIf(presentWords::contains);
+            if (vocabWords.isEmpty()) {
+                throw new IllegalStateException("Nessuna parola disponibile nel vocabolario statico!");
+            }
+            Collections.shuffle(vocabWords);
+            word = vocabWords.get(0);
+        }
+
+        System.out.println("Generated Word: " + word);
+        return word;
+
     }
+
     /**
      * Carica nella mappa wdmMap le matrici parola-documento per tutti i documenti della partita.
      * Se la matrice non è presente nel database, viene generata e salvata.

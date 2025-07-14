@@ -64,10 +64,6 @@ public class GameSessionController {
     @FXML private Button answer3Btn;
     @FXML private Button answer4Btn;
 
-
-
-
-
     Map<Document, String> documentToTextMap;
 
     private SimpleIntegerProperty currentQuestionIndex;
@@ -215,7 +211,7 @@ public class GameSessionController {
             questionsReady.set(true);  // Le domande sono pronte
         });
         questionSetupService.setOnFailed(_ -> {
-            throw new RuntimeException("Error during reading setup task");
+            throw new RuntimeException("Error during reading setup task: " + questionSetupService.getException());
         });
 
         loadPane(diffSelectionPane);

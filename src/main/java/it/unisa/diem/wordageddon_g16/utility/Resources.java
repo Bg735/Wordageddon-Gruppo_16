@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -13,6 +15,10 @@ import java.util.Objects;
  * come asset, stili e percorsi di upload.
  */
 public class Resources {
+    private static final List<String> VOCABULARY = Arrays.asList(
+            "casa", "albero", "libro", "mare", "sole", "strada", "fiore", "cielo",
+            "amico", "scuola", "montagna", "acqua", "città", "notte", "vento"
+    );
 
     /**
      * Costruttore privato per impedire l'istanziazione della classe di utilità.
@@ -48,14 +54,18 @@ public class Resources {
      * @return il {@link Path} relativo a "uploads/documents"
      */
     public static Path getDocPath(Document document) {
-        return Path.of(Config.get(Config.Props.DOCUMENTS_DIR) + document.filename());
+        return Path.of(Config.get(Config.Props.DOCUMENTS_DIR), document.filename());
     }
 
-    public static Path getDocsDirPath(){
+    public static Path getDocsDirPath() {
         return Path.of(Config.get(Config.Props.DOCUMENTS_DIR));
     }
 
     public static String getDocumentContent(String filename) throws IOException {
-        return Files.readString(Path.of(Config.get(Config.Props.DOCUMENTS_DIR) + filename));
+        return Files.readString(Path.of(Config.get(Config.Props.DOCUMENTS_DIR), filename));
+    }
+
+    public static List<String> getVocabulary() {
+        return VOCABULARY;
     }
 }
