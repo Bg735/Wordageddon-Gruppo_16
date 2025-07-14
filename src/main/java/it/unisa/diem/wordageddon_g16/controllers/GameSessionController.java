@@ -93,7 +93,7 @@ public class GameSessionController {
 
     // Secondi minimi prima di poter saltare la lettura
     private static final int MIN_TIME_FOR_SKIP = 1;
-    private static final int QUESTION_TIME_LIMIT = 10;
+    private static final java.time.Duration QUESTION_TIME_LIMIT = java.time.Duration.ofSeconds(10) ;
 
     @FXML private TableView<Map.Entry<Question, Integer>> answersTable;
     @FXML
@@ -189,7 +189,7 @@ public class GameSessionController {
                     Platform.runLater(() -> setDocument(0));
 
                     questionSetupService.start();
-                    int seconds = (int) gameService.getTimeLimit().getSeconds();
+                    java.time.Duration seconds = gameService.getTimeLimit();
                     readingTimer = startTimer(seconds, timerLabelRead, timerBar, () -> loadPane(questionPane));
 
                     // Avvia la pausa per abilitare lo skip dopo 15 secondi
@@ -357,7 +357,7 @@ public class GameSessionController {
     private void showReport() {
         LocalDateTime questionEndTime = LocalDateTime.now();
         java.time.Duration usedTime = java.time.Duration.between(questionStartTime, questionEndTime);
-        java.time.Duration timeLimit = gameService.getTimeLimit().multipliedBy(gameService.getQuestionCount());
+        java.time.Duration timeLimit = QUESTION_TIME_LIMIT.multipliedBy(gameService.getQuestionCount());
 
         GameReport report = new GameReport(
                 appContext.getCurrentUser(),
@@ -387,13 +387,22 @@ public class GameSessionController {
      * Avvia un timer visuale che aggiorna una label e una progress bar ogni secondo.
      * Al termine del conto alla rovescia, esegue la callback specificata.
      *
-     * @param durationSeconds durata del timer in secondi
+     * @param duration durata del timer in secondi
      * @param label           label da aggiornare con il tempo rimanente
      * @param bar             progress bar da aggiornare con l'avanzamento del tempo
      * @param onFinished      operazione da eseguire al termine del timer
      * @return oggetto Timeline che rappresenta il timer in esecuzione
      */
-    private Timeline startTimer(int durationSeconds, Label label, ProgressBar bar, Runnable onFinished) {
+    private Timeline startTimer(java.time.Duration duration, Label label, ProgressBar bar, Runnable onFinished) {
+        int totalSeconds = (int) duration.getSeconds();
+
+        if (totalSeconds <= 0) {
+            bar.setProgress(1.0);
+            label.setText("00:00");
+            onFinished.run();
+            return null;
+        }
+
         Runnable updateBarStyle = () -> Platform.runLater(() -> {
             var barNode = bar.lookup(".bar");
             if (barNode != null) {
@@ -410,10 +419,11 @@ public class GameSessionController {
         });
 
         Timeline timer = new Timeline();
-        for (int i = 0; i <= durationSeconds; i++) {
-            int secondsRemaining = durationSeconds - i;
-            double progress = (double) i / durationSeconds;
-            timer.getKeyFrames().add(new KeyFrame(Duration.seconds(i), _ -> {
+
+        for (int i = 0; i <= totalSeconds; i++) {
+            int secondsRemaining = totalSeconds - i;
+            double progress = (double) i / totalSeconds;
+            timer.getKeyFrames().add(new KeyFrame(javafx.util.Duration.seconds(i), _ -> {
                 label.setText(String.format("%02d:%02d", secondsRemaining / 60, secondsRemaining % 60));
                 Platform.runLater(() -> {
                     bar.setProgress(progress);
@@ -425,11 +435,14 @@ public class GameSessionController {
                 }
             }));
         }
+
         bar.sceneProperty().addListener((_, _, newScene) -> {
             if (newScene != null) {
                 Platform.runLater(updateBarStyle);
             }
         });
+
+        updateBarStyle.run(); // Imposta colore iniziale
         timer.play();
         return timer;
     }
