@@ -24,36 +24,35 @@ public class WDM {
      * Mappa delle parole significative e delle rispettive frequenze nel documento.
      * La chiave è la parola, il valore è il numero di occorrenze.
      */
-    private final Map<String,Integer> words;
+    private final Map<String, Integer> words;
 
     /**
      * Costruisce un oggetto WDM associando direttamente una mappa di frequenze a un documento.
      *
      * @param document il documento di riferimento
-     * @param words la mappa delle parole e delle loro frequenze
+     * @param words    la mappa delle parole e delle loro frequenze
      */
     public WDM(Document document, Map<String, Integer> words) {
         this.document = document;
         this.words = words;
     }
 
-    /**
-     TODO: Documentazione
-     */
-    public WDM(String filename, String title, Set<String> stopWords) {
+    public WDM(Document doc, Set<String> stopWords) {
+        String filename = doc.filename();
+        String title = doc.title();
         words = new HashMap<>();
         int wordCount = 0;
         try (Scanner scanner = new Scanner(new StringReader(Resources.getDocumentContent(filename)))) {
             scanner.useDelimiter("\\s+");
             while (scanner.hasNext()) {
-                String word = scanner.next().replaceAll("\\p{Punct}", "");
-                if (!word.isEmpty() && !stopWords.contains(word.toLowerCase())) {
+                String word = scanner.next().replaceAll("\\p{Punct}", "").toLowerCase();
+                if (!word.isEmpty() && !stopWords.contains(word)) {
                     words.put(word, words.getOrDefault(word, 0) + 1);
                     wordCount++;
                 }
             }
         } catch (IOException e) {
-            SystemLogger.log("Errore durante l'analisi del documento "+filename, e);
+            SystemLogger.log("Errore durante l'analisi del documento " + filename, e);
             throw new RuntimeException(e);
         }
         this.document = new Document(filename, title, wordCount);

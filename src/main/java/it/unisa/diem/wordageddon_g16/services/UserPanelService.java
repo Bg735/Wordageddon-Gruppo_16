@@ -47,9 +47,10 @@ public class UserPanelService {
         this.wdmDAO = wdmDAO;
     }
 
-    public void loadWDM(WDM wdm) {
+    public void updateWDM(WDM wdm) {
         // Controllo se il documento è già presente
         if (wdmDAO.selectBy(wdm.getDocument()).isPresent()) {
+            System.out.println("Aggiornamento del documento e della WDM associata: " + wdm.getDocument().filename());
             documentDAO.update(wdm.getDocument());
             wdmDAO.update(wdm);
         }
@@ -285,6 +286,4 @@ public class UserPanelService {
         }
         return stopWordsSet;
     }
-
-
 }
