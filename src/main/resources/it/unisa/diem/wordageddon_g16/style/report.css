@@ -61,8 +61,6 @@
 }
 
 .button:hover{
-    -fx-background-color: white;
-    -fx-background-radius: 50;
     -fx-scale-x: 1.2;
     -fx-scale-y: 1.2;
 }

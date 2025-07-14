@@ -122,7 +122,22 @@ public class GameSessionController {
     @FXML private TableColumn<Map.Entry<Question, Integer>, String> punteggioCln;
     @FXML private TableColumn<Map.Entry<Question, Integer>, String> rispostaCorrettaCln;
     @FXML private TableColumn<Map.Entry<Question, Integer>, String> rispostaDataCln;
-
+    @FXML
+    private StackPane leaderboardBtn;
+    @FXML
+    private VBox questionContainer;
+    @FXML
+    private StackPane showAnswersBtn;
+    @FXML
+    private StackPane menuBtn;
+    @FXML
+    private VBox answerBox;
+    @FXML
+    private StackPane playAgainBtn;
+    @FXML
+    private Button backButtonDiff;
+    @FXML
+    private VBox difficultyButtonsBox;
 
 
     /**
@@ -510,6 +525,7 @@ public class GameSessionController {
     @FXML
     public void toggleShowAnswers(Event event) {
         heroBox.setVisible(!heroBox.isVisible());
+        viewAnswersBtnText.setText((heroBox.isVisible() ? "Mostra Resoconto" : "Mostra Risposte"));
         answersBox.setVisible(!answersBox.isVisible());
 
 
