@@ -244,11 +244,6 @@
                         </VBox>
                         <VBox fx:id="answersBox" alignment="CENTER" visible="false" StackPane.alignment="CENTER">
                            <children>
-                              <Label styleClass="floating-title" text="Risposte" textFill="WHITE">
-                                 <VBox.margin>
-                                    <Insets bottom="20.0" />
-                                 </VBox.margin>
-                              </Label>
                               <TableView fx:id="answersTable">
                                  <columns>
                                      <TableColumn fx:id="domandaCln" maxWidth="6120.0" minWidth="30.0" prefWidth="650.0" text="Domanda" />
@@ -375,7 +370,7 @@
                                     <Cursor fx:constant="HAND" />
                                  </cursor>
                               </StackPane>
-                              <Label fx:id="viewAnswersBtnText" text="Visualizza Risposte">
+                              <Label fx:id="viewAnswersBtnText" text="Mostra Risposte">
                                  <font>
                                     <Font size="15.0" />
                                  </font>
