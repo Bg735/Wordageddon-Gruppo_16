@@ -1,3 +1,8 @@
+/**
+ * @file GameSessionController.java
+ * @brief Controller della sessione di gioco per l'applicazione Wordageddon.
+ * @author Gruppo16
+ */
 package it.unisa.diem.wordageddon_g16.controllers;
 
 import it.unisa.diem.wordageddon_g16.models.AppContext;
@@ -30,12 +35,14 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Controller JavaFX responsabile della gestione della sessione di gioco.
- * <p>
- * Coordina la visualizzazione delle varie fasi della partita:
- * selezione difficoltà, lettura documenti, domande e risposte.
- * Utilizza servizi asincroni per operazioni di I/O e generazione domande,
- * per mantenere la UI reattiva.
+ * @class GameSessionController
+ * @brief Controller principale per la gestione di una sessione di gioco.
+ * Gestisce la logica dell'interazione con l'utente durante la partita:
+ * selezione difficoltà, lettura dei documenti, quiz a domande multiple
+ * e resoconto finale con punteggio e tabella delle risposte date.
+ *
+ * Utilizza servizi JavaFX asincroni per mantenere la UI reattiva durante
+ * operazioni intensive (generazione domande, caricamento testo).
  */
 public class GameSessionController {
     @FXML private StackPane stackPane;
@@ -64,86 +71,63 @@ public class GameSessionController {
     @FXML private Button answer3Btn;
     @FXML private Button answer4Btn;
 
-    private Map<Document, String> documentToTextMap;
 
+    @FXML private TableView<Map.Entry<Question, Integer>> answersTable;
+    @FXML private HBox actionBarBox;
+    @FXML private Label wrongValue;
+    @FXML private Text scoreValue;
+    @FXML private VBox heroBox;
+    @FXML private VBox answersBox;
+    @FXML private StackPane mainStack;
+    @FXML private Label viewAnswersBtnText;
+    @FXML private Label rightValue;
+    @FXML private Label completionValue;
+    @FXML private AnchorPane reportPane;
+    @FXML private Label questionNumber;
+    @FXML private TableColumn<Map.Entry<Question, Integer>, String> domandaCln;
+    @FXML private TableColumn<Map.Entry<Question, Integer>, String> punteggioCln;
+    @FXML private TableColumn<Map.Entry<Question, Integer>, String> rispostaCorrettaCln;
+    @FXML private TableColumn<Map.Entry<Question, Integer>, String> rispostaDataCln;
+    @FXML private StackPane leaderboardBtn;
+    @FXML private VBox questionContainer;
+    @FXML private StackPane showAnswersBtn;
+    @FXML private StackPane menuBtn;
+    @FXML private VBox answerBox;
+    @FXML private StackPane playAgainBtn;
+    @FXML private Button backButtonDiff;
+    @FXML private VBox difficultyButtonsBox;
+
+    private Map<Document, String> documentToTextMap;
     private SimpleIntegerProperty currentQuestionIndex;
     private final SimpleIntegerProperty currentDocumentIndex;
     private final GameService gameService;
     private List<Question> questions;
-
     private Service<Map<Document, String>> readingSetupService;
     private Service<List<Question>> questionSetupService;
     private Timeline questionTimer;
-
     private final SimpleIntegerProperty elapsedSeconds;
     private Timeline readingTimer;
     private int score = 0;
     private int numeroRisposteCorrette = 0;
     private int numeroRisposteSaltate = 0;
-    private Map<Question, Integer> domandaRisposte;
-
-
+    private Map<Question, Integer> domandaRisposte; // Map con chiave la domanda e value l'indice della risposta data
     private final AppContext appContext;
-
-    private LocalDateTime questionStartTime;
-
-    // Indica se il thread di setup delle domande ha finito
-    private BooleanProperty questionsReady;
-    private BooleanProperty minTimeElapsed;
-
-    // Secondi minimi prima di poter saltare la lettura
-    private static final int MIN_TIME_FOR_SKIP = 1;
-    private static final java.time.Duration QUESTION_TIME_LIMIT = java.time.Duration.ofSeconds(10) ;
-
-    @FXML private TableView<Map.Entry<Question, Integer>> answersTable;
-    @FXML
-    private HBox actionBarBox;
-    @FXML
-    private Label wrongValue;
-    @FXML
-    private Text scoreValue;
-    @FXML
-    private VBox heroBox;
-    @FXML
-    private VBox answersBox;
-    @FXML
-    private StackPane mainStack;
-    @FXML
-    private Label viewAnswersBtnText;
-    @FXML
-    private Label rightValue;
-    @FXML
-    private Label completionValue;
-    @FXML
-    private AnchorPane reportPane;
-    @FXML
-    private Label questionNumber;
-    @FXML private TableColumn<Map.Entry<Question, Integer>, String> domandaCln;
-    @FXML private TableColumn<Map.Entry<Question, Integer>, String> punteggioCln;
-    @FXML private TableColumn<Map.Entry<Question, Integer>, String> rispostaCorrettaCln;
-    @FXML private TableColumn<Map.Entry<Question, Integer>, String> rispostaDataCln;
-    @FXML
-    private StackPane leaderboardBtn;
-    @FXML
-    private VBox questionContainer;
-    @FXML
-    private StackPane showAnswersBtn;
-    @FXML
-    private StackPane menuBtn;
-    @FXML
-    private VBox answerBox;
-    @FXML
-    private StackPane playAgainBtn;
-    @FXML
-    private Button backButtonDiff;
-    @FXML
-    private VBox difficultyButtonsBox;
-
+    private LocalDateTime questionStartTime; // Rappresenta il momento in cui viene visualizzata la prima domanda
+    private BooleanProperty questionsReady; // Indica se il thread di setup delle domande ha finito
+    private BooleanProperty minTimeElapsed; // Secondi minimi prima di poter saltare la lettura
+    private static final int MIN_TIME_FOR_SKIP = 1; // tempo minimo per skippare la lettura
+    private static final java.time.Duration QUESTION_TIME_LIMIT = java.time.Duration.ofSeconds(10) ; //Tempo massimo per rispondere ad una domanda
 
     /**
-     * Costruisce il controller e inizializza il servizio di gioco.
+     * @brief Costruttore della classe GameSessionController.
      *
-     * @param appContext il contesto applicativo che fornisce il GameService da utilizzare per la sessione.
+     * Inizializza le proprietà tracciano lo stato della sessione di gioco,
+     * come l'indice del documento corrente,l'indice della domanda mostrata, il tempo trascorso, e lo stato
+     * delle domande. Recupera inoltre un'istanza del GameService dal contesto applicativo
+     * fornito, così da poter accedere alla logica di gioco condivisa.
+     *
+     * @param[in] appContext Contesto applicativo contenente i servizi condivisi, incluso GameService.
+     * @see AppContext
      */
     public GameSessionController(AppContext appContext) {
         this.gameService = appContext.getGameService();
@@ -158,8 +142,21 @@ public class GameSessionController {
     }
 
     /**
-     * Inizializza il controller dopo il caricamento della view FXML.
-     * Avvia la fase di lettura e imposta la schermata iniziale sulla selezione della difficoltà.
+     * @brief Inizializza la sessione di gioco e configura i servizi asincroni.
+     *
+     * Questo metodo viene chiamato automaticamente da JavaFX al momento del caricamento del GameSessionController.
+     *
+     * In particolare:
+     * - Carica la vista per la selezione della difficoltà
+     * - Configura il pulsante di skip, presente durante lettura dei documenti, in modo che venga abilitato automaticamente quando la generazione delle domande è completata ('questionsReady')
+     *  e sono trascorsi almeno 15s dall'inizio del timer ('minTimeElapsed')
+     * - Istanzia e avvia 'readingSetupService' per la lettura dei documenti: viene eseguita in modo asincrono
+     *  la generazione del testo da leggere e del tempo di lettura tramite il metodo setupReadingPhase del GameService
+     * - Istanzia 'questionSetupService' per generare le domande del quiz in modalità asincrona tramite il metodo getQuestions del GameService
+     * - Aggiorna lo stato 'questionsReady' al completamento
+     *
+     * @see GameService#setupReadingPhase()
+     * @see GameService#getQuestions()
      */
     @FXML
     public void initialize() {
@@ -232,6 +229,11 @@ public class GameSessionController {
         loadPane(diffSelectionPane);
     }
 
+    /**
+     * @brief Mostra il contenuto del documento corrente nell'area di lettura.
+     *
+     * @param[in] i Indice del documento da visualizzare.
+     */
     private void setDocument(int i) {
         Document doc = gameService.getDocuments().get(i);
         documentTitleLabel.setText(doc.title());
@@ -239,9 +241,9 @@ public class GameSessionController {
     }
 
     /**
-     * Passa dalla fase di lettura a quella delle domande.
-     * Se le domande non sono ancora pronte, attende e riprova.
-     * Altrimenti, mostra la domanda corrente.
+     * @brief Avvia la fase del quiz dopo la lettura.
+     *
+     * Se le domande non sono ancora pronte, aspetta un secondo e riprova.
      */
     private void switchToQuestions() {
         if (questions == null) {
@@ -258,11 +260,13 @@ public class GameSessionController {
     }
 
     /**
-     * Visualizza la domanda corrente e genera i pulsanti delle possibili risposte.
+     * @brief Visualizza una domanda e le sue risposte nella UI.
      *
-     * @param index indice della domanda da visualizzare nella lista delle domande.
+     * Gestisce la risposta dell'utente, il controllo correttezza,
+     * e avanza alla prossima domanda o al report finale se non ci sono piu domande.
+     *
+     * @param[in] index Indice della domanda da mostrare.
      */
-
     private void showQuestion(int index) {
         //Se il l'indice della prossima domanda da visualizzare è maggiore del numero di domande, viene chiamato loadPane(reportPane)
         if (currentQuestionIndex.get() >= questions.size()) {
@@ -354,6 +358,15 @@ public class GameSessionController {
 
     }
 
+    /**
+     * @brief Genera il report di fine partita e aggiorna la UI.
+     *
+     * Calcola il tempo impiegato per rispondere alle domande, crea e salva il 'GameReport' registrato, aggiorna le statistiche della nuova vista (score,
+     * risposte corrette, risposte sbagliate, percentuale di risposte esatte su quelle date)
+     * e popola la tabella che mostra il resoconto della partita tramite il metodo populateAnswerTable() del controller.
+     *
+     * @see @GameSessionController#populateAnswerTable()
+     */
     private void showReport() {
         LocalDateTime questionEndTime = LocalDateTime.now();
         java.time.Duration usedTime = java.time.Duration.between(questionStartTime, questionEndTime);
@@ -384,14 +397,16 @@ public class GameSessionController {
     }
 
     /**
-     * Avvia un timer visuale che aggiorna una label e una progress bar ogni secondo.
-     * Al termine del conto alla rovescia, esegue la callback specificata.
+     * @brief Avvia un timer countdown con aggiornamento su barra e label.
      *
-     * @param duration durata del timer in secondi
-     * @param label           label da aggiornare con il tempo rimanente
-     * @param bar             progress bar da aggiornare con l'avanzamento del tempo
-     * @param onFinished      operazione da eseguire al termine del timer
-     * @return oggetto Timeline che rappresenta il timer in esecuzione
+     * Mostra il tempo residuo, aggiorna il colore della barra in base al tempo rimasto
+     * e chiama una funzione al termine del countdown.
+     *
+     * @param[in] duration Durata totale del timer.
+     * @param[in] label Label da aggiornare con il tempo rimanente.
+     * @param[in] bar ProgressBar da aggiornare.
+     * @param[in] onFinished Callback da eseguire al termine del timer.
+     * @return Istanza di Timeline attiva per il timer.
      */
     private Timeline startTimer(java.time.Duration duration, Label label, ProgressBar bar, Runnable onFinished) {
         int totalSeconds = (int) duration.getSeconds();
@@ -447,12 +462,12 @@ public class GameSessionController {
         return timer;
     }
 
-
     /**
-     * Gestisce la visualizzazione dei diversi pannelli dell'interfaccia.
-     * Rende visibile il pannello specificato e avvia eventuali servizi associati.
+     * @brief Cambia il pannello visibile nello StackPane principale.
      *
-     * @param pane il nodo (AnchorPane) da rendere visibile nello StackPane principale.
+     * Esegue azioni specifiche a seconda del pannello mostrato (es. avvio lettura, avvia domande, mostra risultati).
+     *
+     * @param[in] pane Nodo FXML da rendere visibile.
      */
     private void loadPane(Node pane) {
         for (Node p : stackPane.getChildren()) {
@@ -470,10 +485,13 @@ public class GameSessionController {
     }
 
     /**
-     * Gestisce la selezione della difficoltà da parte dell'utente.
-     * Inizializza la partita con la difficoltà scelta e avvia la fase di lettura.
+     * @brief Gestisce la selezione della difficoltà da parte dell'utente.
      *
-     * @param event evento di selezione generato dal click su uno dei bottoni di difficoltà.
+     * Metodo chiamato quando l'utente seleziona un livello di difficoltà tramite pulsante.
+     * In base all'ID del pulsante cliccato inizializza il GameService con il livello di difficoltà corrispondente
+     * Avvia la fase di lettura dei documenti caricando il relativo pannello ('readingPane')
+     *
+     * @param event Evento generato dalla selezione di difficoltà (ActionEvent su pulsante)
      */
     @FXML
     public void onDifficultySelected(ActionEvent event) {
@@ -489,8 +507,7 @@ public class GameSessionController {
     }
 
     /**
-     * Gestisce il ritorno al menu principale o la chiusura della finestra corrente.
-     *
+     * @brief Ritorna alla schermata principale del menu.
      */
     @FXML
     private void onBackPressed() {
@@ -498,6 +515,11 @@ public class GameSessionController {
         ViewLoader.load(ViewLoader.View.MENU);
     }
 
+    /**
+     * @brief Cambia il documento visualizzato nella fase di lettura.
+     *
+     * @param[in] event Evento generato dai pulsanti "Successivo" o "Precedente".
+     */
     @FXML
     private void onChangeDocument(ActionEvent event) {
         if (event.getSource().equals(nextDocumentButton)) {
@@ -508,6 +530,9 @@ public class GameSessionController {
         setDocument(currentDocumentIndex.get());
     }
 
+    /**
+     * @brief Salta la lettura dei documenti e passa direttamente alle domande.
+     */
     @FXML
     public void skipReading() {
         // Ferma il timer di lettura se è attivo
@@ -566,10 +591,10 @@ public class GameSessionController {
     }
 
     /**
-     * Popola la tabella delle risposte alla fine della partita.
+     *@brief Popola la tabella delle risposte visibile a fine partita.
      *
      * Il metodo viene chiamato in {@code showReport()} per visualizzare il riepilogo
-     * delle risposte date dall'utente. Utilizza la mappa {@code domandaRisposte}
+     * delle risposte date dall'utente. Utilizza la mappa 'domandaRisposte'
      * per mostrare, per ogni domanda:
      * <ul>
      *   <li>Il testo della domanda</li>
