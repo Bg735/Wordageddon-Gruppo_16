@@ -1,5 +1,7 @@
 package it.unisa.diem.wordageddon_g16.services;
 
+import it.unisa.diem.wordageddon_g16.controllers.GameSessionController;
+import it.unisa.diem.wordageddon_g16.db.JDBCGameReportDAO;
 import it.unisa.diem.wordageddon_g16.db.JDBCWdmDAO;
 import it.unisa.diem.wordageddon_g16.db.contracts.GameReportDAO;
 import it.unisa.diem.wordageddon_g16.db.contracts.DocumentDAO;
@@ -14,12 +16,12 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Service principale per la gestione della logica di gioco di Wordageddon.
- * Si occupa della generazione delle domande, della selezione dei documenti,
- * della gestione dei parametri di partita e dell'interazione con il database.
+ * Classe di "servizio" per la gestione della logica di gioco in Wordageddon.
+ * Fornisce tutte le funzionalità utili al GameSessionController come per inizializzare una partita, generare domande,
+ * calcolare punteggi, gestire documenti e salvare i risultati.
  */
-public class GameService {
 
+public class GameService {
     private final GameReportDAO gameReportDAO;
     private final JDBCWdmDAO wdmDAO;
     private final DocumentDAO documentDAO;
@@ -110,20 +112,25 @@ public class GameService {
     }
 
     /**
-     * Genera e restituisce la lista delle domande per la partita corrente.
-     * Questo metodo dovrebbe essere chiamato in modo asincrono durante la fase di visualizzazione dei documenti,
-     * poiché la generazione delle domande può richiedere tempo in caso di nuovi documenti.
+     * Genera la lista di domande per la sessione di gioco in base ai documenti e alla difficoltà selezionata.
+     * <p>
+     * Se {@link #params} non è inizializzato, viene sollevata una {@link IllegalStateException}.
+     * Il metodo definisce i tipi di domanda ammessi in base al numero di documenti disponibili.
+     * </p>
+     * <ul>
+     *   <li>Con meno di 4 documenti: solo domande di tipo SINGLE, ossia basate su un singolo documento</li>
+     *   <li>Con 4 o più documenti: include anche {@link Question.QuestionType#WHICH_DOCUMENT} e {@link Question.QuestionType#WHICH_ABSENT}, ossia domande che chiedono una parola in che documento è presente di più o in quale è assente</li>
+     * </ul>
+     * <p>
+     * Per ogni domanda da generare:
+     * <ul>
+     *   <li>Seleziona casualmente il {@link Question.QuestionType}</li>
+     *   <li>Chiama il metodo corrispondente come {@code absoluteFrequencyQuestion()} o {@code whichMoreQuestionSingle()}</li>
+     * </ul>
+     * </p>
      *
-     * @return lista delle domande da sottoporre durante il quiz
-     * @throws IllegalStateException se la partita non è stata inizializzata
-     */
-    /**
-     * Genera e restituisce la lista delle domande per la partita corrente.
-     * La generazione può essere lenta se sono presenti nuovi documenti.
-     * Da chiamare in modo asincrono durante la fase di visualizzazione dei documenti.
-     *
-     * @return lista delle domande del quiz
-     * @throws IllegalStateException se la partita non è stata inizializzata
+     * @return lista di {@link Question} generate per la sessione attuale
+     * @throws IllegalStateException se il gioco non è stato inizializzato correttamente
      */
     public List<Question> getQuestions() {
         Random rand = new Random();
@@ -178,6 +185,16 @@ public class GameService {
         }
         return questions;
     }
+
+    /**
+     * Genera una domanda {@link Question} sulla frequenza assoluta di una parola in un singolo documento.
+     * <p>
+     * Seleziona casualmente un {@link Document}, recupera la sua {@link WDM} associata e sceglie una parola presente.
+     * Crea quattro opzioni numeriche plausibili e identifica quella corretta in base alla frequenza della parola nel documento.
+     * </p>
+     *
+     * @return domanda a scelta multipla relativa alla frequenza di una parola in un singolo documento
+     */
     private Question absoluteFrequencyQuestionSingle() {
         // Seleziona un documento casuale
         List<Document> docs = getDocuments();
@@ -225,6 +242,16 @@ public class GameService {
         );
     }
 
+    /**
+     * Genera una domanda {@link Question} sulla frequenza assoluta di una parola in tutti i documenti combinati.
+     * <p>
+     * Somma le frequenze di tutte le parole attraverso i {@link WDM} dei documenti.
+     * Seleziona una parola casuale e genera opzioni di risposta basate sulla sua frequenza cumulata.
+     * </p>
+     *
+     * @return domanda relativa alla frequenza di una parola aggregata su tutti i documenti
+     * @throws IllegalStateException se non ci sono parole disponibili nei documenti
+     */
     private Question absoluteFrequencyQuestion() {
         // Crea la mappa cumulativa delle frequenze per tutte le parole in tutti i documenti
         Map<String, Integer> cumulativeFrequency = new HashMap<>();
@@ -273,6 +300,16 @@ public class GameService {
         );
     }
 
+    /**
+     * Genera una domanda {@link Question} in cui si chiede quale parola appare più frequentemente tra un insieme proposto, basata su tutti i documenti.
+     * <p>
+     * Accumula le frequenze totali per ogni parola e seleziona casualmente quattro parole tra quelle disponibili.
+     * Identifica quella con la frequenza più alta come risposta corretta.
+     * </p>
+     *
+     * @return domanda a scelta multipla sulla parola con frequenza massima complessiva
+     * @throws IllegalStateException se il numero di parole disponibili è inferiore a 4
+     */
     private Question whichMoreQuestion() {
         // Mappa cumulativa delle frequenze di tutte le parole in tutti i documenti
         Map<String, Integer> cumulativeFrequency = new HashMap<>();
@@ -319,6 +356,15 @@ public class GameService {
         return Question.create("Quale di queste parole appare più frequentemente in tutti i documenti?", answers, correctIndex);
     }
 
+    /**
+     * Genera una domanda {@link Question} in cui si chiede quale parola appare più frequentemente in un singolo documento.
+     * <p>
+     * Seleziona casualmente un {@link Document} e sceglie quattro parole dalla sua {@link WDM}.
+     * Identifica la parola con frequenza più alta come risposta corretta.
+     * </p>
+     *
+     * @return domanda a scelta multipla relativa alla parola più frequente nel documento selezionato
+     */
     private Question whichMoreQuestionSingle() {
         List<Document> docs = getDocuments();
         Document document = docs.get(GameParams.random.nextInt(docs.size()));
@@ -345,7 +391,15 @@ public class GameService {
         }
         return Question.create("Quale di queste parole appare più frequentemente nel documento \"" + document.title().toUpperCase() + "\"?", answers, correctIndex);
     }
-
+    /**
+     * Genera una domanda {@link Question} in cui si chiede quale parola appare meno frequentemente in un singolo documento.
+     * <p>
+     * Seleziona un {@link Document} casuale e quattro parole dalla sua {@link WDM}.
+     * Individua quella con la frequenza più bassa come risposta corretta.
+     * </p>
+     *
+     * @return domanda sulla parola con minore frequenza in un documento specifico
+     */
     private Question whichLessQuestionSingle() {
         List<Document> docs = getDocuments();
         Document document = docs.get(GameParams.random.nextInt(docs.size()));
@@ -374,6 +428,17 @@ public class GameService {
         return Question.create("Quale delle seguenti parole appare meno frequentemente nel documento \"" + document.title().toUpperCase() + "\"?", answers, correctIndex);
     }
 
+    /**
+     * Genera una domanda {@link Question} che richiede di identificare la parola meno frequente
+     * tra un insieme di quattro, basata sui dati cumulativi di tutti i documenti.
+     * <p>
+     * Combina le frequenze di tutte le parole usando le rispettive {@link WDM},
+     * ne seleziona quattro casualmente e individua quella con la frequenza più bassa.
+     * </p>
+     *
+     * @return domanda a scelta multipla sulla parola con minore frequenza globale
+     * @throws IllegalStateException se non sono disponibili abbastanza dati per la generazione
+     */
     private Question whichLessQuestion() {
         // Mappa cumulativa delle frequenze di tutte le parole in tutti i documenti
         Map<String, Integer> cumulativeFrequency = new HashMap<>();
@@ -414,6 +479,18 @@ public class GameService {
         return Question.create("Quale di queste parole appare meno frequentemente in tutti i documenti?", answers, correctIndex);
     }
 
+    /**
+     * Genera una domanda {@link Question} che richiede di identificare
+     * in quale documento appare una determinata parola.
+     * <p>
+     * Seleziona un {@link Document} casuale e una parola presente al suo interno.
+     * Prepara un insieme di documenti tra cui scegliere, garantendo che il documento corretto sia incluso,
+     * e costruisce le opzioni di risposta in ordine casuale.
+     * </p>
+     *
+     * @return domanda sulla presenza di una parola in uno dei documenti disponibili
+     * @throws IllegalStateException se il documento selezionato non contiene parole
+     */
     private Question whichDocumentQuestion() {
         List<Document> docs = getDocuments();
         Document document = docs.get(GameParams.random.nextInt(docs.size()));
@@ -459,7 +536,17 @@ public class GameService {
                 index
         );
     }
-
+    /**
+     * Genera una domanda {@link Question} che richiede di identificare
+     * quale parola tra quattro non è presente in nessun documento.
+     * <p>
+     * Recupera tutte le parole effettivamente contenute nei documenti tramite le rispettive {@link WDM}.
+     * Ne seleziona tre esistenti e ne genera una quarta che non compare in alcun documento, utilizzando {@code generateAbsentWord()}.
+     * </p>
+     *
+     * @return domanda che verifica l'assenza totale di una parola nei documenti
+     * @throws IllegalStateException se non ci sono abbastanza parole per generare la domanda
+     */
     private Question whichAbsentQuestion() {
         // Recupera tutti i documenti e tutte le parole presenti
         List<Document> docs = getDocuments();
@@ -497,12 +584,19 @@ public class GameService {
     }
 
     /**
-     * DA RIFARE
-     * Genera una parola che sicuramente non è presente nel set delle parole.
-     * Puoi personalizzare la logica per generare parole più realistiche.
+     * Genera una parola che non è presente in alcuno dei documenti selezionati per la partita.
+     * <p>
+     * Il metodo tenta di prelevare una parola da:
+     * <ul>
+     *   <li>Documenti inutilizzati: estrae una parola dalla {@link WDM} associata a un documento non usato, filtrando quelle già presenti.</li>
+     *   <li>Vocabolario statico: se non ci sono documenti inutilizzati o nessuna parola valida, seleziona una parola casuale da {@link Resources#getVocabulary()}.</li>
+     * </ul>
+     * Se non trova alcuna parola valida, lancia una {@link IllegalStateException}.
+     * </p>
      *
-     * @param presentWords insieme delle parole già presenti nei documenti
-     * @return una parola sicuramente assente
+     * @param presentWords insieme di parole già presenti nei documenti usati
+     * @return una parola assente da tutti i documenti utilizzati
+     * @throws IllegalStateException se non ci sono parole disponibili né nei documenti inutilizzati né nel vocabolario statico
      */
     private String generateAbsentWord(Set<String> presentWords) {
         // True: la parola è prelevata da un vocabolario statico
@@ -571,8 +665,15 @@ public class GameService {
     }
 
     /**
-     * Carica nella mappa wdmMap le matrici parola-documento per tutti i documenti della partita.
-     * Se la matrice non è presente nel database, viene generata e salvata.
+     * Carica le matrici {@link WDM} associate ai documenti selezionati per la partita nella mappa {@code wdmMap}.
+     * <p>
+     * Per ciascun {@link Document} in {@code params.documents}, il metodo:
+     * <ul>
+     *   <li>Recupera la matrice dal database tramite {@code wdmDAO.selectBy(Document)}</li>
+     *   <li>La inserisce nella mappa {@code wdmMap}</li>
+     *   <li>Se la matrice non è disponibile, viene lanciata una {@link IllegalStateException}</li>
+     * </ul>
+     * </p>
      */
     private void loadWdmMap() {
         for (Document doc : params.documents) {
@@ -591,11 +692,16 @@ public class GameService {
 
 
     /**
-     * Record che rappresenta una domanda del quiz.
+     * Rappresenta una domanda a risposta multipla generata dal {@link GameService}.
      *
-     * @param text               testo della domanda
-     * @param answers            elenco delle possibili risposte
-     * @param correctAnswerIndex indice della risposta corretta
+     * <p>
+     * Ogni {@code Question} contiene:
+     * <ul>
+     *   <li>Il testo della domanda ({@code text})</li>
+     *   <li>Un elenco di possibili risposte ({@code answers})</li>
+     *   <li>L'indice della risposta corretta ({@code correctAnswerIndex})</li>
+     * </ul>
+     * Utilizzato nella fase quiz per testare la comprensione dell'utente sui documenti letti.
      */
     public record Question(
             String text,
@@ -603,7 +709,17 @@ public class GameService {
             int correctAnswerIndex
     ) {
         /**
-         * Tipologie di domande disponibili nel quiz.
+         * Enum interno che definisce le diverse tipologie di domande generabili.
+         * <p>
+         * Ogni tipo ha un {@code weight} che ne indica la rilevanza nella fase di generazione.
+         * Tipologie disponibili:
+         * <ul>
+         *   <li>{@code ABSOLUTE_FREQUENCY} – Quante volte appare una parola</li>
+         *   <li>{@code WHICH_MORE} – Quale parola appare più spesso</li>
+         *   <li>{@code WHICH_LESS} – Quale parola appare meno spesso</li>
+         *   <li>{@code WHICH_DOCUMENT} – In quale documento compare una parola</li>
+         *   <li>{@code WHICH_ABSENT} – Quale parola è assente da tutti i documenti</li>
+         * </ul>
          */
         public enum QuestionType {
             ABSOLUTE_FREQUENCY(1f), // Quante volte appare una parola
@@ -613,30 +729,32 @@ public class GameService {
             WHICH_ABSENT(1f);       // Quale parola non è presente in nessun documento
 
             private final float weight;
-
+            /**
+             * Costruisce una tipologia di domanda con peso associato.
+             *
+             * @param weight valore numerico che rappresenta il peso logico del tipo di domanda
+             */
             QuestionType(float weight) {
                 this.weight = weight;
             }
-
-            /**
-             * Restituisce una tipologia di domanda casuale.
-             *
-             * @return tipo di domanda scelto casualmente
-             */
-            public static QuestionType getRandomType() {
-                var types = values();
-                return types[GameParams.random.nextInt(types.length)];
-            }
         }
-
         /**
-         * Crea una nuova domanda.
+         * Crea una nuova istanza di {@code Question} validando i parametri forniti.
+         * <p>
+         * La domanda è valida solo se:
+         * <ul>
+         *   <li>{@code text} non è {@code null}</li>
+         *   <li>{@code answers} non è {@code null}</li>
+         *   <li>{@code correctAnswerIndex} è compreso tra {@code 0} e {@code answers.size() - 1}</li>
+         * </ul>
+         * Se non rispettati, viene lanciata una {@link IllegalArgumentException}.
+         * </p>
          *
          * @param text               testo della domanda
-         * @param answers            elenco delle possibili risposte
+         * @param answers            lista delle possibili risposte
          * @param correctAnswerIndex indice della risposta corretta
-         * @return una nuova istanza di Question
-         * @throws IllegalArgumentException se i parametri non sono validi
+         * @return istanza valida di {@code GameService.Question}
+         * @throws IllegalArgumentException se i parametri sono invalidi
          */
         public static Question create(String text, List<String> answers, int correctAnswerIndex) {
             if (text == null || answers == null || correctAnswerIndex < 0 || correctAnswerIndex >= answers.size()) {
@@ -646,6 +764,12 @@ public class GameService {
         }
     }
 
+    /**
+     * Calcola il punteggio assegnato per ogni singola domanda in base alla
+     * difficoltà della partita e al numero totale di domande.
+     *
+     * @return il punteggio per ogni domanda
+     */
     public int getScorePerQuestion() {
         int totalScore = Difficulty.getMaxScoreDifficulty(getDifficulty());
         return totalScore / getQuestionCount();
@@ -654,12 +778,13 @@ public class GameService {
 
     /**
      * Classe interna che incapsula i parametri di una partita.
+     * <p>
+     * Rappresenta i parametri generati automaticamente per una partita in corso in base alla difficoltà scelta.
+     * Contiene difficoltà, timer, documenti selezionati e numero di domande.
+     * </p>
      */
-
     private class GameParams {
-
         private static final Random random = new Random();
-
         private final Duration timer;
         private final List<Document> documents;
         private final int questionCount;
@@ -667,6 +792,9 @@ public class GameService {
 
         /**
          * Classe di supporto per la gestione della difficoltà.
+         * <p>
+         *     Calcola in modo progressivo l'influenza della difficoltà su vari parametri
+         * </p>
          */
         private static class DifficultyIndex {
             private final float cap;
@@ -683,9 +811,10 @@ public class GameService {
             }
 
             /**
-             * Restituisce un valore casuale e lo sottrae da value.
+             * Restituisce un valore casuale in base alla difficoltà corrente,
+             * e lo sottrae dal valore disponibile.
              *
-             * @return valore casuale
+             * @return valore parziale generato casualmente
              */
             public float getNext() {
                 var result = random.nextFloat(value);
@@ -694,7 +823,8 @@ public class GameService {
             }
 
             /**
-             * Restituisce il prossimo valore relativo rispetto al cap.
+             * Restituisce un valore normalizzato rispetto al massimo definito da {@link #getCap()}.
+             * Utilizzato nella costruzione di {@link GameParams}.
              *
              * @return valore relativo
              */
@@ -703,7 +833,7 @@ public class GameService {
             }
 
             /**
-             * Restituisce il valore rimanente.
+             * Fornisce la quantità di difficoltà ancora disponibile.
              *
              * @return valore rimanente
              */
@@ -712,9 +842,9 @@ public class GameService {
             }
 
             /**
-             * Restituisce il valore massimo della difficoltà.
+             * Fornisce il valore massimo impostato per la difficoltà.
              *
-             * @return cap
+             * @return valore massimo disponibile
              */
             public float getCap() {
                 return cap;
@@ -722,9 +852,14 @@ public class GameService {
         }
 
         /**
-         * Costruisce i parametri della partita in base alla difficoltà selezionata.
+         * Costruisce i parametri di gioco basati sul livello di difficoltà.
          *
-         * @param difficulty la difficoltà scelta per la partita
+         * Usa {@link DifficultyIndex} per calcolare le componenti e chiama:
+         * {@link #generateDocuments(float)},
+         * {@link #generateTimer(float)},
+         * {@link #generateQuestionCount(float)}
+         *
+         * @param difficulty livello di difficoltà selezionato
          */
         private GameParams(Difficulty difficulty) {
             this.difficulty = difficulty;
@@ -741,10 +876,12 @@ public class GameService {
         }
 
         /**
-         * Seleziona i documenti da utilizzare per la partita in base all'influenza della difficoltà.
-         *
+         * Genera una lista di documenti in base all'influenza della difficoltà.
+         *<p>
+         * Questo metodo viene invocato nel costruttore {@link GameParams#GameParams(Difficulty)}.
+         *</p>
          * @param influence valore di influenza della difficoltà
-         * @return lista di documenti selezionati
+         * @return lista di documenti
          * @throws IllegalArgumentException se non sono disponibili documenti
          */
         private List<Document> generateDocuments(float influence) throws IllegalArgumentException {
@@ -782,10 +919,12 @@ public class GameService {
         }
 
         /**
-         * Genera il timer della partita in base all'influenza della difficoltà.
-         *
-         * @param influence valore di influenza della difficoltà
-         * @return durata del timer
+         * Genera la durata della sessione in base all'influenza della difficoltà.
+         *<p>
+         * Metodo richiamato da {@link GameParams#GameParams(Difficulty)}.
+         *</p>
+         * @param influence fattore che determina la durata del timer
+         * @return {@code Duration} impostata
          */
         private Duration generateTimer(float influence) {
             int timerMax = 10 * 60; // secondi
@@ -796,7 +935,9 @@ public class GameService {
 
         /**
          * Genera il numero di domande per la partita in base all'influenza della difficoltà.
-         *
+         *<p>
+         * Questo metodo viene invocato nel costruttore {@link GameParams#GameParams(Difficulty)}.
+         *</p>
          * @param influence valore di influenza della difficoltà
          * @return numero di domande
          */
@@ -809,8 +950,15 @@ public class GameService {
     }
 
     /**
-     * @brief Effettua il parsing dei documenti e prepara il testo per la fase di lettura.
-     * Restituisce un StringBuffer contenente il testo di tutti i documenti
+     * Prepara il contenuto testuale dei documenti per la fase di lettura.
+     * <p>
+     * Per ogni {@link Document} restituito da {@link #getDocuments()}, legge il contenuto del file corrispondente
+     * tramite {@link Resources#getDocumentContent(String)} usando il nome fornito da {@link Document#filename()}.
+     * <br>
+     * In caso di errore nella lettura di un file, registra l'eccezione con {@code SystemLogger.log()}.
+     * </p>
+     *
+     * @return mappa contenente ogni {@code Document} e il suo contenuto testuale pronto per essere visualizzato
      */
     public Map<Document,String> setupReadingPhase() {
         Map<Document,String> result = new HashMap<>();
@@ -824,6 +972,15 @@ public class GameService {
         return result;
     }
 
+    /**
+     * Salva il report di gioco.
+     * <p>
+     * Viene chiamato dal GameSessionController a fine partita per registrare i dati finali del giocatore utilizzando {@link JDBCGameReportDAO#insert(GameReport)}.
+     * Il report include informazioni su punteggio, tempo di registrazione, difficoltà, tempo massimo di gioco, tempo utilizzato, documenti utilizzati.
+     * </p>
+     *
+     * @param report oggetto {@code GameReport} da salvare
+     */
     public void saveGameReport(GameReport report) {
         System.out.println("→ Chiamato saveGameReport");
         gameReportDAO.insert(report);

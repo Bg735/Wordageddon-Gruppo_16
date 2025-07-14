@@ -61,6 +61,17 @@ public class Resources {
         return Path.of(Config.get(Config.Props.DOCUMENTS_DIR));
     }
 
+    /**
+     * Legge il contenuto di un file di documento come stringa.
+     * <p>
+     * Costruisce il percorso completo per ottenere la directory dei documenti
+     * e concatena il {@code filename} fornito. Il contenuto viene letto con {@link Files#readString(Path)}.
+     * </p>
+     *
+     * @param filename nome del file da leggere
+     * @return contenuto testuale del file sotto forma di {@code String}
+     * @throws IOException se il file non è accessibile o non può essere letto
+     */
     public static String getDocumentContent(String filename) throws IOException {
         return Files.readString(Path.of(Config.get(Config.Props.DOCUMENTS_DIR), filename));
     }
