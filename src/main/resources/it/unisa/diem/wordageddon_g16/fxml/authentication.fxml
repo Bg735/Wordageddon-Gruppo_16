@@ -72,7 +72,7 @@
       
                               <VBox alignment="CENTER" spacing="5">
          <children>
-                                     <Button fx:id="loginBtn" maxWidth="Infinity" onAction="#handleLoginBtn" styleClass="accediBtn" text="Accedi" textFill="#fcfafa">
+                                     <Button fx:id="loginBtn" maxWidth="Infinity" onAction="#handleLogin" styleClass="accediBtn" text="Accedi" textFill="#fcfafa">
                                          <font>
                                     <Font name="Alata Regular" size="12.0" />
                                  </font>
@@ -87,7 +87,7 @@
                                  </font>
                                      </Label>
          
-                                     <Button fx:id="registerBtn" maxWidth="Infinity" onAction="#handleRegisterBtn" styleClass="registratiBtn" text="Registrati" textFill="WHITE">
+                                     <Button fx:id="registerBtn" maxWidth="Infinity" onAction="#handleRegistration" styleClass="registratiBtn" text="Registrati" textFill="WHITE">
                                          <font>
                                     <Font name="Alata Regular" size="12.0" />
                                  </font>
