@@ -227,7 +227,7 @@ public class UserPanelController {
             File selectedFile = fileChooser.showOpenDialog(popup.getStage());
             if (selectedFile != null) {
                 try {
-                    service.addDocument(selectedFile);
+                    service.moveDocument(selectedFile);
                     Document tempDoc = new Document(selectedFile.getName(), (titleTF.getText().isEmpty() ? service.symbolicNameOf(selectedFile.getName()) : titleTF.getText()), null);
                     documentList.add(tempDoc);
 
@@ -235,6 +235,7 @@ public class UserPanelController {
                         @Override
                         protected Void call() {
                             // Creo la WDM e la inserisco nel database
+                            // l'update inserisce anche il documento associato se non esiste
                             service.updateWDM(new WDM(tempDoc, service.getStopwords()));
                             return null;
                         }

@@ -1,8 +1,34 @@
 @startuml
 actor Amministratore
-participant GameSessionController as Controller
-participant GameService
+participant UserPanelController
+participant UserPanelService
 database "Database/DAO" as DB
+participant View
 
+activate Amministratore
+Amministratore -> UserPanelController : "Carica un documento"
+activate UserPanelController
+UserPanelController -> UserPanelController : handleDocumenti()
+activate UserPanelController #3375E0
+UserPanelController -> UserPanelService :addDocument()
+activate UserPanelService
+UserPanelService -> UserPanelService : addDocument()
+activate UserPanelService #3375E0
+UserPanelService -> DB : SelectBy()
+activate DB
+DB --> UserPanelService : Document
+
+deactivate DB
+opt Documento giá presente
+    UserPanelController -> View : showDialog()
+    View -> Amministratore: Dialog("Documento giá presente")
+        note right
+            "Mostra messaggio di errore all'utente"
+        end note
+end
+UserPanelService -> UserPanelService : sposta documento in cartella interna
+deactivate UserPanelService
+deactivate UserPanelController #3375E0
+deactivate UserPanelController
 @enduml
 
