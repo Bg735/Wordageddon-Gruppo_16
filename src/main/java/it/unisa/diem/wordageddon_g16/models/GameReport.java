@@ -4,7 +4,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
+
 /**
  * Rappresenta un report di una sessione di gioco nell'applicazione Wordageddon.
  * <p>

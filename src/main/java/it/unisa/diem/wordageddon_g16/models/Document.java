@@ -1,6 +1,5 @@
 package it.unisa.diem.wordageddon_g16.models;
 
-import java.nio.file.Path;
 import java.util.Objects;
 
 /**
