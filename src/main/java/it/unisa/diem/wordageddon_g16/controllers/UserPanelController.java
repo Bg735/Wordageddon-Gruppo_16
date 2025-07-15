@@ -443,7 +443,6 @@ public class UserPanelController {
             for (Document doc : allDocs) {
                 threadPool.submit(() -> service.updateWDM(new WDM(doc, service.getStopwords())));
             }
-            threadPool.shutdown();
     }
 
 
@@ -490,5 +489,15 @@ public class UserPanelController {
         avgScoreLabel.setText(String.format("%.1f", stats.get("averageScore")));
         maxScoreLabel.setText(String.valueOf(stats.get("maxScore")));
     }
+
+    public void close() {
+        threadPool.shutdown();
+        try {
+            threadPool.awaitTermination(5, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            threadPool.shutdownNow();
+        }
+    }
+
 
 }
