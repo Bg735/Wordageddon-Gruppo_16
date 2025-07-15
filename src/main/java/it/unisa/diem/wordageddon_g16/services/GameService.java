@@ -1,6 +1,5 @@
 package it.unisa.diem.wordageddon_g16.services;
 
-import it.unisa.diem.wordageddon_g16.controllers.GameSessionController;
 import it.unisa.diem.wordageddon_g16.db.JDBCGameReportDAO;
 import it.unisa.diem.wordageddon_g16.db.JDBCWdmDAO;
 import it.unisa.diem.wordageddon_g16.db.contracts.GameReportDAO;
@@ -17,7 +16,7 @@ import java.util.stream.Collectors;
 
 /**
  * Classe di "servizio" per la gestione della logica di gioco in Wordageddon.
- * Fornisce tutte le funzionalità utili al GameSessionController come per inizializzare una partita, generare domande,
+ * Fornisce tutte le funzionalità utili al GameController come per inizializzare una partita, generare domande,
  * calcolare punteggi, gestire documenti e salvare i risultati.
  */
 
@@ -975,7 +974,7 @@ public class GameService {
     /**
      * Salva il report di gioco.
      * <p>
-     * Viene chiamato dal GameSessionController a fine partita per registrare i dati finali del giocatore utilizzando {@link JDBCGameReportDAO#insert(GameReport)}.
+     * Viene chiamato dal GameController a fine partita per registrare i dati finali del giocatore utilizzando {@link JDBCGameReportDAO#insert(GameReport)}.
      * Il report include informazioni su punteggio, tempo di registrazione, difficoltà, tempo massimo di gioco, tempo utilizzato, documenti utilizzati.
      * </p>
      *

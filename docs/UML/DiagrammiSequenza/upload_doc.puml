@@ -1,28 +1,8 @@
 @startuml
 actor Amministratore
-participant "AdminPanelController" as Controller
-participant "PopupBuilder" as UI
-participant "DocumentAnalyzer" as Analizzatore
-participant "DocumentDAO" as DB
+participant GameSessionController as Controller
+participant GameService
+database "Database/DAO" as DB
 
-== Flusso normale ==
-Amministratore -> UI : clicca su "Upload documento"
-UI -> Controller : chiama handleUpload(path)
-
-Controller -> Analizzatore : analyzeDocument(path)
-Analizzatore -> Controller : new Document(title, id, wordCount)
-
-Controller -> DB : insert(document)
-DB --> Controller : conferma salvataggio
-
-Controller -> UI : mostra conferma "Caricamento completato"
-UI -> Amministratore : documento caricato con successo
-
-== Flusso alternativo ==
-alt Errore in analisi o salvataggio
-    Analizzatore -> Controller : eccezione
-    Controller -> UI : mostra errore "Errore nel caricamento"
-    UI -> Amministratore : errore nel caricamento
-end
 @enduml
 

@@ -5,7 +5,6 @@ import it.unisa.diem.wordageddon_g16.services.AuthService;
 import it.unisa.diem.wordageddon_g16.utility.Config;
 import it.unisa.diem.wordageddon_g16.utility.Resources;
 import it.unisa.diem.wordageddon_g16.utility.ViewLoader;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -76,10 +75,9 @@ public class AuthController {
      * Verifica che i campi siano compilati, tenta l'autenticazione e reindirizza al menu se riuscita.
      * Se fallisce, mostra un messaggio di errore tramite {@link #showDialog(Alert.AlertType, String, String)}.
      *
-     * @param event evento generato dal clic
      */
     @FXML
-    private void handleLoginBtn(ActionEvent event) {
+    private void handleLogin() {
         String username = usernameField.getText().trim();
         String password = passwordPF.getText().trim();
         if (username.isEmpty() || password.isEmpty()) {
@@ -100,10 +98,9 @@ public class AuthController {
      * Valida l'input rispetto ai vincoli definiti in {@link Config}, registra l'utente e carica il menu se riuscito.
      * Altrimenti, mostra un messaggio di errore.
      *
-     * @param event evento generato dal clic
      */
     @FXML
-    private void handleRegisterBtn(ActionEvent event) {
+    private void handleRegistration() {
         String username = usernameField.getText().trim();
         String password = passwordPF.getText().trim();
         int maxUsernameLength = Integer.parseInt(Config.get(Config.Props.USR_CHAR_MAX_LENGTH));
@@ -149,9 +146,7 @@ public class AuthController {
         dialogPane.getStylesheets().add(Resources.getStyle("dialog"));
         dialogPane.getStyleClass().add("dialog-pane");
         switch (type) {
-            case ERROR -> {
-                dialogPane.getStyleClass().add("alert-error");
-            }
+            case ERROR -> dialogPane.getStyleClass().add("alert-error");
             case INFORMATION -> {
                 dialogPane.getStyleClass().add("alert-info");
                 ImageView icon = new ImageView(new Image(Resources.getAsset("confirm-icon.png")));
@@ -169,7 +164,7 @@ public class AuthController {
      *
      * @param context contesto applicativo contenente l'istanza di {@link AuthService}
      */
-    public <T> AuthController(AppContext context) {
+    public AuthController(AppContext context) {
         this.authService = context.getAuthService();
     }
 

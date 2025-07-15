@@ -41,7 +41,7 @@ import java.util.Map;
  * operazioni intensive (generazione domande, caricamento testo).
  * </p>
  */
-public class GameSessionController {
+public class GameController {
     @FXML private StackPane stackPane;
     @FXML private AnchorPane readingPane;
     @FXML private AnchorPane questionPane;
@@ -123,7 +123,7 @@ public class GameSessionController {
      * Utilizza servizi JavaFX asincroni per mantenere la UI reattiva.
      *
      */
-    public GameSessionController(AppContext appContext) {
+    public GameController(AppContext appContext) {
         this.gameService = appContext.getGameService();
         this.appContext= appContext;
         currentDocumentIndex = new SimpleIntegerProperty(0);
@@ -138,7 +138,7 @@ public class GameSessionController {
     /**
      * Inizializza la sessione di gioco e configura i servizi asincroni.
      * <p>
-     * Questo metodo viene chiamato automaticamente da JavaFX al momento del caricamento del GameSessionController.
+     * Questo metodo viene chiamato automaticamente da JavaFX al momento del caricamento del GameController.
      * </p>
      * <ul>
      *   <li>Carica la vista per la selezione della difficoltà</li>
@@ -357,7 +357,7 @@ public class GameSessionController {
      * risposte corrette, risposte sbagliate, percentuale di risposte esatte su quelle date)
      * e popola la tabella che mostra il resoconto della partita tramite il metodo populateAnswerTable() del controller.
      *
-     * @see GameSessionController#populateAnswerTable()
+     * @see GameController#populateAnswerTable()
      */
     private void showReport() {
         LocalDateTime questionEndTime = LocalDateTime.now();

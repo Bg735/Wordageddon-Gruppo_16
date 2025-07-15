@@ -3,7 +3,7 @@ actor Utente
 participant AuthController
 participant AppContext
 participant AuthService
-database "UserDAO (Database)" as DB
+database "Database/DAO" as DB
 participant View
 
 activate Utente
@@ -15,35 +15,41 @@ activate AppContext
 AppContext --> AuthController : return AuthService
 deactivate AppContext
 
-AuthController -> AuthService : login(username, password)
+AuthController -> AuthController : handleLogin()
+activate AuthController #3375E0
+AuthController -> AuthService : login()
 activate AuthService
+AuthService -> AuthService : login()
+activate AuthService #3375E0
+AuthService -> DB : selectBy()
 
-AuthService -> DB : selectById(username)
 activate DB
 
-
-DB --> AuthService : return User
+DB --> AuthService : User
 deactivate DB
+deactivate AuthService
 
-AuthService -> AuthService : verifica password
+AuthService --> AuthController : boolean
+deactivate AuthService
 
-alt login valido
-
+alt true
     AuthService -> AppContext : setCurrentUser(user)
+    activate AuthService
     activate AppContext
     deactivate AppContext
     AuthService->AuthService: saveSession(user)
-    AuthService --> AuthController : ritorna true
-    AuthController -> View : carica schermata MainMenu
+    AuthController -> View : ViewLoader(MENU)
+    deactivate AuthService
     activate View
     deactivate View
-else login fallito
-    AuthService --> AuthController : return false
+else false
     AuthController -> View :  showDialog()
+    deactivate AuthController
+    View --> Utente : Dialog("Login fallito")
     note right of AuthController
         Mostra messaggio di errore all'utente
     end note
-    activate View
+    activate View  #3375E0
     deactivate View
 end
 

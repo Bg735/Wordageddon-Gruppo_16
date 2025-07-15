@@ -1,30 +1,72 @@
 @startuml
 actor Utente
-participant "View" as UI
-participant "AuthController" as Controller
-participant "AuthService" as Service
-database "UserDAO (Database)" as DB
+participant AuthController
+participant AppContext
+participant AuthService
+database "Database/DAO" as DB
+participant View
 
-== Registrazione Utente ==
-Utente -> UI : compila form con username e password
+activate Utente
+Utente -> AuthController : inserisce username e password
+activate AuthController
 
-UI -> Controller : handleRegisterBtn()
-Controller -> Service : register(username, password, noUsers)
-Service -> DB : selectById(username)
-DB --> Service : Optional.empty() // username non esistente
-Service -> DB : insert(User)
-Service -> Controller : true
-Controller -> UI : ViewLoader.load(MENU)
+AuthController -> AppContext : getAuthService()
+activate AppContext
+AppContext --> AuthController : return AuthService
+deactivate AppContext
 
-== Flusso Alternativo ==
-group Username già esistente
-UI -> Controller : handleRegisterBtn()
-Controller -> Service : register(username, password, noUsers)
-Service -> DB : selectById(username)
-DB --> Service : Optional.of(User) // username esistente
-Service -> Controller : false
-Controller -> UI : showDialog(ERROR, "L'utente esiste già")
+AuthController -> AuthController : handleRegistration()
+activate AuthController #3375E0
+
+opt dati non validi
+    AuthController -> View : showDialog()
+    View --> Utente : Dialog("Username o password non validi")
+    activate View #3375E0
+    note right of AuthController
+        Mostra messaggio di errore all'utente
+    end note
+    deactivate View
 end
 
-@enduml
+activate AuthController #3375E0
+AuthController -> AuthService : register()
 
+activate AuthService
+AuthService -> AuthService : register()
+activate AuthService #3375E0
+AuthService -> DB : selectBy()
+
+activate DB
+
+DB --> AuthService : User
+deactivate DB
+deactivate AuthService
+
+AuthService --> AuthController : boolean
+deactivate AuthService
+
+alt true
+    AuthService -> AppContext : setCurrentUser(user)
+    activate AuthService
+    activate AppContext
+    deactivate AppContext
+    AuthService->AuthService: saveSession(user)
+    AuthController -> View : ViewLoader(MENU)
+    deactivate AuthService
+    activate View
+    deactivate View
+else false
+    AuthController -> View :  showDialog()
+    deactivate AuthController
+    View --> Utente : Dialog("Registrazione fallita")
+    note right of AuthController
+        Mostra messaggio di errore all'utente
+    end note
+    activate View  #3375E0
+    deactivate View
+end
+
+deactivate AuthService
+deactivate AuthController
+deactivate Utente
+@enduml
