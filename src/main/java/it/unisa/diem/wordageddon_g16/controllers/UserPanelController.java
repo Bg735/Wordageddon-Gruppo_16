@@ -95,7 +95,7 @@ public class UserPanelController {
         this.appContext = context;
         isRecalculatingWDMs = new AtomicBoolean(false);
         needsRecalculation = new AtomicBoolean(false);
-        threadPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()/2);
+        threadPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() / 2);
     }
 
     @FXML
@@ -373,76 +373,33 @@ public class UserPanelController {
         // Ricalcolo le WDM alla chiusura del popup se sono state modificate le stopwords
         popup.getStage().setOnHidden(_ -> {
             if (isSWChanged.get()) {
-                Task<Void> task = new Task<>() {
-                    @Override
-                    protected Void call() {
-                        requestRecalculate();
-                        return null;
-                    }
-                };
-
-                task.setOnFailed(_ -> {
-                    Throwable e = task.getException();
-                    SystemLogger.log("[" + getClass().getName() + "]Task Execution Error:", e);
-                    throw new RuntimeException("Error updating stopwords", e);
-                });
-                ExecutorService executor = Executors.newSingleThreadExecutor();
-                executor.execute(task);
+                requestRecalculate();
             }
         });
         popup.show();
     }
+
     private void requestRecalculate() {
         if (isRecalculatingWDMs.compareAndSet(false, true)) {
             // Non c'è un ricalcolo in corso, parto subito
-            startRecalculateTask();
+            threadPool.submit(() -> {
+                try {
+                    service.reCalculateWDMs();
+                } finally {
+                    Platform.runLater(() -> {
+                        System.out.println("Ricalcolo WDM completato.");
+                        isRecalculatingWDMs.set(false);
+                        if (needsRecalculation.getAndSet(false)) {
+                            requestRecalculate();
+                        }
+                    });
+                }
+            });
         } else {
             // C'è già un ricalcolo in corso, segno che ne serve un altro dopo
             needsRecalculation.set(true);
+            System.out.println("Ricalcolo WDM già in corso. Richiesta di ricalcolo accodata.");
         }
-    }
-
-    private void startRecalculateTask() {
-        Task<Void> task = new Task<>() {
-            @Override
-            protected Void call() {
-                reCalculateWDM();
-                return null;
-            }
-        };
-
-        task.setOnSucceeded(_ -> {
-            isRecalculatingWDMs.set(false);
-            // Se nel frattempo è arrivata una nuova richiesta, la lancio subito
-            if (needsRecalculation.getAndSet(false)) {
-                requestRecalculate();
-            }
-        });
-
-        task.setOnFailed(_ -> {
-            isRecalculatingWDMs.set(false);
-            needsRecalculation.set(false);
-            Throwable ex = task.getException();
-            SystemLogger.log("Errore durante il ricalcolo WDM", ex);
-        });
-
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        executor.execute(task);
-        executor.shutdown();
-    }
-
-    private void reCalculateWDM() {
-        System.out.println("Rilevata cancellazione di una stopword, ricalcolo la WDM per tutti i documenti...");
-        List<Document> allDocs = service.getAllDocuments().stream().toList();
-        if (allDocs.isEmpty()) {
-            System.out.println("Nessun documento presente... Non é necessario ricalcolare le stopwords");
-            return;
-        }
-        // Se sono presenti documenti, creo un thread pool per l'elaborazione: un thread per ogni documento che ricalcola la WDM
-        // Il numero massimo di thread è limitato al doppio dei core disponibili
-            for (Document doc : allDocs) {
-                threadPool.submit(() -> service.updateWDM(new WDM(doc, service.getStopwords())));
-            }
     }
 
 
@@ -490,6 +447,7 @@ public class UserPanelController {
         maxScoreLabel.setText(String.valueOf(stats.get("maxScore")));
     }
 
+    @FXML
     public void close() {
         threadPool.shutdown();
         try {
@@ -498,6 +456,4 @@ public class UserPanelController {
             threadPool.shutdownNow();
         }
     }
-
-
 }
