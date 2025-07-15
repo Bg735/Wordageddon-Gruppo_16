@@ -27,8 +27,7 @@ public class ViewLoader {
         MENU("menu"),
         GAME("game"),
         USER_PANEL("userPanel"),
-        LEADERBOARD("leaderboard"),
-        REPORT("report");
+        LEADERBOARD("leaderboard");
 
         private final String viewName;
 

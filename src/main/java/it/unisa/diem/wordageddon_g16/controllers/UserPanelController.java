@@ -77,6 +77,13 @@ public class UserPanelController {
     private final User currentUser;
     private final AppContext appContext;
 
+    // Variabile per impedire il ricalcolo delle WDM se già in corso
+    private final AtomicBoolean isRecalculatingWDMs;
+    private final AtomicBoolean needsRecalculation;
+
+    // Thread pool globale per il ricalcolo delle WDM
+    ExecutorService threadPool;
+
     /**
      * Costruttore del controller.
      *
@@ -86,6 +93,9 @@ public class UserPanelController {
         this.service = context.getUserPanelService();
         currentUser = context.getCurrentUser();
         this.appContext = context;
+        isRecalculatingWDMs = new AtomicBoolean(false);
+        needsRecalculation = new AtomicBoolean(false);
+        threadPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()/2);
     }
 
     @FXML
@@ -158,7 +168,7 @@ public class UserPanelController {
     private void handleDocumenti() {
         Popup popup = new Popup("Gestione Documenti", 400, 300);
         ObservableList<Document> documentList = FXCollections.observableArrayList(service.getAllDocuments());
-        Executor dbExecutor = Executors.newSingleThreadExecutor();
+        ExecutorService dbExecutor = Executors.newSingleThreadExecutor();
 
         ListView<Document> listView = new ListView<>(documentList);
         listView.setCellFactory(_ -> new ListCell<>() {
@@ -259,6 +269,7 @@ public class UserPanelController {
                 feedbackLabel
         );
         popup.show();
+        dbExecutor.shutdown();
     }
 
     /**
@@ -362,13 +373,65 @@ public class UserPanelController {
         // Ricalcolo le WDM alla chiusura del popup se sono state modificate le stopwords
         popup.getStage().setOnHidden(_ -> {
             if (isSWChanged.get()) {
-                calculateWDM();
+                Task<Void> task = new Task<>() {
+                    @Override
+                    protected Void call() {
+                        requestRecalculate();
+                        return null;
+                    }
+                };
+
+                task.setOnFailed(_ -> {
+                    Throwable e = task.getException();
+                    SystemLogger.log("[" + getClass().getName() + "]Task Execution Error:", e);
+                    throw new RuntimeException("Error updating stopwords", e);
+                });
+                ExecutorService executor = Executors.newSingleThreadExecutor();
+                executor.execute(task);
             }
         });
         popup.show();
     }
+    private void requestRecalculate() {
+        if (isRecalculatingWDMs.compareAndSet(false, true)) {
+            // Non c'è un ricalcolo in corso, parto subito
+            startRecalculateTask();
+        } else {
+            // C'è già un ricalcolo in corso, segno che ne serve un altro dopo
+            needsRecalculation.set(true);
+        }
+    }
 
-    private void calculateWDM() {
+    private void startRecalculateTask() {
+        Task<Void> task = new Task<>() {
+            @Override
+            protected Void call() {
+                reCalculateWDM();
+                return null;
+            }
+        };
+
+        task.setOnSucceeded(_ -> {
+            isRecalculatingWDMs.set(false);
+            // Se nel frattempo è arrivata una nuova richiesta, la lancio subito
+            if (needsRecalculation.getAndSet(false)) {
+                requestRecalculate();
+            }
+        });
+
+        task.setOnFailed(_ -> {
+            isRecalculatingWDMs.set(false);
+            needsRecalculation.set(false);
+            Throwable ex = task.getException();
+            SystemLogger.log("Errore durante il ricalcolo WDM", ex);
+        });
+
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.execute(task);
+        executor.shutdown();
+    }
+
+    private void reCalculateWDM() {
         System.out.println("Rilevata cancellazione di una stopword, ricalcolo la WDM per tutti i documenti...");
         List<Document> allDocs = service.getAllDocuments().stream().toList();
         if (allDocs.isEmpty()) {
@@ -376,19 +439,11 @@ public class UserPanelController {
             return;
         }
         // Se sono presenti documenti, creo un thread pool per l'elaborazione: un thread per ogni documento che ricalcola la WDM
-        // La chiamata é bloccante in quanto il listner del popup attende la chiusura del thread pool... in questo modo
-        // si impedisce che l'utente modichi le stopwords mentre il ricalcolo delle WDM é in corso
-        try (ExecutorService executor = Executors.newFixedThreadPool(allDocs.size())) {
-            System.out.println("[THREAD POOL]: " + allDocs.size() + " thread per il ricalcolo delle WDMs");
+        // Il numero massimo di thread è limitato al doppio dei core disponibili
             for (Document doc : allDocs) {
-                executor.submit(() -> {
-                            System.out.println("Ricalcolo WDM per il documento: " + doc.title());
-                            service.updateWDM(new WDM(doc, service.getStopwords()));
-                            return null;
-                        }
-                );
+                threadPool.submit(() -> service.updateWDM(new WDM(doc, service.getStopwords())));
             }
-        }
+            threadPool.shutdown();
     }
 
 
