@@ -1,0 +1,33 @@
+@startuml
+actor Amministratore
+participant UserPanelController
+participant UserPanelService
+database "Database" as DB
+participant View
+
+activate Amministratore
+Amministratore -> View: Clicca su 'Promuovi/Retrocedi'
+activate View
+
+deactivate Amministratore
+
+UserPanelController -> UserPanelController: handleAdmin()
+activate UserPanelController
+UserPanelController -> UserPanelService: promoteUser()
+activate UserPanelService
+UserPanelService -> DB : selectBy()
+activate DB
+DB --> UserPanelService : User
+deactivate DB
+opt User Inesistente
+    UserPanelController -> View : showDialog()
+    activate View #3375E0
+    View --> Amministratore : Dialog("Utente inesistente")
+    deactivate View
+        note right
+            Mostra messaggio di errore all'utente
+        end note
+end
+UserPanelService -> DB : updateUser()
+
+@enduml

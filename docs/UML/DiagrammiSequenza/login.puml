@@ -3,12 +3,12 @@ actor Utente
 participant AuthController
 participant AppContext
 participant AuthService
-database "Database/DAO" as DB
+database "Database" as DB
 participant View
 
 activate Utente
-Utente -> AuthController : inserisce username e password
-activate AuthController
+activate View
+Utente -> View : inserisce username e password
 
 AuthController -> AppContext : getAuthService()
 activate AppContext
@@ -19,7 +19,6 @@ AuthController -> AuthController : handleLogin()
 activate AuthController #3375E0
 AuthController -> AuthService : login()
 activate AuthService
-AuthService -> AuthService : login()
 activate AuthService #3375E0
 AuthService -> DB : selectBy()
 

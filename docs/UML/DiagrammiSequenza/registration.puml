@@ -3,14 +3,16 @@ actor Utente
 participant AuthController
 participant AppContext
 participant AuthService
-database "Database/DAO" as DB
+database "Database" as DB
 participant View
 
+activate View
 activate Utente
-Utente -> AuthController : inserisce username e password
-activate AuthController
+Utente -> View : inserisce username e password
 
 AuthController -> AppContext : getAuthService()
+activate AuthController
+
 activate AppContext
 AppContext --> AuthController : return AuthService
 deactivate AppContext
@@ -32,7 +34,6 @@ activate AuthController #3375E0
 AuthController -> AuthService : register()
 
 activate AuthService
-AuthService -> AuthService : register()
 activate AuthService #3375E0
 AuthService -> DB : selectBy()
 
@@ -55,7 +56,7 @@ alt true
     deactivate AuthService
     activate View
     deactivate View
-else false
+else #orange false
     AuthController -> View :  showDialog()
     deactivate AuthController
     View --> Utente : Dialog("Registrazione fallita")

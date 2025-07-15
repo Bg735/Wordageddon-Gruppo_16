@@ -6,18 +6,19 @@ database "Database/DAO" as DB
 participant View
 
 activate Amministratore
-Amministratore -> UserPanelController : "Carica un documento"
-activate UserPanelController
+activate View
+Amministratore -> View : "Carica un documento"
 UserPanelController -> UserPanelController : handleDocumenti()
+activate UserPanelController
+
 activate UserPanelController #3375E0
-UserPanelController -> UserPanelService :addDocument()
+UserPanelController -> UserPanelService :moveDocument()
 activate UserPanelService
-UserPanelService -> UserPanelService : addDocument()
 activate UserPanelService #3375E0
 UserPanelService -> DB : SelectBy()
 activate DB
 DB --> UserPanelService : Document
-
+deactivate UserPanelService
 deactivate DB
 opt Documento giá presente
     UserPanelController -> View : showDialog()
@@ -26,9 +27,24 @@ opt Documento giá presente
             "Mostra messaggio di errore all'utente"
         end note
 end
-UserPanelService -> UserPanelService : sposta documento in cartella interna
+
+UserPanelController -> UserPanelService : updateWDM()
+deactivate UserPanelController
+
+activate UserPanelService #3375E0
+UserPanelService -> DB : selectBy()
+activate DB
+DB --> UserPanelService : WDM
+deactivate DB
+alt WDM giá presente
+UserPanelService -> DB : DocumentUpdate()
+UserPanelService -> DB : WDMUpdate()
+else #orange else
+    UserPanelService -> DB : DocumentInsert()
+    UserPanelService -> DB : WDMInsert()
+end
 deactivate UserPanelService
-deactivate UserPanelController #3375E0
+UserPanelController -> View : aggiorna vista
 deactivate UserPanelController
 @enduml
 
