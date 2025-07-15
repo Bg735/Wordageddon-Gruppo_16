@@ -618,7 +618,7 @@ public class GameService {
         String word = null;
 
         // Prelevo la parola da un documento inutilizzato
-        if (useVocabulary ==  false) {
+        if (!useVocabulary) {
             Collections.shuffle(unusedDocsList);
 
             // Trova una parola valida da una WDM di un documento inutilizzato
@@ -634,7 +634,7 @@ public class GameService {
                 if (!unusedDocWords.isEmpty()) {
                     // Prelevo una parola casuale da quelle rimaste nella collezione
                     Collections.shuffle(unusedDocWords);
-                    word = unusedDocWords.get(0);
+                    word = unusedDocWords.getFirst();
                     break;
                 }
             }
@@ -655,7 +655,7 @@ public class GameService {
                 throw new IllegalStateException("Nessuna parola disponibile nel vocabolario statico!");
             }
             Collections.shuffle(vocabWords);
-            word = vocabWords.get(0);
+            word = vocabWords.getFirst();
         }
 
         System.out.println("Generated Word: " + word);

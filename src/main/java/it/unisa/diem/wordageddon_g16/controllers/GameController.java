@@ -13,12 +13,10 @@ import javafx.beans.property.*;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
-import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
@@ -46,9 +44,6 @@ public class GameController {
     @FXML private AnchorPane readingPane;
     @FXML private AnchorPane questionPane;
     @FXML private AnchorPane diffSelectionPane;
-    @FXML private Button diffEasyBTN;
-    @FXML private Button diffMediumBTN;
-    @FXML private Button diffHardBTN;
 
 
     @FXML private TextArea textDisplayArea;
@@ -70,12 +65,10 @@ public class GameController {
 
 
     @FXML private TableView<Map.Entry<Question, Integer>> answersTable;
-    @FXML private HBox actionBarBox;
     @FXML private Label wrongValue;
     @FXML private Text scoreValue;
     @FXML private VBox heroBox;
     @FXML private VBox answersBox;
-    @FXML private StackPane mainStack;
     @FXML private Label viewAnswersBtnText;
     @FXML private Label rightValue;
     @FXML private Label completionValue;
@@ -85,14 +78,7 @@ public class GameController {
     @FXML private TableColumn<Map.Entry<Question, Integer>, String> punteggioCln;
     @FXML private TableColumn<Map.Entry<Question, Integer>, String> rispostaCorrettaCln;
     @FXML private TableColumn<Map.Entry<Question, Integer>, String> rispostaDataCln;
-    @FXML private StackPane leaderboardBtn;
-    @FXML private VBox questionContainer;
-    @FXML private StackPane showAnswersBtn;
-    @FXML private StackPane menuBtn;
-    @FXML private VBox answerBox;
-    @FXML private StackPane playAgainBtn;
-    @FXML private Button backButtonDiff;
-    @FXML private VBox difficultyButtonsBox;
+
 
     private Map<Document, String> documentToTextMap;
     private SimpleIntegerProperty currentQuestionIndex;
@@ -234,7 +220,7 @@ public class GameController {
 
     /**
      * Avvia la fase del quiz dopo la lettura.
-     *
+     * <p>
      * Se le domande non sono ancora pronte, aspetta un secondo e riprova.
      */
     private void switchToQuestions() {
@@ -253,7 +239,7 @@ public class GameController {
 
     /**
      * Visualizza una domanda e le sue risposte nella UI.
-     *
+     * <p>
      * Gestisce la risposta dell'utente, il controllo correttezza,
      * e avanza alla prossima domanda o al report finale se non ci sono piu domande.
      *
@@ -352,7 +338,7 @@ public class GameController {
 
     /**
      * Genera il report di fine partita e aggiorna la UI.
-     *
+     * <p>
      * Calcola il tempo impiegato per rispondere alle domande, crea e salva il 'GameReport' registrato, aggiorna le statistiche della nuova vista (score,
      * risposte corrette, risposte sbagliate, percentuale di risposte esatte su quelle date)
      * e popola la tabella che mostra il resoconto della partita tramite il metodo populateAnswerTable() del controller.
@@ -542,10 +528,9 @@ public class GameController {
      * Gestisce il click sul pulsante "Leaderboard" del presente nella pagina dei Risultati.
      * Carica la schermata della leaderboard utilizzando il {@code ViewLoader}.
      *
-     * @param event l'evento generato dal click dell'utente
      */
     @FXML
-    public void handleShowLeaderboard(Event event) {
+    public void handleShowLeaderboard() {
         ViewLoader.load(ViewLoader.View.LEADERBOARD);
     }
 
@@ -553,10 +538,9 @@ public class GameController {
     /**
      * Alterna la visualizzazione della sezione dei Report e della TableView popolata tramite il metodo {@code populateAnswerTable}.
      *
-     * @param event l'evento generato dal click sul pulsante di toggle
      */
     @FXML
-    public void toggleShowAnswers(Event event) {
+    public void toggleShowAnswers() {
         heroBox.setVisible(!heroBox.isVisible());
         viewAnswersBtnText.setText((heroBox.isVisible() ? "Mostra Resoconto" : "Mostra Risposte"));
         answersBox.setVisible(!answersBox.isVisible());
@@ -568,20 +552,18 @@ public class GameController {
      * Gestisce il click sul pulsante "Menu" del presente nella pagina dei Risultati.
      * Carica la schermata del Menu utilizzando il {@code ViewLoader}.
      *
-     * @param event l'evento generato dal click dell'utente
      */
     @FXML
-    public void handleGoMenu(Event event) {
+    public void handleGoMenu() {
         ViewLoader.load(ViewLoader.View.MENU);
     }
     /**
      * Gestisce il click sul pulsante "Play Again" del presente nella pagina dei Risultati.
      * Carica la schermata del Game utilizzando il {@code ViewLoader}.
      *
-     * @param event l'evento generato dal click dell'utente
      */
     @FXML
-    public void handlePlayAgain(Event event) {
+    public void handlePlayAgain() {
         ViewLoader.load(ViewLoader.View.GAME);
     }
 
@@ -625,7 +607,7 @@ public class GameController {
             return new SimpleStringProperty(String.valueOf(score));
         });
 
-        punteggioCln.setCellFactory(column -> new TableCell<>() {
+        punteggioCln.setCellFactory(_ -> new TableCell<>() {
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
