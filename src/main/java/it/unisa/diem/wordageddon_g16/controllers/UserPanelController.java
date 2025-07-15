@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
@@ -373,35 +374,63 @@ public class UserPanelController {
         // Ricalcolo le WDM alla chiusura del popup se sono state modificate le stopwords
         popup.getStage().setOnHidden(_ -> {
             if (isSWChanged.get()) {
-                requestRecalculate();
+                if (isRecalculatingWDMs.compareAndSet(false, true)) {
+                    // Nessun ricalcolo in corso: parte subito il ricalcolo
+                    reCalculateWDMs();
+                } else {
+                    // Ricalcolo in corso
+                    needsRecalculation.set(true);
+                    System.out.println("Ricalcolo WDM già in corso. Richiesta di ricalcolo accodata.");
+                }
             }
         });
         popup.show();
     }
 
-    private void requestRecalculate() {
-        if (isRecalculatingWDMs.compareAndSet(false, true)) {
-            // Non c'è un ricalcolo in corso, parto subito
-            threadPool.submit(() -> {
-                try {
-                    service.reCalculateWDMs();
-                } finally {
-                    Platform.runLater(() -> {
-                        System.out.println("Ricalcolo WDM completato.");
-                        isRecalculatingWDMs.set(false);
-                        if (needsRecalculation.getAndSet(false)) {
-                            requestRecalculate();
-                        }
-                    });
-                }
-            });
-        } else {
-            // C'è già un ricalcolo in corso, segno che ne serve un altro dopo
-            needsRecalculation.set(true);
-            System.out.println("Ricalcolo WDM già in corso. Richiesta di ricalcolo accodata.");
+    /**
+     * Metodo per il ricalcolo di tutte le WDM (Word Document Matrix) dei documenti esistenti.
+     *
+     */
+    private void reCalculateWDMs() {
+        System.out.println("Rilevata cancellazione di una stopword, ricalcolo la WDM per tutti i documenti...");
+        List<Document> allDocs = service.getAllDocuments().stream().toList();
+        if (allDocs.isEmpty()) {
+            System.out.println("Nessun documento presente... Non é necessario ricalcolare le stopwords");
+            completeRecalculation();
+            return;
         }
+
+        // Lista dei task
+        List<Callable<Void>> tasks = new ArrayList<>();
+        for (Document doc : allDocs) {
+            tasks.add(() -> {
+                service.updateWDM(new WDM(doc, service.getStopwords()));
+                return null;
+            });
+        }
+
+        // Submit di tutti i task in batch, attendi fine batch senza latch
+        threadPool.submit(() -> {
+            try {
+                threadPool.invokeAll(tasks); // Attende che tutti i task document siano terminati
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            } finally {
+                Platform.runLater(this::completeRecalculation);
+            }
+        });
     }
 
+    private void completeRecalculation() {
+        System.out.println("Ricalcolo WDM completato.");
+        isRecalculatingWDMs.set(false);
+        if (needsRecalculation.getAndSet(false)) {
+            // Se nel frattempo è stata fatta un'altra richiesta, riparti!
+            if (isRecalculatingWDMs.compareAndSet(false, true)) {
+                reCalculateWDMs();
+            }
+        }
+    }
 
     /**
      * Metodo di inizializzazione automatico chiamato da JavaFX.
