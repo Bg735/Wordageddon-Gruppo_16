@@ -17,9 +17,10 @@ import java.nio.file.StandardCopyOption;
 import java.util.*;
 
 /**
- * /**
- * Service per la gestione delle funzionalità accessibili dal pannello utente.
- * Fornisce metodi per informazioni sui report di gioco, gestione documenti, stopwords e admin.
+ * Servizio associato al pannello utente.
+ * <p>
+ * Fornisce funzionalità per la gestione dei documenti, delle WDM, degli utenti
+ * e delle stopword. Opera come interfaccia tra il livello GUI e il livello DAO.
  */
 public class UserPanelService {
     private final GameReportDAO gameReportDAO;
@@ -30,7 +31,7 @@ public class UserPanelService {
     private final JDBCWdmDAO wdmDAO;
 
     /**
-     * Costruttore del servizio.
+     * Costruttore del {@code UserPanelService}.
      *
      * @param gameReportDAO DAO per i report di gioco
      * @param userDAO       DAO per gli utenti
@@ -47,6 +48,12 @@ public class UserPanelService {
         this.wdmDAO = wdmDAO;
     }
 
+    /**
+     * Inserisce o aggiorna una WDM nel database.
+     * Se il documento associato esiste già, aggiorna la WDM eliminando la precedente.
+     *
+     * @param wdm la matrice parola-documento da salvare
+     */
     public void updateWDM(WDM wdm) {
         // Controllo se il documento è già presente
         if (wdmDAO.selectBy(wdm.getDocument()).isPresent()) {
@@ -65,9 +72,9 @@ public class UserPanelService {
     }
 
     /**
-     * Recupera tutti i report dell'utente attualmente loggato.
+     * Recupera tutti i report di gioco dell'utente attualmente loggato.
      *
-     * @return lista di GameReport
+     * @return {@code List<GameReport>} lista di report
      */
     public List<GameReport> getCurrentUserReports() {
         return gameReportDAO.selectAll().stream()
@@ -76,9 +83,9 @@ public class UserPanelService {
     }
 
     /**
-     * Calcola statistiche sull'utente corrente: punteggio massimo, medio e numero di partite.
+     * Restituisce le statistiche (punteggio massimo, medio, numero totale) dell'utente corrente.
      *
-     * @return mappa con chiavi "maxScore", "averageScore", "totalGames"
+     * @return {@code Map<String, Object>}
      */
     public Map<String, Object> getUserStatsForCurrentUser() {
         List<GameReport> reports = getCurrentUserReports();
@@ -99,9 +106,9 @@ public class UserPanelService {
     }
 
     /**
-     * Promuove un utente a ruolo admin.
+     * Promuove un utente a ruolo di amministratore.
      *
-     * @param username nome dell'utente da promuovere
+     * @param username il nome dell'utente da promuovere
      */
     public void promoteUser(String username) {
         userDAO.selectBy(username).ifPresent(user -> {
@@ -111,9 +118,9 @@ public class UserPanelService {
     }
 
     /**
-     * Retrocede un utente da admin a utente normale.
+     * Declassa un amministratore a semplice utente.
      *
-     * @param username nome dell'utente da retrocedere
+     * @param username il nome dell'utente da declassare
      */
     public void demoteUser(String username) {
         userDAO.selectBy(username).ifPresent(user -> {
@@ -122,10 +129,11 @@ public class UserPanelService {
         });
     }
 
+
     /**
-     * Recupera tutti gli utenti escluso quello attualmente loggato.
+     * Restituisce tutti gli utenti eccetto quello attualmente loggato.
      *
-     * @return lista di utenti
+     * @return {@code List<User>}
      */
     public List<User> getAllUsersExceptCurrent() {
         String currentUsername = appContext.getCurrentUser().getName();
@@ -133,9 +141,10 @@ public class UserPanelService {
     }
 
     /**
-     * Aggiunge stopword leggendo da un file.
+     * Aggiunge le stopword contenute in un file al database.
      *
-     * @param file file .txt contenente le stopwords
+     * @param file file di testo contenente le stopword
+     * @throws IOException se si verifica un errore di lettura
      */
     public void addStopwordsFromFile(File file) throws IOException {
         // prelevo le stopwords dal database
@@ -156,7 +165,7 @@ public class UserPanelService {
      * Esempio: "mario_rossi.txt" -> "Mario Rossi"
      *
      * @param filename il nome del file (può contenere estensione e underscore)
-     * @return il titolo simbolico
+     * @return {@code String} il titolo simbolico
      */
     public String symbolicNameOf(String filename) {
         // Rimuovo l'estensione, se presente
@@ -181,19 +190,19 @@ public class UserPanelService {
     /**
      * Restituisce tutti i documenti presenti nel sistema.
      *
-     * @return lista di documenti
+     * @return {@code Collection<Document>}
      */
     public Collection<Document> getAllDocuments() {
         return documentDAO.selectAll();
     }
 
     /**
-     * Aggiunge un nuovo documento al db, se non è già presente.
+     * Aggiunge un nuovo documento al sistema e copia fisicamente il file nella cartella di lavoro.
      *
-     * @param tempFile il file da caricare
-     * @return il documento aggiunto o null se già esiste
+     * @param tempFile file da importare
+     * @throws IOException se il file esiste già o non è accessibile
      */
-    public void addDocument(File tempFile) throws IOException {
+    public void moveDocument(File tempFile) throws IOException {
         Path docsDir = Resources.getDocsDirPath();
         String filename = tempFile.getName();
         Path filePath = docsDir.resolve(filename);
@@ -210,9 +219,9 @@ public class UserPanelService {
     }
 
     /**
-     * Elimina un documento dal sistema.
+     * Elimina un documento dal database e dal filesystem se non è più utilizzato.
      *
-     * @param doc il documento da eliminare
+     * @param doc documento da eliminare
      */
     public void deleteDocument(Document doc) {
         documentDAO.delete(doc);
@@ -232,16 +241,16 @@ public class UserPanelService {
     /**
      * Recupera tutte le stopword.
      *
-     * @return lista di stringhe con le stopwords
+     * @return {@code Set<String>}
      */
     public Set<String> getStopwords() {
         return stopWordDAO.selectAll();
     }
 
     /**
-     * Aggiunge le stopwords al sistema. Il valore di ritorno consente l'aggiunta delle stopwords alla lista visualizzata a schermo
+     * Aggiunge nuove stopword dal campo di testo dell'interfaccia grafica.
      *
-     * @param tfRaw rappresenta il valore grezzo del campo di testo in cui sono inserite le stopwords
+     * @param tfRaw contenuto grezzo del campo testo
      */
     public void addStopWords(String tfRaw) {
         Set<String> stopWordsSet = stopWordsParser(tfRaw);

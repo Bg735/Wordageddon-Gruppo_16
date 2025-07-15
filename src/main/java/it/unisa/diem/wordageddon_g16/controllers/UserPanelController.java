@@ -74,15 +74,26 @@ public class UserPanelController {
 
     @FXML
     private StackPane stackMedio;
-
+    /**
+     * Riferimento all’utente attualmente autenticato nell'applicazione.
+     */
     private final User currentUser;
     private final AppContext appContext;
 
-    // Variabile per impedire il ricalcolo delle WDM se già in corso
+    /**
+     * Indica se è in corso un ricalcolo delle WDM, per evitare concorrenza.
+     */
     private final AtomicBoolean isRecalculatingWDMs;
+    /**
+     * Se 'true', segnala che un altro ricalcolo WDM è stato richiesto
+     * mentre uno era già in esecuzione.
+     */
     private final AtomicBoolean needsRecalculation;
 
-    // Thread pool globale per il ricalcolo delle WDM
+    /**
+     * Thread pool utilizzato per elaborazioni asincrone,
+     * come il ricalcolo delle WDM.
+     */
     ExecutorService threadPool;
 
     /**
@@ -99,6 +110,15 @@ public class UserPanelController {
         threadPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() / 2);
     }
 
+    /**
+     * Apre un popup per la gestione dei ruoli degli utenti presenti nel sistema.
+     * <p>
+     * Viene visualizzata una lista di utenti (escluso l'attuale tramite {@link UserPanelService#getAllUsersExceptCurrent()}), ognuno dei quali
+     * può essere promosso o degradato tramite un {@code ToggleButton}.
+     * L’aggiornamento del ruolo viene effettuato tramite chiamate a
+     * {@link UserPanelService#promoteUser(String)}  o {@link UserPanelService#demoteUser(String)}.
+     * <p>
+     */
     @FXML
     private void handleAdmin() {
         Popup popup = new Popup("Gestione Ruoli Utenti");
@@ -160,10 +180,18 @@ public class UserPanelController {
     }
 
     /**
-     * Gestisce il popup per la gestione dei documenti.
+     * Mostra un popup per la gestione dei documenti testuali.
      * <p>
-     * Mostra un elenco dei documenti esistenti con possibilità di rimozione.
-     * Consente anche il caricamento di un nuovo file `.txt`. Il contenuto viene sincronizzato con il database.
+     *     <ul>
+     * <li>Elenca tutti i documenti salvati nel database.</li>
+     * <li>Consente la rimozione di un documento esistente.</li>
+     * <li>Permette il caricamento di un nuovo documento '.txt' tramite {@link FileChooser}.</li>
+     * </ul>
+     * <p>
+     * Una volta caricato, il documento viene inserito nel sistema e viene avviata
+     * la generazione automatica della WDM associata in background tramite il metodo {@link UserPanelService#updateWDM(WDM)}
+     *
+     * <p>
      */
     @FXML
     private void handleDocumenti() {
@@ -292,10 +320,19 @@ public class UserPanelController {
     }
 
     /**
-     * Gestisce il popup per la gestione delle stopwords.
+     * Apre un popup che permette la gestione delle stopwords.
      * <p>
-     * Permette l'aggiunta manuale tramite TextInput, il caricamento da file `.txt` e la rimozione di stopwords.
-     * Il contenuto viene sincronizzato con il database.
+     * Le funzionalità offerte includono:
+     * <ul>
+     * - Aggiunta manuale tramite un {@code TextField }
+     * - Caricamento da file di solo tipo '.txt'
+     * - Rimozione selezionata di stopwords da una {@code ListView }
+     * </ul>
+     * <p>
+     * Se viene rilevata una modifica alle stopwords, al termine della finestra
+     * viene avviato automaticamente il ricalcolo di tutte le WDM associate
+     * ai documenti esistenti nel sistema in modo ascrincono.
+     * <p>
      */
     @FXML
     private void handleStopWords() {
@@ -389,8 +426,16 @@ public class UserPanelController {
     }
 
     /**
-     * Metodo per il ricalcolo di tutte le WDM (Word Document Matrix) dei documenti esistenti.
-     *
+     * Avvia il ricalcolo parallelo delle {@link WDM} (Word Document Matrix) per tutti i documenti
+     * registrati nel database.
+     * <p>
+     * Viene creato un {@link Task} per ogni documento, eseguito tramite un {@link ExecutorService} .
+     * Ogni task aggiorna la matrice WDM associata invocando
+     * {@link UserPanelService#updateWDM(WDM)}.
+     * <p>
+     * Il metodo assicura che il ricalcolo non avvenga in parallelo ad altri ricalcoli
+     * tramite il flag {@code isRecalculatingWDMs}, mentre eventuali richieste successive
+     * vengono accodate tramite {@code needsRecalculation}.
      */
     private void reCalculateWDMs() {
         System.out.println("Rilevata cancellazione di una stopword, ricalcolo la WDM per tutti i documenti...");
@@ -422,6 +467,13 @@ public class UserPanelController {
         });
     }
 
+    /**
+     * Metodo di callback chiamato al termine del ricalcolo delle WDM.
+     * <p>
+     * Ripristina il flag {@code isRecalculatingWDMs} a 'false'. Se durante l’esecuzione
+     * erano state richieste ulteriori modifiche (es. nuove stopwords), il metodo
+     * ne avvia automaticamente un nuovo ricalcolo.
+     */
     private void completeRecalculation() {
         System.out.println("Ricalcolo WDM completato.");
         isRecalculatingWDMs.set(false);
@@ -434,10 +486,16 @@ public class UserPanelController {
     }
 
     /**
-     * Metodo di inizializzazione automatico chiamato da JavaFX.
+     * Metodo di inizializzazione del controller, invocato automaticamente da JavaFX.
      * <p>
-     * Imposta le informazioni iniziali dell'interfaccia: etichetta dell'utente, visualizzazione menu per gli admin,
-     * tabella dei report di gioco e statistiche, e comportamenti grafici dinamici.
+     * Imposta i contenuti iniziali dell’interfaccia utente, tra cui:
+     * <ul>
+     *  <li>Nome utente</li>
+     *  <li>Visualizzazione dell' adminPanel solo se l’utente è un amministratore </li>
+     *  <li> Popolamento della tabella {@code userTableView} con i {@link GameReport} tramite la chiamata al metodo {@link UserPanelService#getCurrentUserReports()}</li>
+     *  <li>Calcolo attraverso il metodo {@link UserPanelService#getCurrentUserReports()} e visualizzazione delle statistiche dell’utente corrente come punteggio massimo, media, numero di partite giocate
+     * </ul>
+     * <p>
      */
     @FXML
     public void initialize() {
@@ -477,6 +535,14 @@ public class UserPanelController {
         maxScoreLabel.setText(String.valueOf(stats.get("maxScore")));
     }
 
+    /**
+     * Metodo di chiusura del controller.
+     * <p>
+     * Arresta il {@code threadPool} usato per eseguire in background i task
+     * di ricalcolo delle WDM. Il metodo attende la terminazione dei thread
+     * attivi per un massimo di 5 secondi.
+     * Se l’attesa viene interrotta, forza la chiusura con shutdownNow().
+     */
     @FXML
     public void close() {
         threadPool.shutdown();
