@@ -128,7 +128,8 @@ public class UserPanelController {
             Label noUsersLabel = new Label("Nessun altro utente disponibile.");
             noUsersLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: gray;");
             popup.addAll(noUsersLabel);
-        } else {
+            return;
+        }
             for (User user : otherUsers) {
                 VBox userBox = new VBox(5);
                 HBox userRow = new HBox(20);
@@ -175,7 +176,6 @@ public class UserPanelController {
                 userBox.getChildren().addAll(userRow, feedbackLabel);
                 popup.addAll(userBox);
             }
-        }
         popup.show();
     }
 
