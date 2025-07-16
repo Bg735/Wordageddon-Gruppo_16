@@ -91,8 +91,8 @@ public class UserPanelController {
     private final AtomicBoolean needsRecalculation;
 
     /**
-     * Thread pool utilizzato per elaborazioni asincrone,
-     * come il ricalcolo delle WDM.
+     * Thread pool utilizzato per il ricalcolo parallelo delle WDM.
+     * Ogni thread esegue un task di aggiornamento della WDM di una specifica WDM
      */
     ExecutorService threadPool;
 
@@ -130,52 +130,52 @@ public class UserPanelController {
             popup.addAll(noUsersLabel);
             return;
         }
-            for (User user : otherUsers) {
-                VBox userBox = new VBox(5);
-                HBox userRow = new HBox(20);
-                userRow.setAlignment(Pos.CENTER_LEFT);
-                userRow.setPadding(new Insets(5, 10, 5, 10));
-                userRow.setStyle("-fx-background-color: #f4f4f4; -fx-background-radius: 5;");
+        for (User user : otherUsers) {
+            VBox userBox = new VBox(5);
+            HBox userRow = new HBox(20);
+            userRow.setAlignment(Pos.CENTER_LEFT);
+            userRow.setPadding(new Insets(5, 10, 5, 10));
+            userRow.setStyle("-fx-background-color: #f4f4f4; -fx-background-radius: 5;");
 
-                Label nameLabel = new Label(user.getName());
-                nameLabel.setStyle("-fx-text-fill: black;");
-                HBox.setHgrow(nameLabel, Priority.ALWAYS);
+            Label nameLabel = new Label(user.getName());
+            nameLabel.setStyle("-fx-text-fill: black;");
+            HBox.setHgrow(nameLabel, Priority.ALWAYS);
 
-                ToggleButton toggle = new ToggleButton();
-                toggle.setText(user.isAdmin() ? "Admin" : "User");
-                toggle.setSelected(user.isAdmin());
-                toggle.setStyle("-fx-font-size: 12px;");
+            ToggleButton toggle = new ToggleButton();
+            toggle.setText(user.isAdmin() ? "Admin" : "User");
+            toggle.setSelected(user.isAdmin());
+            toggle.setStyle("-fx-font-size: 12px;");
 
-                Label feedbackLabel = new Label();
-                feedbackLabel.setStyle("-fx-text-fill: white; -fx-font-size: 10px;");
-                feedbackLabel.setVisible(false); // Inizialmente nascosto
+            Label feedbackLabel = new Label();
+            feedbackLabel.setStyle("-fx-text-fill: white; -fx-font-size: 10px;");
+            feedbackLabel.setVisible(false); // Inizialmente nascosto
 
-                toggle.setOnAction(_ -> {
-                    boolean nowAdmin = toggle.isSelected();
-                    toggle.setText(nowAdmin ? "Admin" : "User");
+            toggle.setOnAction(_ -> {
+                boolean nowAdmin = toggle.isSelected();
+                toggle.setText(nowAdmin ? "Admin" : "User");
 
-                    if (nowAdmin) {
-                        service.promoteUser(user.getName());
-                    } else {
-                        service.demoteUser(user.getName());
-                    }
+                if (nowAdmin) {
+                    service.promoteUser(user.getName());
+                } else {
+                    service.demoteUser(user.getName());
+                }
 
-                    // Mostra il messaggio nel popup
-                    feedbackLabel.setText("Ruolo aggiornato a " + (nowAdmin ? "Admin" : "User"));
-                    feedbackLabel.setVisible(true);
+                // Mostra il messaggio nel popup
+                feedbackLabel.setText("Ruolo aggiornato a " + (nowAdmin ? "Admin" : "User"));
+                feedbackLabel.setVisible(true);
 
-                    PauseTransition pause = new PauseTransition(javafx.util.Duration.seconds(1.5));
-                    pause.setOnFinished(_ -> feedbackLabel.setVisible(false));
-                    pause.play();
-                });
+                PauseTransition pause = new PauseTransition(javafx.util.Duration.seconds(1.5));
+                pause.setOnFinished(_ -> feedbackLabel.setVisible(false));
+                pause.play();
+            });
 
-                Region spacer = new Region();
-                HBox.setHgrow(spacer, Priority.ALWAYS);
+            Region spacer = new Region();
+            HBox.setHgrow(spacer, Priority.ALWAYS);
 
-                userRow.getChildren().addAll(nameLabel, spacer, toggle);
-                userBox.getChildren().addAll(userRow, feedbackLabel);
-                popup.addAll(userBox);
-            }
+            userRow.getChildren().addAll(nameLabel, spacer, toggle);
+            userBox.getChildren().addAll(userRow, feedbackLabel);
+            popup.addAll(userBox);
+        }
         popup.show();
     }
 
