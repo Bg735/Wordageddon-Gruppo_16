@@ -1,23 +1,39 @@
-name: Deploy Javadoc
+name: Deploy Full Javadoc
 
 on:
   push:
     branches:
       - main
-      - master
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
 
 jobs:
-  publish:
+  javadoc:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Deploy javadoc to Github Pages
-        uses: dev-vince/actions-publish-javadoc@v1.0.1
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
         with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          java-version: "24"               # Modifica la versione se necessario
-          java-distribution: "temurin"       # O "temurin" per Java 21+
-          project: maven                   # O "gradle" se usi Gradle
-          branch: "gh-pages"               # Branch dove vuoi pubblicare la doc Javadoc
+          distribution: 'temurin'
+          java-version: '24'   
+
+      - name: Generate Javadoc (tutti i package, anche privati)
+        run: |
+          mkdir -p docs/Javadoc
+          javadoc -d docs/Javadoc \
+            -sourcepath src/main/java \
+            -subpackages it.unisa.diem.wordageddon_g16 \
+            -private
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: docs/Javadoc
