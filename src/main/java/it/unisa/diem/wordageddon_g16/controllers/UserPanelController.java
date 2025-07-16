@@ -92,7 +92,8 @@ public class UserPanelController {
 
     /**
      * Thread pool utilizzato per il ricalcolo parallelo delle WDM.
-     * Ogni thread esegue un task di aggiornamento della WDM di una specifica WDM
+     * Ogni thread esegue un task di aggiornamento della WDM di una specifica WDM.
+     * Per evitare concorrenza indesiderata, tali thread sono usati solo per il calcolo delle WDM
      */
     ExecutorService threadPool;
 
@@ -447,18 +448,17 @@ public class UserPanelController {
         }
 
         // Lista dei task
-        List<Callable<Void>> tasks = new ArrayList<>();
+        List<Callable<Void>> taskList = new ArrayList<>();
         for (Document doc : allDocs) {
-            tasks.add(() -> {
+            taskList.add(() -> {
                 service.updateWDM(new WDM(doc, service.getStopwords()));
                 return null;
             });
         }
 
-        // Submit di tutti i task in batch,
         threadPool.submit(() -> {
             try {
-                threadPool.invokeAll(tasks);
+                threadPool.invokeAll(taskList);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             } finally {
