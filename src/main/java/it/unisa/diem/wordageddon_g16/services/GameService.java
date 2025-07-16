@@ -362,7 +362,7 @@ public class GameService {
      * Identifica la parola con frequenza più alta come risposta corretta.
      * </p>
      *
-     * @return domanda a scelta multipla relativa alla parola più frequente nel documento selezionato
+     * @return una Question a scelta multipla relativa alla parola più frequente nel documento selezionato
      */
     private Question whichMoreQuestionSingle() {
         List<Document> docs = getDocuments();
@@ -796,17 +796,13 @@ public class GameService {
          * </p>
          */
         private static class DifficultyIndex {
-            private final float cap;
             private float value;
 
             /**
              * Costruisce un nuovo DifficultyIndex.
-             *
-             * @param cap valore massimo della difficoltà
              */
-            public DifficultyIndex(float cap) {
-                this.cap = cap;
-                this.value = cap;
+            public DifficultyIndex() {
+                this.value = 1;
             }
 
             /**
@@ -822,16 +818,6 @@ public class GameService {
             }
 
             /**
-             * Restituisce un valore normalizzato rispetto al massimo definito da {@link #getCap()}.
-             * Utilizzato nella costruzione di {@link GameParams}.
-             *
-             * @return valore relativo
-             */
-            public float getNextRelative() {
-                return getNext() / cap;
-            }
-
-            /**
              * Fornisce la quantità di difficoltà ancora disponibile.
              *
              * @return valore rimanente
@@ -839,20 +825,10 @@ public class GameService {
             public float getRemaining() {
                 return value;
             }
-
-            /**
-             * Fornisce il valore massimo impostato per la difficoltà.
-             *
-             * @return valore massimo disponibile
-             */
-            public float getCap() {
-                return cap;
-            }
         }
 
         /**
          * Costruisce i parametri di gioco basati sul livello di difficoltà.
-         *
          * Usa {@link DifficultyIndex} per calcolare le componenti e chiama:
          * {@link #generateDocuments(float)},
          * {@link #generateTimer(float)},
@@ -862,15 +838,9 @@ public class GameService {
          */
         private GameParams(Difficulty difficulty) {
             this.difficulty = difficulty;
-
-            var cap = switch (difficulty) {
-                case EASY -> 1.0f;
-                case MEDIUM -> 2.0f;
-                case HARD -> 3.0f;
-            };
-            var di = new DifficultyIndex(cap);
-            documents = Collections.unmodifiableList(generateDocuments(di.getNextRelative()));
-            timer = generateTimer(di.getNextRelative());
+            var di = new DifficultyIndex();
+            documents = Collections.unmodifiableList(generateDocuments(di.getNext()));
+            timer = generateTimer(di.getNext());
             questionCount = generateQuestionCount(di.getRemaining());
         }
 
@@ -884,9 +854,25 @@ public class GameService {
          * @throws IllegalArgumentException se non sono disponibili documenti
          */
         private List<Document> generateDocuments(float influence) throws IllegalArgumentException {
-            int maxWords = 1000;
-            int minWords = 200;
-            int wordCountTolerance = 50;
+            final int maxWords;
+            final int minWords;
+            final int wordCountTolerance = 50;
+
+            switch (difficulty) {
+                case EASY -> {
+                    maxWords = 250;
+                    minWords = 50;
+                }
+                case MEDIUM -> {
+                    maxWords = 350;
+                    minWords = 200;
+                }
+                case HARD -> {
+                    maxWords = 450;
+                    minWords = 300;
+                }
+                default -> throw new IllegalArgumentException("Invalid difficulty level");
+            }
 
             var result = new ArrayList<Document>();
 
