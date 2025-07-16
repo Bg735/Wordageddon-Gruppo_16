@@ -1,8 +1,7 @@
-package it.unisa.diem.wordageddon_g16.models;
+package it.unisa.diem.wordageddon_g16.db;
 
-import it.unisa.diem.wordageddon_g16.db.*;
 import it.unisa.diem.wordageddon_g16.db.contracts.DAO;
-import it.unisa.diem.wordageddon_g16.models.interfaces.Repository;
+import it.unisa.diem.wordageddon_g16.db.contracts.Repository;
 import it.unisa.diem.wordageddon_g16.utility.Config;
 import it.unisa.diem.wordageddon_g16.utility.SystemLogger;
 
@@ -11,6 +10,8 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 /**
  * Implementazione della interfaccia {@link Repository} che gestisce l'accesso ai dati tramite JDBC.
@@ -43,7 +44,6 @@ public class JdbcRepository implements Repository {
             try (var stmt = conn.createStatement()) {
                 stmt.execute("PRAGMA foreign_keys = ON;");
             }
-
             var userDAO = new JDBCUserDAO(conn);
             var documentDAO = new JDBCDocumentDAO(conn);
             daos.put("user", userDAO);
@@ -55,7 +55,6 @@ public class JdbcRepository implements Repository {
             SystemLogger.log("Could not establish a connection to the database: ", e);
         }
     }
-
 
     /**
      * Restituisce il DAO associato a una specifica categoria testuale.

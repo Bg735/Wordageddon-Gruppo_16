@@ -24,8 +24,6 @@ public class GameService {
     private final GameReportDAO gameReportDAO;
     private final JDBCWdmDAO wdmDAO;
     private final DocumentDAO documentDAO;
-    private final StopWordDAO stopwordDAO;
-    private final AppContext context;
 
     private GameParams params;
     private Map<Document, WDM> wdmMap;
@@ -44,8 +42,6 @@ public class GameService {
         this.gameReportDAO = gameReportDAO;
         this.wdmDAO = wdmDAO;
         this.documentDAO = documentDAO;
-        this.stopwordDAO = stopwordDAO;
-        this.context = context;
     }
 
     /**
@@ -948,7 +944,7 @@ public class GameService {
             }
 
             // per come é stato impostato l'influenza é un valore compreso tra 0 e 1 quindi il massimale scritto non si raggiunge mai
-            return (int) (minQuestions + (maxQuestions - minQuestions) * influence);
+            return Math.round(minQuestions + (maxQuestions - minQuestions) * influence);
         }
     }
 

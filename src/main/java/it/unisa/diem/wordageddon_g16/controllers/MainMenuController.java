@@ -4,6 +4,7 @@ import it.unisa.diem.wordageddon_g16.db.contracts.DocumentDAO;
 import it.unisa.diem.wordageddon_g16.models.AppContext;
 import it.unisa.diem.wordageddon_g16.models.Document;
 import it.unisa.diem.wordageddon_g16.models.User;
+import it.unisa.diem.wordageddon_g16.services.GameService;
 import it.unisa.diem.wordageddon_g16.utility.Popup;
 import it.unisa.diem.wordageddon_g16.utility.Resources;
 import it.unisa.diem.wordageddon_g16.utility.ViewLoader;
@@ -14,21 +15,16 @@ import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.net.URL;
 import java.util.ResourceBundle;
 
 
 
 public class MainMenuController implements Initializable {
-
-    @FXML
-    private Button leaderBoardBtn;
-
-    @FXML
-    private Button startBtn;
-
-    @FXML
-    private AnchorPane userPanelBtn;
 
     @FXML
     private Label usernameLabel;
@@ -43,6 +39,18 @@ public class MainMenuController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         User  user= context.getCurrentUser();
         usernameLabel.setText(user.getName());
+        if(new File("session.ser").exists()) {
+            try (var in = new ObjectInputStream(new FileInputStream("session.ser"))) {
+                if (in.available() > 0) {
+                    var gameService = (GameService) in.readObject();
+                    //caricare la partita salvata
+                }
+            }
+            catch (IOException | ClassNotFoundException e) {
+                    // No previous session found, continue with a new one
+            }
+        }
+
     }
 
     @FXML

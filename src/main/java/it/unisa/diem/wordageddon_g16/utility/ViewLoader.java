@@ -16,6 +16,17 @@ import java.io.IOException;
 public class ViewLoader {
     private static Callback<Class<?>, Object> controllerFactory;
     private static Stage stage;
+    private static View currentView;
+    private static Object currentController;
+
+    public static View getCurrentView() {
+        return currentView;
+    }
+
+    public static Object getCurrentController() {
+        return currentController;
+    }
+
     /**
      * Enumerazione delle viste disponibili nell'applicazione.
      * <p>
@@ -84,7 +95,10 @@ public class ViewLoader {
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(ViewLoader.class.getResource(Resources.RES_PATH+"fxml/" + view.get() + ".fxml"));
             fxmlLoader.setControllerFactory(controllerFactory);
+
             stage.getScene().setRoot(fxmlLoader.load());
+            currentController=fxmlLoader.getController();
+            currentView = view;
         } catch (IOException e) {
             throw new RuntimeException("Failed to load FXML view: " + view.get(), e);
         }

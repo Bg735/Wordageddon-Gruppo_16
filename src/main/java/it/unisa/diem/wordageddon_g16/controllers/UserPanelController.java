@@ -14,6 +14,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
@@ -26,11 +27,13 @@ import javafx.stage.FileChooser;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.FileAlreadyExistsException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -39,7 +42,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * personali,la gestione dei documenti, delle stopwords e degli utenti con privilegi amministrativi.
  */
 
-public class UserPanelController {
+public class UserPanelController implements Initializable {
     private final UserPanelService service;
 
     @FXML
@@ -500,7 +503,8 @@ public class UserPanelController {
      * <p>
      */
     @FXML
-    public void initialize() {
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
         // Posiziona il secondo StackPane a metà altezza dell'AnchorPane a forma di semicerchio
         anchorSemicerchio.heightProperty().addListener((_, _, newVal) -> {
             double centerY = (newVal.doubleValue() - stackMedio.getHeight()) / 2;

@@ -1,6 +1,4 @@
-package it.unisa.diem.wordageddon_g16.models.interfaces;
-
-import it.unisa.diem.wordageddon_g16.db.contracts.DAO;
+package it.unisa.diem.wordageddon_g16.db.contracts;
 
 /**
  * Interfaccia che definisce un repository centralizzato per l'accesso ai DAO.

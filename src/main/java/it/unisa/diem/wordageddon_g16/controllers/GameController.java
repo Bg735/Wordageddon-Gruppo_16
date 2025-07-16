@@ -14,6 +14,7 @@ import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
@@ -22,10 +23,12 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
 
+import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
 
 /**
  * Controller principale per la gestione di una sessione di gioco.
@@ -39,7 +42,7 @@ import java.util.Map;
  * operazioni intensive (generazione domande, caricamento testo).
  * </p>
  */
-public class GameController {
+public class GameController implements Initializable {
     @FXML private StackPane stackPane;
     @FXML private AnchorPane readingPane;
     @FXML private AnchorPane questionPane;
@@ -137,7 +140,8 @@ public class GameController {
      * </ul>
      */
     @FXML
-    public void initialize() {
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
         // IL pulsante di skip viene abilitato automaticamente quando la generazione delle domande è completata e sono trascorsi almeno 15s dall'inizio del timer
         skipReadingBtn.disableProperty().bind(
                 minTimeElapsed.not().or(questionsReady.not())
@@ -634,5 +638,7 @@ public class GameController {
 
     }
 
-
+    public GameService getGameService() {
+        return gameService;
+    }
 }

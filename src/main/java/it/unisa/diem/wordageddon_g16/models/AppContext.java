@@ -1,6 +1,6 @@
 package it.unisa.diem.wordageddon_g16.models;
 
-import it.unisa.diem.wordageddon_g16.models.interfaces.Repository;
+import it.unisa.diem.wordageddon_g16.db.contracts.Repository;
 import it.unisa.diem.wordageddon_g16.services.*;
 
 /**

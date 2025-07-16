@@ -6,9 +6,13 @@ import it.unisa.diem.wordageddon_g16.utility.Config;
 import it.unisa.diem.wordageddon_g16.utility.Resources;
 import it.unisa.diem.wordageddon_g16.utility.ViewLoader;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+
+import java.net.URL;
+import java.util.ResourceBundle;
 
 /**
  * Controller JavaFX per la schermata di autenticazione dell'applicazione Wordageddon.
@@ -17,7 +21,7 @@ import javafx.scene.image.ImageView;
  * e la validazione dei campi tramite {@link AuthService}. Utilizza {@link ViewLoader} per la navigazione
  * e {@link Resources} per applicare lo stile ai popup di dialogo.
  */
-public class AuthController {
+public class AuthController implements Initializable {
 
     private final AuthService authService;
     @FXML
@@ -50,7 +54,8 @@ public class AuthController {
      * Configura anche il binding tra {@link PasswordField} e {@link TextField} per la visualizzazione della password.
      */
     @FXML
-    private void initialize() {
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
         noUsers = authService.noUsers();
         if (noUsers) {
             loginBtn.setVisible(false);
