@@ -547,8 +547,6 @@ public class GameService {
      * @throws IllegalStateException se non ci sono abbastanza parole per generare la domanda
      */
     private Question whichAbsentQuestion() {
-        // Recupera tutti i documenti e tutte le parole presenti
-        List<Document> docs = getDocuments();
         Set<String> allWords = new HashSet<>();
         for (WDM wdm : wdmMap.values()) {
             allWords.addAll(wdm.getWords().keySet());
