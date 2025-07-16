@@ -857,14 +857,17 @@ public class GameService {
                 case EASY -> {
                     maxWords = 250;
                     minWords = 50;
+                    maxDocsNumber = 3;
                 }
                 case MEDIUM -> {
                     maxWords = 350;
                     minWords = 200;
+                    maxDocsNumber = 5;
                 }
                 case HARD -> {
-                    maxWords = 450;
+                    maxWords = 600;
                     minWords = 300;
+                    maxDocsNumber = 7;
                 }
                 default -> throw new IllegalArgumentException("Invalid difficulty level");
             }
@@ -894,7 +897,7 @@ public class GameService {
                         result.add(currentDoc);
                     break;
                 }
-            } while (documentsLeft > 0);
+            } while (documentsLeft > 0 && result.size() < maxDocsNumber);
             return result;
         }
 
@@ -927,21 +930,20 @@ public class GameService {
 
             switch (difficulty) {
                 case EASY -> {
-                    maxQuestions = 5;
-                    minQuestions = 2;
+                    maxQuestions = 10;
+                    minQuestions = 5;
                 }
                 case MEDIUM -> {
-                    maxQuestions = 10;
-                    minQuestions = 4;
+                    maxQuestions = 15;
+                    minQuestions = 10;
                 }
                 case HARD -> {
-                    maxQuestions = 15;
-                    minQuestions = 5;
+                    maxQuestions = 20;
+                    minQuestions = 15;
                 }
                 default -> throw new IllegalArgumentException("Invalid difficulty level");
             }
 
-            // per come é stato impostato l'influenza é un valore compreso tra 0 e 1 quindi il massimale scritto non si raggiunge mai
             return Math.round(minQuestions + (maxQuestions - minQuestions) * influence);
         }
     }
