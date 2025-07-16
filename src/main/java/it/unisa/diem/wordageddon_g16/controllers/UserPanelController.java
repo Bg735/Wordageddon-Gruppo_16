@@ -125,12 +125,7 @@ public class UserPanelController {
         Popup popup = new Popup("Gestione Ruoli Utenti");
         List<User> otherUsers = service.getAllUsersExceptCurrent();
 
-        if (otherUsers.isEmpty()) {
-            Label noUsersLabel = new Label("Nessun altro utente disponibile.");
-            noUsersLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: gray;");
-            popup.addAll(noUsersLabel);
-            return;
-        }
+
         for (User user : otherUsers) {
             VBox userBox = new VBox(5);
             HBox userRow = new HBox(20);
@@ -176,6 +171,13 @@ public class UserPanelController {
             userRow.getChildren().addAll(nameLabel, spacer, toggle);
             userBox.getChildren().addAll(userRow, feedbackLabel);
             popup.addAll(userBox);
+        }
+        if (otherUsers.isEmpty()) {
+            Label noUsersLabel = new Label("Nessun altro utente disponibile.");
+            noUsersLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: gray;");
+            popup.addAll(noUsersLabel);
+            popup.show();
+            return;
         }
         popup.show();
     }
