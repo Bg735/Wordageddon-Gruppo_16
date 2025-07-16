@@ -54,9 +54,9 @@ public class WDM {
         words = new HashMap<>();
         int wordCount = 0;
         try (Scanner scanner = new Scanner(new StringReader(Resources.getDocumentContent(filename)))) {
-            scanner.useDelimiter("\\s+");
+            scanner.useDelimiter("[\\p{Punct}'’\\s]+");
             while (scanner.hasNext()) {
-                String word = scanner.next().replaceAll("\\p{Punct}", "").toLowerCase();
+                String word = scanner.next().toLowerCase();
                 if (!word.isEmpty() && !stopWords.contains(word)) {
                     words.put(word, words.getOrDefault(word, 0) + 1);
                     wordCount++;
@@ -66,6 +66,7 @@ public class WDM {
             SystemLogger.log("Errore durante l'analisi del documento " + filename, e);
             throw new RuntimeException(e);
         }
+
         this.document = new Document(filename, title, wordCount);
     }
 

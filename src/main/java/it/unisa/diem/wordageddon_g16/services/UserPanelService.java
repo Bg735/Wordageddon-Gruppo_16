@@ -288,7 +288,8 @@ public class UserPanelService {
         String input = tfRaw.trim().toLowerCase();
 
         // Estrae le parole
-        String[] stopWords = input.split("[\\p{Punct}\\s]+");
+        String[] stopWords = input.split("[\\p{Punct}'’\\s]+");
+
         for (String word : stopWords) {
             if (!word.isEmpty()) {
                 stopWordsSet.add(word);
