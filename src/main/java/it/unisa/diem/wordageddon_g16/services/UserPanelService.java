@@ -59,9 +59,8 @@ public class UserPanelService {
         if (wdmDAO.selectBy(wdm.getDocument()).isPresent()) {
             System.out.println("Aggiornamento del documento e della WDM associata: " + wdm.getDocument().filename());
             documentDAO.update(wdm.getDocument());
-            // Cancello la matrice WDM esistente e reinserisco quella aggiornata
-            wdmDAO.delete(wdm);
-            wdmDAO.insert(wdm);
+            // aggiorno la matrica WDM
+            wdmDAO.update(wdm);
         }
         else {
             // Inserisco il documento nel database

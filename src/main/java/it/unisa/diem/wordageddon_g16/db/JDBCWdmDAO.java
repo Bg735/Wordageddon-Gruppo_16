@@ -134,14 +134,8 @@ public class JDBCWdmDAO extends JdbcDAO<WDM> implements WdmDAO {
      */
     @Override
     public void update(WDM wdm) {
-        String query = "UPDATE WDM SET occurrences = ? WHERE document = ? AND word = ?";
-        try {
-            for (Map.Entry<String, Integer> entry : wdm.getWords().entrySet()) {
-                executeUpdate(query, entry.getValue(), wdm.getDocument().filename(), entry.getKey());
-            }
-        } catch (Exception e) {
-            throw new QueryFailedException(e.getMessage());
-        }
+        delete(wdm); // Prima elimino le vecchie parole
+        insert(wdm); // Poi inserisco quelle nuove
     }
 
     /**
