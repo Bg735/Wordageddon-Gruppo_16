@@ -854,8 +854,11 @@ public class GameService {
         private List<Document> generateDocuments(float influence) throws IllegalArgumentException {
             final int maxWords;
             final int minWords;
-            final int wordCountTolerance = 50;
+            final int maxDocsNumber;
+            final int wordCountTolerance = 100;
 
+            // Classificazione dei documenti in base al numero delle parole
+            // In base alla difficoltá scelta, si prelevano i documenti con un numero di parole compreso tra min e max
             switch (difficulty) {
                 case EASY -> {
                     maxWords = 250;
@@ -925,9 +928,26 @@ public class GameService {
          * @return numero di domande
          */
         private int generateQuestionCount(float influence) {
-            int maxQuestions = 20;
-            int minQuestions = 5;
+            final int maxQuestions;
+            final int minQuestions;
 
+            switch (difficulty) {
+                case EASY -> {
+                    maxQuestions = 5;
+                    minQuestions = 2;
+                }
+                case MEDIUM -> {
+                    maxQuestions = 10;
+                    minQuestions = 4;
+                }
+                case HARD -> {
+                    maxQuestions = 15;
+                    minQuestions = 6;
+                }
+                default -> throw new IllegalArgumentException("Invalid difficulty level");
+            }
+
+            // per come é stato impostato l'influenza é un valore compreso tra 0 e 1 quindi il massimale scritto non si raggiunge mai
             return (int) (minQuestions + (maxQuestions - minQuestions) * influence);
         }
     }
