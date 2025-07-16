@@ -17,7 +17,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.*;
 
 /**
- * Servizio associato al pannello utente.
+ * Classe di 'servizio' associata alla gestione pannello utente.
  * <p>
  * Fornisce funzionalità per la gestione dei documenti, delle WDM, degli utenti
  * e delle stopword. Opera come interfaccia tra il livello GUI e il livello DAO.

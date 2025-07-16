@@ -15,7 +15,7 @@ import javafx.scene.control.TableView;
 import java.net.URL;
 import java.util.ResourceBundle;
 /**
- * Controller JavaFX responsabile della gestione e visualizzazione della schermata di classifica.
+ * Controller responsabile della gestione e visualizzazione della schermata di classifica.
  * <p>
  * Carica dinamicamente le classifiche globali e filtrate per difficoltà nella rispettiva {@link TableView}.
  * Utilizza {@link LeaderboardService} per ottenere i dati di gioco e {@link ViewLoader} per la navigazione.
@@ -53,7 +53,7 @@ public class LeaderboardController implements Initializable {
      *   <li>Collega le colonne ai campi di {@link LeaderboardService.LeaderboardEntry}</li>
      *   <li>Popola i dati con {@code FXCollections.observableList(...)} per la difficoltà corrispondente</li>
      * </ul>
-     * 
+     *
      *
      * @param url non utilizzato
      * @param resourceBundle non utilizzato
