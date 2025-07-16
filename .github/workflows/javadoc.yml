@@ -1,4 +1,4 @@
-name: Deploy Full Javadoc
+name: Build Full Javadoc
 
 on:
   push:
@@ -22,13 +22,22 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '24'   
+          java-version: '21'   # Cambia la versione in base al progetto
 
-      - name: Generate Javadoc (tutti i package, anche privati)
+      - name: Download JavaFX
+        run: |
+          wget https://download2.gluonhq.com/openjfx/21.0.3/openjfx-21.0.3_linux-x64_bin-sdk.zip
+          unzip openjfx-21.0.3_linux-x64_bin-sdk.zip -d $HOME
+          echo "PATH_TO_FX=$HOME/javafx-sdk-21.0.3/lib" >> $GITHUB_ENV
+
+      - name: Generate Javadoc (full, anche privati, JavaFX)
         run: |
           mkdir -p docs/Javadoc
-          javadoc -d docs/Javadoc \
+          javadoc \
+            -d docs/Javadoc \
             -sourcepath src/main/java \
+            --module-path $PATH_TO_FX \
+            --add-modules javafx.controls,javafx.fxml \
             -subpackages it.unisa.diem.wordageddon_g16 \
             -private
 
