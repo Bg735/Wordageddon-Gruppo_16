@@ -33,10 +33,10 @@ L'applicazione sfida l'utente nella memorizzazione e riconoscimento delle parole
 
 ### 🔒 Credenziali
 **Admin:**
-- Username: admin
-- Password: admin
+- Username: *admin*
+- Password: *admin*
 
 **User**
-- Username: demo
-- Password: demo
+- Username: *demo*
+- Password: *demo*
 
