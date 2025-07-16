@@ -46,14 +46,14 @@ public class LeaderboardController implements Initializable {
     }
     /**
      * Inizializza la schermata di classifica e popola le tabelle con i dati ottenuti da {@link LeaderboardService}.
-     * <p>
+     *
      * Per ogni {@link TableView} (globale e per difficoltà):
      * <ul>
      *   <li>Configura la colonna dell'indice con un {@link TableCell} personalizzato</li>
      *   <li>Collega le colonne ai campi di {@link LeaderboardService.LeaderboardEntry}</li>
      *   <li>Popola i dati con {@code FXCollections.observableList(...)} per la difficoltà corrispondente</li>
      * </ul>
-     * </p>
+     * 
      *
      * @param url non utilizzato
      * @param resourceBundle non utilizzato

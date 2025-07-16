@@ -12,8 +12,18 @@ import java.io.Serializable;
  * La classe implementa {@link Serializable} per supportare il salvataggio e caricamento della sessione.
  */
 public class User implements Serializable {
+    /**
+     * Nome utente dell'utente.
+     */
     private String name;
+
+    /**
+     * Password associata all'utente.
+     */
     private String password;
+    /**
+     * Indica se l'utente ha privilegi da amministratore.
+     */
     private boolean isAdmin;
 
     /**

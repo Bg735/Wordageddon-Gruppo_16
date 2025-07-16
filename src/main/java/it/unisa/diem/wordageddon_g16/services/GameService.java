@@ -119,13 +119,14 @@ public class GameService {
      *   <li>Con meno di 4 documenti: solo domande di tipo SINGLE, ossia basate su un singolo documento</li>
      *   <li>Con 4 o più documenti: include anche {@link Question.QuestionType#WHICH_DOCUMENT} e {@link Question.QuestionType#WHICH_ABSENT}, ossia domande che chiedono una parola in che documento è presente di più o in quale è assente</li>
      * </ul>
-     * <p>
+     *
+     *
      * Per ogni domanda da generare:
      * <ul>
      *   <li>Seleziona casualmente il {@link Question.QuestionType}</li>
      *   <li>Chiama il metodo corrispondente come {@code absoluteFrequencyQuestion()} o {@code whichMoreQuestionSingle()}</li>
      * </ul>
-     * </p>
+     *
      *
      * @return lista di {@link Question} generate per la sessione attuale
      * @throws IllegalStateException se il gioco non è stato inizializzato correttamente
@@ -736,7 +737,6 @@ public class GameService {
         }
         /**
          * Crea una nuova istanza di {@code Question} validando i parametri forniti.
-         * <p>
          * La domanda è valida solo se:
          * <ul>
          *   <li>{@code text} non è {@code null}</li>
@@ -744,7 +744,6 @@ public class GameService {
          *   <li>{@code correctAnswerIndex} è compreso tra {@code 0} e {@code answers.size() - 1}</li>
          * </ul>
          * Se non rispettati, viene lanciata una {@link IllegalArgumentException}.
-         * </p>
          *
          * @param text               testo della domanda
          * @param answers            lista delle possibili risposte
