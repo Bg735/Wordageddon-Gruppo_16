@@ -85,8 +85,8 @@ public class GameController {
     private final SimpleIntegerProperty currentDocumentIndex;
     private final GameService gameService;
     private List<Question> questions;
-    private Service<Map<Document, String>> readingSetupService;
-    private Service<List<Question>> questionSetupService;
+    private Service<Map<Document, String>> readingSetupServiceFX;
+    private Service<List<Question>> questionSetupServiceFX;
     private Timeline questionTimer;
     private final SimpleIntegerProperty elapsedSeconds;
     private Timeline readingTimer;
@@ -150,7 +150,7 @@ public class GameController {
          * Alla conclusione, aggiorna la UI con il testo letto, avvia la generazione delle domande
          * e imposta il timer per la lettura.
          */
-        readingSetupService = new Service<>() {
+        readingSetupServiceFX = new Service<>() {
             @Override
             protected Task<Map<Document, String>> createTask() {
                 Task<Map<Document, String>> task = new Task<>() {
@@ -163,7 +163,7 @@ public class GameController {
                     documentToTextMap = task.getValue();
                     Platform.runLater(() -> setDocument(0));
 
-                    questionSetupService.start();
+                    questionSetupServiceFX.start();
                     java.time.Duration seconds = gameService.getTimeLimit();
                     readingTimer = startTimer(seconds, timerLabelRead, timerBar, () -> loadPane(questionPane));
 
@@ -185,7 +185,7 @@ public class GameController {
          * Quando la generazione è completata, aggiorna la lista delle domande e imposta il timer per le domande.
          * In caso di errore, termina la sessione di gioco.
          */
-        questionSetupService = new Service<>() {
+        questionSetupServiceFX = new Service<>() {
             @Override
             protected Task<List<Question>> createTask() {
                 return new Task<>() {
@@ -196,12 +196,12 @@ public class GameController {
                 };
             }
         };
-        questionSetupService.setOnSucceeded(_ -> {
-            questions = questionSetupService.getValue();
+        questionSetupServiceFX.setOnSucceeded(_ -> {
+            questions = questionSetupServiceFX.getValue();
             questionsReady.set(true);  // Le domande sono pronte
         });
-        questionSetupService.setOnFailed(_ -> {
-            throw new RuntimeException("Error during reading setup task: " + questionSetupService.getException());
+        questionSetupServiceFX.setOnFailed(_ -> {
+            throw new RuntimeException("Error during reading setup task: " + questionSetupServiceFX.getException());
         });
 
         loadPane(diffSelectionPane);
@@ -252,7 +252,7 @@ public class GameController {
             return;
         }
         // alla prima domanda da mostrare, viene segnato il tempo nella variabile questionStartTime.
-        // in showReport verrà calcolato il tempo che intercorre tra questionStartTime e questionEndTime
+        // in generateReport verrà calcolato il tempo che intercorre tra questionStartTime e questionEndTime
         if (currentQuestionIndex.get() == 0) {
             questionStartTime = LocalDateTime.now();
         }
@@ -345,7 +345,7 @@ public class GameController {
      *
      * @see GameController#populateAnswerTable()
      */
-    private void showReport() {
+    private void generateReport() {
         LocalDateTime questionEndTime = LocalDateTime.now();
         java.time.Duration usedTime = java.time.Duration.between(questionStartTime, questionEndTime);
         java.time.Duration timeLimit = QUESTION_TIME_LIMIT.multipliedBy(gameService.getQuestionCount());
@@ -454,9 +454,9 @@ public class GameController {
             p.setVisible(false);
         }
         switch (pane.getId()) {
-            case "readingPane" -> readingSetupService.start();
+            case "readingPane" -> readingSetupServiceFX.start();
             case "questionPane" -> switchToQuestions();
-            case "reportPane" -> showReport();
+            case "reportPane" -> generateReport();
             default -> {
             }
 
@@ -570,7 +570,7 @@ public class GameController {
     /**
      *Popola la tabella delle risposte visibile a fine partita.
      *<p>
-     * Il metodo viene chiamato in {@code showReport()} per visualizzare il riepilogo
+     * Il metodo viene chiamato in {@code generateReport()} per visualizzare il riepilogo
      * delle risposte date dall'utente. Utilizza la mappa 'domandaRisposte'
      * per mostrare, per ogni domanda:
      * <ul>

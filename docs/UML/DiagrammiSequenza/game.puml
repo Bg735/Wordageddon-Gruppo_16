@@ -1,28 +1,50 @@
 @startuml
 actor Utente
-participant "UserPanelController" as Controller
-participant "PopupBuilder" as UI
-participant "GameService" as Gestore
-participant "Timer" as Timer
+participant GameController
+participant GameService
+database Database as DB
+participant View
+activate Utente
 
-== Avvio app ==
-Utente -> UI : apre l'applicazione
-UI -> Controller : handleLivelli()
-
-== Selezione livello ==
-Utente -> UI : seleziona livello
-UI -> Controller : handleLivelliSelezionato(livello)
-
-Controller -> Gestore : getDocumentForLevel(livello)
-Gestore -> DocumentDAO : selectById(livello)
-alt Documento disponibile
-    DocumentDAO --> Gestore : Document
-    Gestore --> Controller : Document
-    Controller -> UI : mostra il documento
-    UI -> Timer : start()
-else Documento non disponibile
-    DocumentDAO --> Gestore : Optional vuoto
-    Gestore --> Controller : Optional vuoto
-    Controller -> UI : mostra errore "Documento non trovato"
+Utente -> View : Seleziona Difficoltá
+activate View
+GameController -> GameController : onDifficultySelected()
+activate GameController
+GameController -> GameService : init(difficulty)
+activate GameService
+GameController -> View : loadPane(readingPane)
+deactivate GameService
+activate GameController #3375E0
+GameController -> GameController : readingSetupServiceFX()
+activate GameController #3375E0
+GameController -> GameService : setupGameService()
+activate GameService
+deactivate GameService
+GameController -> GameController : questionSetupServiceFX()
+activate GameController #3375E0
+GameController -> GameService : getQuestions()
+activate GameService #3375E0
+GameService -> GameService : generazione domande
+GameService --> GameController : lista domande
+deactivate GameController
+deactivate GameService
+deactivate GameController
+GameController -> View : loadPane(questionPane)
+deactivate GameController
+loop for each question
+    GameController -> View : showQuestion()
 end
+
+activate GameController #3375E0
+GameController -> View : loadPane(reportPane)
+GameController -> GameController: generateReport()
+GameController -> GameService : saveGameReport()
+activate GameController #3375E0
+activate GameService
+deactivate GameController
+GameService -> DB : insert()
+activate DB
+deactivate GameService
+deactivate DB
+
 @enduml

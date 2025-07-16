@@ -20,19 +20,62 @@ UserPanelService -> UserPanelService : stopWordsParser()
 deactivate UserPanelController
 activate UserPanelService
 UserPanelService -> DB : insert()
-
 activate DB
+deactivate DB
 
 deactivate UserPanelService
-deactivate UserPanelController
+    activate UserPanelController #3375E0
+    UserPanelController -> UserPanelController : recalculateStopWords()
+    loop for each document
+    activate UserPanelController #3375E0
+    UserPanelController -> UserPanelService : updateWDM()
+    deactivate UserPanelController
+    activate UserPanelService #3375E0
+    UserPanelService -> DB : selectBy()
+    activate DB
+    DB --> UserPanelService : WDM
+
+    alt WDM giá presente
+    UserPanelService -> DB : DocumentUpdate()
+    UserPanelService -> DB : WDMUpdate()
+    else #orange else
+        UserPanelService -> DB : DocumentInsert()
+        UserPanelService -> DB : WDMInsert()
+    end
+    deactivate DB
+end
 deactivate DB
+deactivate UserPanelController
+deactivate UserPanelService
 Amministratore -> View : "Carica file di stopwords"
+deactivate UserPanelController
+
 UserPanelController -> UserPanelController : handleStopWords()
 activate UserPanelController
 UserPanelController -> UserPanelService : addStopWordsFromFile()
 loop for each line
     UserPanelService -> UserPanelService : stopWordsParser()
     UserPanelService -> DB : insert()
+end
+    activate UserPanelController #3375E0
+    UserPanelController -> UserPanelController : recalculateStopWords()
+    loop for each document
+    activate UserPanelController #3375E0
+    UserPanelController -> UserPanelService : updateWDM()
+    deactivate UserPanelController
+    activate UserPanelService #3375E0
+    UserPanelService -> DB : selectBy()
+    activate DB
+    DB --> UserPanelService : WDM
+
+    alt WDM giá presente
+    UserPanelService -> DB : DocumentUpdate()
+    UserPanelService -> DB : WDMUpdate()
+    else #orange else
+        UserPanelService -> DB : DocumentInsert()
+        UserPanelService -> DB : WDMInsert()
+    end
+    deactivate DB
 end
 @enduml
 

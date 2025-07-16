@@ -44,7 +44,6 @@ else #orange else
     UserPanelService -> DB : WDMInsert()
 end
 deactivate UserPanelService
-UserPanelController -> View : aggiorna vista
 deactivate UserPanelController
 @enduml
 

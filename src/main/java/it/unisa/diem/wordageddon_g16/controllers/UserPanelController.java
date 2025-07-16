@@ -455,10 +455,10 @@ public class UserPanelController {
             });
         }
 
-        // Submit di tutti i task in batch, attendi fine batch senza latch
+        // Submit di tutti i task in batch,
         threadPool.submit(() -> {
             try {
-                threadPool.invokeAll(tasks); // Attende che tutti i task document siano terminati
+                threadPool.invokeAll(tasks);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             } finally {
