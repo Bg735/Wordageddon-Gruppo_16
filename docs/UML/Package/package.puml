@@ -1,0 +1,10 @@
+@startuml
+set namespaceSeparator none
+package it.unisa.diem.wordageddon_g16 {
+    package controllers{}
+    package db{}
+    package models{}
+    package services{}
+    package utility{}
+}
+@enduml
