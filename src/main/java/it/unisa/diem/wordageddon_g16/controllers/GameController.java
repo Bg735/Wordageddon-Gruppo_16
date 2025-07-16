@@ -574,7 +574,6 @@ public class GameController implements Initializable {
 
     /**
      *Popola la tabella delle risposte visibile a fine partita.
-     *<p>
      * Il metodo viene chiamato in {@code generateReport()} per visualizzare il riepilogo
      * delle risposte date dall'utente. Utilizza la mappa 'domandaRisposte'
      * per mostrare, per ogni domanda:
@@ -584,7 +583,6 @@ public class GameController implements Initializable {
      *   <li>La risposta corretta</li>
      *   <li>Il punteggio ottenuto per la risposta</li>
      * </ul>
-     * </p>
      */
     private void populateAnswerTable() {
         answersTable.getItems().addAll(domandaRisposte.entrySet());

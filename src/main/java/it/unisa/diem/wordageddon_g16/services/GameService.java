@@ -582,14 +582,12 @@ public class GameService {
 
     /**
      * Genera una parola che non è presente in alcuno dei documenti selezionati per la partita.
-     * <p>
      * Il metodo tenta di prelevare una parola da:
      * <ul>
      *   <li>Documenti inutilizzati: estrae una parola dalla {@link WDM} associata a un documento non usato, filtrando quelle già presenti.</li>
      *   <li>Vocabolario statico: se non ci sono documenti inutilizzati o nessuna parola valida, seleziona una parola casuale da {@link Resources#getVocabulary()}.</li>
      * </ul>
      * Se non trova alcuna parola valida, lancia una {@link IllegalStateException}.
-     * </p>
      *
      * @param presentWords insieme di parole già presenti nei documenti usati
      * @return una parola assente da tutti i documenti utilizzati
@@ -663,14 +661,12 @@ public class GameService {
 
     /**
      * Carica le matrici {@link WDM} associate ai documenti selezionati per la partita nella mappa {@code wdmMap}.
-     * <p>
      * Per ciascun {@link Document} in {@code params.documents}, il metodo:
      * <ul>
      *   <li>Recupera la matrice dal database tramite {@code wdmDAO.selectBy(Document)}</li>
      *   <li>La inserisce nella mappa {@code wdmMap}</li>
      *   <li>Se la matrice non è disponibile, viene lanciata una {@link IllegalStateException}</li>
      * </ul>
-     * </p>
      */
     private void loadWdmMap() {
         for (Document doc : params.documents) {
