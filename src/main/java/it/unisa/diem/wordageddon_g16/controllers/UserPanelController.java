@@ -37,11 +37,15 @@ import java.util.ResourceBundle;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-/**
- * Gestisce la logica della vista associata al pannello utente, inclusa la visualizzazione delle statistiche
- * personali,la gestione dei documenti, delle stopwords e degli utenti con privilegi amministrativi.
- */
 
+/**
+ * Controller per la gestione della vista del pannello utente.
+ * <p>
+ * Gestisce la visualizzazione delle statistiche personali dell’utente,
+ * la gestione dei documenti, delle stopwords e, se l’utente ha privilegi amministrativi,
+ * fornisce gli strumenti per la gestione degli utenti.
+ * </p>
+ */
 public class UserPanelController implements Initializable {
     private final UserPanelService service;
 
@@ -185,19 +189,20 @@ public class UserPanelController implements Initializable {
         popup.show();
     }
 
+
     /**
-     * Mostra un popup per la gestione dei documenti testuali.
+     * Apre un popup per la gestione dei documenti testuali.
      * <p>
-     *     <ul>
-     * <li>Elenca tutti i documenti salvati nel database.</li>
-     * <li>Consente la rimozione di un documento esistente.</li>
-     * <li>Permette il caricamento di un nuovo documento '.txt' tramite {@link FileChooser}.</li>
+     * Funzionalità offerte:
+     * <ul>
+     *   <li>Visualizzazione di tutti i documenti salvati nel database.</li>
+     *   <li>Rimozione di documenti esistenti.</li>
+     *   <li>Caricamento di nuovi documenti con estensione ".txt" tramite {@link FileChooser}.</li>
      * </ul>
      * <p>
-     * Una volta caricato, il documento viene inserito nel sistema e viene avviata
-     * la generazione automatica della WDM associata in background tramite il metodo {@link UserPanelService#updateWDM(WDM)}
-     *
-     * <p>
+     * Dopo il caricamento, viene avviato in background il calcolo automatico della WDM associata, tramite
+     * {@link UserPanelService#updateWDM(WDM)}.
+     * </p>
      */
     @FXML
     private void handleDocumenti() {
@@ -337,7 +342,7 @@ public class UserPanelController implements Initializable {
      * <p>
      * Se viene rilevata una modifica alle stopwords, al termine della finestra
      * viene avviato automaticamente il ricalcolo di tutte le WDM associate
-     * ai documenti esistenti nel sistema in modo ascrincono.
+     * ai documenti esistenti nel sistema in modo ascrincono attraverso il thread pool
      * <p>
      */
     @FXML
@@ -551,6 +556,7 @@ public class UserPanelController implements Initializable {
      */
     @FXML
     public void close() {
+        System.out.println("Chiusura del controller UserPanelController...");
         threadPool.shutdown();
         try {
             threadPool.awaitTermination(30, TimeUnit.SECONDS);

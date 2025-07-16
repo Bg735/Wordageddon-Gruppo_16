@@ -15,7 +15,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 /**
- * Controller JavaFX per la schermata di autenticazione dell'applicazione Wordageddon.
+ * Controller per la schermata di autenticazione dell'applicazione Wordageddon.
  * <p>
  * Gestisce il login e la registrazione degli utenti, la visualizzazione dinamica della password,
  * e la validazione dei campi tramite {@link AuthService}. Utilizza {@link ViewLoader} per la navigazione

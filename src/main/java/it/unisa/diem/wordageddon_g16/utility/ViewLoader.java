@@ -84,6 +84,10 @@ public class ViewLoader {
      * Utilizza il {@link FXMLLoader} con la factory dei controller e aggiorna la scena dello {@link Stage}
      * con il contenuto corrispondente alla vista richiesta.
      * </p>
+     * <p>
+     *     Invoca il metodo {@code close()} del controller corrente, se esiste,
+     *     per permettere una corretta pulizia delle risorse prima di caricare la nuova vista.
+     * </p>
      *
      * @param view vista da caricare (uno dei valori di {@link ViewLoader.View})
      * @throws IllegalStateException se {@code stage} o {@code controllerFactory} non sono inizializzati
@@ -94,11 +98,24 @@ public class ViewLoader {
             throw new IllegalStateException("ViewLoader not properly initialized.");
         }
         try {
+            // Invocazione del metodo close() del controller corrente, se esiste
+            if (currentController != null) {
+                try {
+                    currentController.getClass().getMethod("close").invoke(currentController);
+                } catch (NoSuchMethodException ex) {
+                    // Il controller non ha close(): tutto ok, nessuna azione
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    SystemLogger.log("Error invoking close method on current controller: ", ex);
+                }
+            }
+
+            // Caricamento della nuova vista
             FXMLLoader fxmlLoader = new FXMLLoader(ViewLoader.class.getResource(Resources.RES_PATH+"fxml/" + view.get() + ".fxml"));
             fxmlLoader.setControllerFactory(controllerFactory);
 
             stage.getScene().setRoot(fxmlLoader.load());
-            currentController=fxmlLoader.getController();
+            currentController = fxmlLoader.getController();
             currentView = view;
         } catch (IOException e) {
             throw new RuntimeException("Failed to load FXML view: " + view.get(), e);

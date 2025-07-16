@@ -18,22 +18,44 @@ import java.io.ObjectInputStream;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-
-
+/**
+ * Controller della schermata principale del menu dell'applicazione Wordageddon.
+ * Gestisce l'inizializzazione della vista, il caricamento dell'utente corrente,
+ * il recupero di sessioni di gioco precedenti e la navigazione verso altre viste.
+ */
 public class MainMenuController implements Initializable {
 
+    /**
+     * Label per visualizzare il nome dell'utente attualmente loggato.
+     */
     @FXML
     private Label usernameLabel;
 
+    /**
+     * Contesto applicativo condiviso contenente informazioni sulla sessione.
+     */
     private final AppContext context;
 
+    /**
+     * Costruttore che inizializza il controller con il contesto applicativo.
+     *
+     * @param context Il contesto applicativo corrente.
+     */
     public MainMenuController(AppContext context) {
         this.context=context;
     }
 
+    /**
+     * Metodo di inizializzazione chiamato automaticamente da JavaFX.
+     * Imposta il nome dell'utente loggato nella label e verifica la presenza
+     * di una sessione di gioco salvata.
+     *
+     * @param url URL di inizializzazione (non utilizzato).
+     * @param resourceBundle Risorse internazionalizzate (non utilizzato).
+     */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        User  user= context.getCurrentUser();
+        User user = context.getCurrentUser();
         usernameLabel.setText(user.getName());
         if(new File("session.ser").exists()) {
             try (var in = new ObjectInputStream(new FileInputStream("session.ser"))) {
@@ -43,22 +65,34 @@ public class MainMenuController implements Initializable {
                 }
             }
             catch (IOException | ClassNotFoundException e) {
-                    // No previous session found, continue with a new one
+                // Nessuna sessione precedente trovata, si continua con una nuova
             }
         }
-
     }
 
+    /**
+     * Gestisce la richiesta di visualizzazione della classifica da parte dell'utente.
+     * Carica la vista LEADERBOARD tramite il ViewLoader.
+     */
     @FXML
     private void onLeaderboardRequested() {
         ViewLoader.load(ViewLoader.View.LEADERBOARD);
     }
 
+    /**
+     * Gestisce la richiesta di visualizzazione del pannello utente da parte dell'utente.
+     * Carica la vista USER_PANEL tramite il ViewLoader.
+     */
     @FXML
     private void onUserPanelRequested() {
         ViewLoader.load(ViewLoader.View.USER_PANEL);
     }
 
+    /**
+     * Gestisce l'avvio della partita.
+     * Verifica se sono presenti documenti disponibili; in caso negativo, mostra un messaggio di errore.
+     * In caso contrario, carica la vista del gioco.
+     */
     @FXML
     private void playGame() {
         if(!(context.getRepo().<Document,DocumentDAO>getDAO("document")).selectAll().isEmpty())
@@ -73,6 +107,5 @@ public class MainMenuController implements Initializable {
             dialogPane.getStyleClass().add("alert-error");
             alert.show();
         }
-
     }
 }
