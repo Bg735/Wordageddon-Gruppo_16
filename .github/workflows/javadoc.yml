@@ -22,7 +22,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '21'   # Cambia la versione in base al progetto
+          java-version: '24'   # Cambia la versione in base al progetto
 
       - name: Download JavaFX
         run: |
