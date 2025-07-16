@@ -942,7 +942,7 @@ public class GameService {
                 }
                 case HARD -> {
                     maxQuestions = 15;
-                    minQuestions = 6;
+                    minQuestions = 5;
                 }
                 default -> throw new IllegalArgumentException("Invalid difficulty level");
             }
