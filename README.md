@@ -26,12 +26,12 @@ L'applicazione sfida l'utente nella memorizzazione e riconoscimento delle parole
 [![SQLite](https://img.shields.io/badge/SQLite-blue?logo=sqlite&logoColor=white)](https://www.sqlite.org/)
 [![CSS3](https://img.shields.io/badge/CSS-blue?logo=css3&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/CSS)
 
-## 🚀 Demo & Risorse
+## 🚀 Documentazione & Risorse
 - 📄 [Documentazione LaTeX](https://www.overleaf.com/read/rwwgkkkbzkdj#33f35f)
 - 📚 [Documentazione JavaDoc](https://bg735.github.io/Wordageddon-Gruppo\_16)
 - 🎨 [Mockup Figma](https://www.figma.com/design/bqGUZqN27MYtyQel39LUrE/Wordageddon?node-id=0-1&p=f&t=tQsawDH1bQAf32sZ-0)
 
-### 🔒 Credenziali
+## 🔒 Credenziali
 **Admin:**
 - Username: *admin*
 - Password: *admin*
