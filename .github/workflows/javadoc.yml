@@ -1,23 +1,48 @@
-name: Deploy Javadoc
+name: Build Full Javadoc
 
 on:
   push:
     branches:
       - main
-      - master
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
 
 jobs:
-  publish:
+  javadoc:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Deploy javadoc to Github Pages
-        uses: dev-vince/actions-publish-javadoc@v1.0.1
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
         with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          java-version: "24"               # Modifica la versione se necessario
-          java-distribution: "temurin"       # O "temurin" per Java 21+
-          project: maven                   # O "gradle" se usi Gradle
-          branch: "gh-pages"               # Branch dove vuoi pubblicare la doc Javadoc
+          distribution: 'temurin'
+          java-version: '24'   # Cambia la versione in base al progetto
+
+      - name: Download JavaFX
+        run: |
+          wget https://download2.gluonhq.com/openjfx/21.0.3/openjfx-21.0.3_linux-x64_bin-sdk.zip
+          unzip openjfx-21.0.3_linux-x64_bin-sdk.zip -d $HOME
+          echo "PATH_TO_FX=$HOME/javafx-sdk-21.0.3/lib" >> $GITHUB_ENV
+
+      - name: Generate Javadoc (full, anche privati, JavaFX)
+        run: |
+          mkdir -p docs/Javadoc
+          javadoc \
+            -d docs/Javadoc \
+            -sourcepath src/main/java \
+            --module-path $PATH_TO_FX \
+            --add-modules javafx.controls,javafx.fxml \
+            -subpackages it.unisa.diem.wordageddon_g16 \
+            -private
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: docs/Javadoc
