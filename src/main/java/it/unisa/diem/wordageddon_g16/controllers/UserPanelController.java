@@ -330,9 +330,9 @@ public class UserPanelController implements Initializable {
      * <p>
      * Le funzionalità offerte includono:
      * <ul>
-     * - Aggiunta manuale tramite un {@code TextField }
-     * - Caricamento da file di solo tipo '.txt'
-     * - Rimozione selezionata di stopwords da una {@code ListView }
+     * <li> Aggiunta manuale tramite un {@code TextField }</li>
+     * <li> Caricamento da file di solo tipo '.txt'</li>
+     * <li>Rimozione selezionata di stopwords da una {@code ListView }</li>
      * </ul>
      * <p>
      * Se viene rilevata una modifica alle stopwords, al termine della finestra
@@ -553,7 +553,7 @@ public class UserPanelController implements Initializable {
     public void close() {
         threadPool.shutdown();
         try {
-            threadPool.awaitTermination(5, TimeUnit.SECONDS);
+            threadPool.awaitTermination(30, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             threadPool.shutdownNow();
         }

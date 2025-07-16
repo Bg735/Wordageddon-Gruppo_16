@@ -34,7 +34,7 @@ public class ViewLoader {
      * Utilizzato dal metodo {@link ViewLoader#load(ViewLoader.View)}.
      */
     public enum View{
-        
+
         AUTH("authentication"),
         MENU("menu"),
         GAME("game"),
