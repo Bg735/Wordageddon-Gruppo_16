@@ -1,0 +1,16 @@
+[SEVERE] it.unisa.diem.wordageddon_g16.utility.SystemLogger: Errore nel caricamento della sessione
+java.io.WriteAbortedException: writing aborted; java.io.NotSerializableException: it.unisa.diem.wordageddon_g16.services.GameService
+	at java.base/java.io.ObjectInputStream.readObject0(ObjectInputStream.java:1660)
+	at java.base/java.io.ObjectInputStream.readObject(ObjectInputStream.java:495)
+	at java.base/java.io.ObjectInputStream.readObject(ObjectInputStream.java:453)
+	at it.unisa.diem.wordageddongruppo_16@1.0-SNAPSHOT/it.unisa.diem.wordageddon_g16.services.AuthService.loadSession(AuthService.java:105)
+	at it.unisa.diem.wordageddongruppo_16@1.0-SNAPSHOT/it.unisa.diem.wordageddon_g16.WordageddonApp.start(WordageddonApp.java:66)
+	at javafx.graphics@21.0.2/com.sun.javafx.application.LauncherImpl.lambda$launchApplication1$9(LauncherImpl.java:839)
+	at javafx.graphics@21.0.2/com.sun.javafx.application.PlatformImpl.lambda$runAndWait$12(PlatformImpl.java:483)
+	at javafx.graphics@21.0.2/com.sun.javafx.application.PlatformImpl.lambda$runLater$10(PlatformImpl.java:456)
+	at java.base/java.security.AccessController.doPrivileged(AccessController.java:138)
+	at javafx.graphics@21.0.2/com.sun.javafx.application.PlatformImpl.lambda$runLater$11(PlatformImpl.java:455)
+	at javafx.graphics@21.0.2/com.sun.glass.ui.InvokeLaterDispatcher$Future.run(InvokeLaterDispatcher.java:95)
+	at javafx.graphics@21.0.2/com.sun.glass.ui.gtk.GtkApplication._runLoop(Native Method)
+	at javafx.graphics@21.0.2/com.sun.glass.ui.gtk.GtkApplication.lambda$runLoop$10(GtkApplication.java:263)
+	at java.base/java.lang.Thread.run(Thread.java:1447)

@@ -5,15 +5,11 @@ import it.unisa.diem.wordageddon_g16.models.AppContext;
 import it.unisa.diem.wordageddon_g16.models.Document;
 import it.unisa.diem.wordageddon_g16.models.User;
 import it.unisa.diem.wordageddon_g16.services.GameService;
-import it.unisa.diem.wordageddon_g16.utility.Popup;
 import it.unisa.diem.wordageddon_g16.utility.Resources;
 import it.unisa.diem.wordageddon_g16.utility.ViewLoader;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.AnchorPane;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -54,17 +50,17 @@ public class MainMenuController implements Initializable {
     }
 
     @FXML
-    private void onLeaderboardRequested(ActionEvent event) {
+    private void onLeaderboardRequested() {
         ViewLoader.load(ViewLoader.View.LEADERBOARD);
     }
 
     @FXML
-    private void onUserPanelRequested(MouseEvent event) {
+    private void onUserPanelRequested() {
         ViewLoader.load(ViewLoader.View.USER_PANEL);
     }
 
     @FXML
-    private void playGame(ActionEvent event) {
+    private void playGame() {
         if(!(context.getRepo().<Document,DocumentDAO>getDAO("document")).selectAll().isEmpty())
             ViewLoader.load(ViewLoader.View.GAME);
         else{

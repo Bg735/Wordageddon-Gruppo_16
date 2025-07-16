@@ -5,14 +5,12 @@ import it.unisa.diem.wordageddon_g16.models.Difficulty;
 import it.unisa.diem.wordageddon_g16.services.LeaderboardService;
 import it.unisa.diem.wordageddon_g16.utility.ViewLoader;
 import javafx.collections.FXCollections;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.image.ImageView;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -23,9 +21,6 @@ import java.util.ResourceBundle;
  * Utilizza {@link LeaderboardService} per ottenere i dati di gioco e {@link ViewLoader} per la navigazione.
  */
 public class LeaderboardController implements Initializable {
-
-    @FXML
-    private ImageView backButton;
 
     @FXML
     private TableView<LeaderboardService.LeaderboardEntry> globalTW;
@@ -69,7 +64,7 @@ public class LeaderboardController implements Initializable {
             tableView.setPlaceholder(new javafx.scene.control.Label("Nessun dato disponibile"));
 
             var indexCol = (TableColumn<LeaderboardService.LeaderboardEntry, Integer>) tableView.getColumns().getFirst();
-            indexCol.setCellFactory(col -> new TableCell<>() {
+            indexCol.setCellFactory(_ -> new TableCell<>() {
                 @Override
                 protected void updateItem(Integer item, boolean empty) {
                     super.updateItem(item, empty);
@@ -105,11 +100,10 @@ public class LeaderboardController implements Initializable {
     /**
      * Gestisce il click sul pulsante "Indietro" e ritorna al menu principale.
      *
-     * @param event evento generato dall'interazione con il pulsante
      */
 
     @FXML
-    private void back(ActionEvent event) {
+    private void back() {
         ViewLoader.load(ViewLoader.View.MENU);
     }
 }

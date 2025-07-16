@@ -1,0 +1,9 @@
+module:it.unisa.diem.wordageddongruppo_16
+it.unisa.diem.wordageddon_g16
+it.unisa.diem.wordageddon_g16.controllers
+it.unisa.diem.wordageddon_g16.db
+it.unisa.diem.wordageddon_g16.db.contracts
+it.unisa.diem.wordageddon_g16.db.exceptions
+it.unisa.diem.wordageddon_g16.models
+it.unisa.diem.wordageddon_g16.services
+it.unisa.diem.wordageddon_g16.utility

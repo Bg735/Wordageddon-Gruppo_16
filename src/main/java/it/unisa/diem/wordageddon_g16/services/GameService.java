@@ -24,7 +24,8 @@ public class GameService {
     private final GameReportDAO gameReportDAO;
     private final JDBCWdmDAO wdmDAO;
     private final DocumentDAO documentDAO;
-
+    private final StopWordDAO stopWordDAO;
+    private final AppContext context;
     private GameParams params;
     private Map<Document, WDM> wdmMap;
 
@@ -39,9 +40,11 @@ public class GameService {
      */
     public GameService(AppContext context, GameReportDAO gameReportDAO, JDBCWdmDAO wdmDAO,
                        DocumentDAO documentDAO, StopWordDAO stopwordDAO) {
+        this.context = context;
         this.gameReportDAO = gameReportDAO;
         this.wdmDAO = wdmDAO;
         this.documentDAO = documentDAO;
+        this.stopWordDAO = stopwordDAO;
     }
 
     /**
@@ -981,8 +984,7 @@ public class GameService {
      * @param report oggetto {@code GameReport} da salvare
      */
     public void saveGameReport(GameReport report) {
-        System.out.println("→ Chiamato saveGameReport");
+        System.out.println("Salvataggio Report");
         gameReportDAO.insert(report);
-        System.out.println("→ Fine saveGameReport");
     }
 }

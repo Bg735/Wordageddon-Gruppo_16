@@ -96,11 +96,11 @@ public class GameController implements Initializable {
     private int score = 0;
     private int numeroRisposteCorrette = 0;
     private int numeroRisposteSaltate = 0;
-    private Map<Question, Integer> domandaRisposte; // Map con chiave la domanda e value l'indice della risposta data
+    private final Map<Question, Integer> domandaRisposte; // Map con chiave la domanda e value l'indice della risposta data
     private final AppContext appContext;
     private LocalDateTime questionStartTime; // Rappresenta il momento in cui viene visualizzata la prima domanda
-    private BooleanProperty questionsReady; // Indica se il thread di setup delle domande ha finito
-    private BooleanProperty minTimeElapsed; // Secondi minimi prima di poter saltare la lettura
+    private final BooleanProperty questionsReady; // Indica se il thread di setup delle domande ha finito
+    private final BooleanProperty minTimeElapsed; // Secondi minimi prima di poter saltare la lettura
     private static final int MIN_TIME_FOR_SKIP = 1; // tempo minimo per skippare la lettura
     private static final java.time.Duration QUESTION_TIME_LIMIT = java.time.Duration.ofSeconds(10) ; //Tempo massimo per rispondere ad una domanda
 
@@ -142,7 +142,7 @@ public class GameController implements Initializable {
     @FXML
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        // IL pulsante di skip viene abilitato automaticamente quando la generazione delle domande è completata e sono trascorsi almeno 15s dall'inizio del timer
+        // IL pulsante di skip viene abilitato automaticamente quando la generazione delle domande è completata e sono trascorsi almeno x dall'inizio del timer
         skipReadingBtn.disableProperty().bind(
                 minTimeElapsed.not().or(questionsReady.not())
         );
