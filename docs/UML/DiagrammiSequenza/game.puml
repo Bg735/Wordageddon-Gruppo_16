@@ -17,8 +17,10 @@ deactivate GameService
 activate GameController #3375E0
 GameController -> GameController : readingSetupServiceFX()
 activate GameController #3375E0
-GameController -> GameService : setupGameService()
+GameController -> GameService : setupReadingPhase()
 activate GameService
+GameService -> GameService : preparazione documenti scelti
+GameService --> GameController : Map<Document,String>
 deactivate GameService
 GameController -> GameController : questionSetupServiceFX()
 activate GameController #3375E0

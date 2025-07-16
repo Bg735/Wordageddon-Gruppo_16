@@ -163,6 +163,7 @@ public class GameController {
                     documentToTextMap = task.getValue();
                     Platform.runLater(() -> setDocument(0));
 
+                    // Al termine del task che prepara i documenti alla lettura, parte direttamente la generazione delle domande
                     questionSetupServiceFX.start();
                     java.time.Duration seconds = gameService.getTimeLimit();
                     readingTimer = startTimer(seconds, timerLabelRead, timerBar, () -> loadPane(questionPane));
