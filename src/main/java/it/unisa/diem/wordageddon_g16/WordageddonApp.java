@@ -3,7 +3,6 @@ package it.unisa.diem.wordageddon_g16;
 import it.unisa.diem.wordageddon_g16.controllers.*;
 import it.unisa.diem.wordageddon_g16.db.JdbcRepository;
 import it.unisa.diem.wordageddon_g16.models.*;
-import it.unisa.diem.wordageddon_g16.services.GameService;
 import it.unisa.diem.wordageddon_g16.utility.Resources;
 import it.unisa.diem.wordageddon_g16.utility.ViewLoader;
 import javafx.application.Application;
@@ -12,8 +11,6 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import javafx.scene.image.Image;
-
-import java.io.*;
 
 /**
  * Classe principale dell'applicazione Wordageddon.
@@ -69,15 +66,13 @@ public class WordageddonApp extends Application {
             ViewLoader.load(ViewLoader.View.AUTH);
         }
 
+        // Salvo la sessione alla chiusura nella vista del gioco
         stage.setOnCloseRequest(_ -> {
             repo.close();
             if (ViewLoader.getCurrentView().equals(ViewLoader.View.GAME)){
                 var controller = (GameController) ViewLoader.getCurrentController();
-                try(var out = new ObjectOutputStream(new FileOutputStream("session.ser"))) {
-                    out.writeObject(controller.getGameService());
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
+                if(controller.getCurrentPaneId().equals("questionPane"))
+                    controller.saveSession();
             }
         });
         stage.setTitle("Wordageddon");

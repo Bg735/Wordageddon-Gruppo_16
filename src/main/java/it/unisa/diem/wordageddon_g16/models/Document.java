@@ -1,5 +1,6 @@
 package it.unisa.diem.wordageddon_g16.models;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 /**
@@ -12,7 +13,7 @@ import java.util.Objects;
  * @param title     titolo descrittivo del documento
  * @param wordCount numero di parole contenute nel documento
  */
-public record Document(String filename, String title, Integer wordCount) {
+public record Document(String filename, String title, Integer wordCount) implements Serializable {
 
     /**
      * Verifica se questo documento è uguale a un altro oggetto in base al percorso ({@code filename}).

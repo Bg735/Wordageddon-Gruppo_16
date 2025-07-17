@@ -36,6 +36,8 @@ public class AppContext {
      */
     private User currentUser;
 
+    private GameSessionState interruptedSession;
+
     /**
      * Costruisce un nuovo contesto dell'applicazione inizializzando tutte le classi service
      * con i rispettivi DAO dal repository.
@@ -48,6 +50,14 @@ public class AppContext {
         leaderboardService = new LeaderboardService(this, repo.getDAO("gameReport"), repo.getDAO("user"));
         userPanelService = new UserPanelService(repo.getDAO("gameReport"), repo.getDAO("user"), repo.getDAO("document"), repo.getDAO("stopWord"), repo.getDAO("wdm"), this);
         gameService = new GameService(this, repo.getDAO("gameReport"), repo.getDAO("wdm"), repo.getDAO("document"), repo.getDAO("stopWord"));
+    }
+
+    public GameSessionState getInterruptedSession() {
+        return interruptedSession;
+    }
+
+    public void setInterruptedSession(GameSessionState interruptedSession) {
+        this.interruptedSession = interruptedSession;
     }
 
     /**

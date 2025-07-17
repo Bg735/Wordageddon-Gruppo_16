@@ -1,11 +1,9 @@
 package it.unisa.diem.wordageddon_g16.controllers;
 
-import it.unisa.diem.wordageddon_g16.models.AppContext;
-import it.unisa.diem.wordageddon_g16.models.Difficulty;
-import it.unisa.diem.wordageddon_g16.models.Document;
-import it.unisa.diem.wordageddon_g16.models.GameReport;
+import it.unisa.diem.wordageddon_g16.models.*;
 import it.unisa.diem.wordageddon_g16.services.GameService;
 import it.unisa.diem.wordageddon_g16.services.GameService.Question;
+import it.unisa.diem.wordageddon_g16.utility.SystemLogger;
 import it.unisa.diem.wordageddon_g16.utility.ViewLoader;
 import javafx.animation.*;
 import javafx.application.Platform;
@@ -23,6 +21,10 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
@@ -159,74 +161,86 @@ public class GameController implements Initializable {
     @FXML
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        // IL pulsante di skip viene abilitato automaticamente quando la generazione delle domande è completata e sono trascorsi almeno x dall'inizio del timer
-        skipReadingBtn.disableProperty().bind(
-                minTimeElapsed.not().or(questionsReady.not())
-        );
+        System.out.println("GameController: initialize chiamato");
+        System.out.println("currentQuestionIndex = " + currentQuestionIndex.get());
 
-        //Instanziazione dei servizi per la generazione asincrona del testo e delle domande
+        GameSessionState sessionState = appContext.getInterruptedSession();
+        if (sessionState != null) {
+            // Recupera stato da sessione
+            ripristinaDaSessione(sessionState);
+            appContext.setInterruptedSession(null);
+            new File("interruptedSession.ser").delete();
+        } else {
 
-        /*
-         * Avvia la fase di lettura dei documenti in un servizio asincrono.
-         * Alla conclusione, aggiorna la UI con il testo letto, avvia la generazione delle domande
-         * e imposta il timer per la lettura.
-         */
-        readingSetupServiceFX = new Service<>() {
-            @Override
-            protected Task<Map<Document, String>> createTask() {
-                Task<Map<Document, String>> task = new Task<>() {
-                    @Override
-                    protected Map<Document, String> call() {
-                        return gameService.setupReadingPhase();
-                    }
-                };
-                task.setOnSucceeded(_ -> {
-                    documentToTextMap = task.getValue();
-                    Platform.runLater(() -> setDocument(0));
+            // IL pulsante di skip viene abilitato automaticamente quando la generazione delle domande è completata e sono trascorsi almeno x dall'inizio del timer
+            skipReadingBtn.disableProperty().bind(
+                    minTimeElapsed.not().or(questionsReady.not())
+            );
 
-                    // Al termine del task che prepara i documenti alla lettura, parte direttamente la generazione delle domande
-                    questionSetupServiceFX.start();
-                    java.time.Duration seconds = gameService.getTimeLimit();
-                    readingTimer = startTimer(seconds, timerLabelRead, timerBar, () -> loadPane(questionPane));
+            //Instanziazione dei servizi per la generazione asincrona del testo e delle domande
 
-                    // Avvia la pausa per abilitare lo skip dopo 15 secondi
-                    PauseTransition wait15s = new PauseTransition(Duration.seconds(MIN_TIME_FOR_SKIP));
-                    wait15s.setOnFinished(_ -> minTimeElapsed.set(true));
-                    wait15s.play();
-                });
-                task.setOnFailed(_ -> {
-                    throw new RuntimeException("Error during reading setup task", task.getException());
-                });
-                return task;
-            }
-        };
+            /*
+             * Avvia la fase di lettura dei documenti in un servizio asincrono.
+             * Alla conclusione, aggiorna la UI con il testo letto, avvia la generazione delle domande
+             * e imposta il timer per la lettura.
+             */
+            readingSetupServiceFX = new Service<>() {
+                @Override
+                protected Task<Map<Document, String>> createTask() {
+                    Task<Map<Document, String>> task = new Task<>() {
+                        @Override
+                        protected Map<Document, String> call() {
+                            return gameService.setupReadingPhase();
+                        }
+                    };
+                    task.setOnSucceeded(_ -> {
+                        documentToTextMap = task.getValue();
+                        Platform.runLater(() -> setDocument(0));
+
+                        // Al termine del task che prepara i documenti alla lettura, parte direttamente la generazione delle domande
+                        questionSetupServiceFX.start();
+                        java.time.Duration seconds = gameService.getTimeLimit();
+                        readingTimer = startTimer(seconds, timerLabelRead, timerBar, () -> loadPane(questionPane));
+
+                        // Avvia la pausa per abilitare lo skip dopo 15 secondi
+                        PauseTransition waitSeconds = new PauseTransition(Duration.seconds(MIN_TIME_FOR_SKIP));
+                        waitSeconds.setOnFinished(_ -> minTimeElapsed.set(true));
+                        waitSeconds.play();
+                    });
+                    task.setOnFailed(_ -> {
+                        throw new RuntimeException("Error during reading setup task", task.getException());
+                    });
+                    return task;
+                }
+            };
 
 
-        /*
-         * Avvia la generazione delle domande del quiz in un servizio asincrono.
-         * Quando la generazione è completata, aggiorna la lista delle domande e imposta il timer per le domande.
-         * In caso di errore, termina la sessione di gioco.
-         */
-        questionSetupServiceFX = new Service<>() {
-            @Override
-            protected Task<List<Question>> createTask() {
-                return new Task<>() {
-                    @Override
-                    protected List<Question> call() {
-                        return gameService.getQuestions();
-                    }
-                };
-            }
-        };
-        questionSetupServiceFX.setOnSucceeded(_ -> {
-            questions = questionSetupServiceFX.getValue();
-            questionsReady.set(true);  // Le domande sono pronte
-        });
-        questionSetupServiceFX.setOnFailed(_ -> {
-            throw new RuntimeException("Error during reading setup task: " + questionSetupServiceFX.getException());
-        });
+            /*
+             * Avvia la generazione delle domande del quiz in un servizio asincrono.
+             * Quando la generazione è completata, aggiorna la lista delle domande e imposta il timer per le domande.
+             * In caso di errore, termina la sessione di gioco.
+             */
+            questionSetupServiceFX = new Service<>() {
+                @Override
+                protected Task<List<Question>> createTask() {
+                    return new Task<>() {
+                        @Override
+                        protected List<Question> call() {
+                            return gameService.getQuestions();
+                        }
+                    };
+                }
+            };
+            questionSetupServiceFX.setOnSucceeded(_ -> {
+                questions = questionSetupServiceFX.getValue();
+                questionsReady.set(true);  // Le domande sono pronte
+            });
+            questionSetupServiceFX.setOnFailed(_ -> {
+                throw new RuntimeException("Error during reading setup task: " + questionSetupServiceFX.getException());
+            });
 
-        loadPane(diffSelectionPane);
+            loadPane(diffSelectionPane);
+        }
     }
 
     /**
@@ -323,6 +337,7 @@ public class GameController implements Initializable {
             btn.setText(capitalizedAnswer);
             btn.setVisible(true);
             final int answerIndex = i;
+
             // GESTIONE EVENTO OnClick su btn che mostra risposta alternativa
             btn.setOnAction(_ -> {
                 domandaRisposte.put(q, answerIndex); //Salva domanda e risposta
@@ -358,6 +373,37 @@ public class GameController implements Initializable {
 
     }
 
+    public void saveSession() {
+        GameSessionState state = new GameSessionState(
+                appContext.getCurrentUser(),
+                gameService.getDifficulty(),
+                gameService.getDocuments(),
+                questions,
+                domandaRisposte,
+                currentQuestionIndex.get(),
+                questionStartTime
+        );
+
+        try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("interruptedSession.ser"))) {
+            out.writeObject(state);
+        } catch (IOException e) {
+            SystemLogger.log("Errore durante il salvataggio della sessione: ", e);
+            System.out.println("Errore durante il salvataggio della sessione: " + e.getMessage());
+        }
+    }
+
+    public void ripristinaDaSessione(GameSessionState state) {
+        System.out.println("Ripristino da sessione interrotta...");
+        gameService.init(state.getDifficulty());
+        this.questions = state.getQuestions();
+        this.domandaRisposte.clear();
+        this.domandaRisposte.putAll(state.getDomandaRisposte());
+        this.currentQuestionIndex.set(state.getCurrentQuestionIndex());
+        this.questionStartTime = state.getQuestionStartTime();
+        loadPane(questionPane);
+    }
+
+
     /**
      * Genera il report di fine partita e aggiorna la UI.
      * <p>
@@ -368,6 +414,14 @@ public class GameController implements Initializable {
      * @see GameController#populateAnswerTable()
      */
     private void generateReport() {
+        // Se il report viene generato, la session é conclusa quindi cancello il file
+        File file = new File("interruptedSession.ser");
+        if (file.exists()) {
+            boolean deleted = file.delete();
+            if (!deleted) {
+                System.out.println("Errore: impossibile cancellare il file di sessione!");
+            }
+        }
         LocalDateTime questionEndTime = LocalDateTime.now();
         java.time.Duration usedTime = java.time.Duration.between(questionStartTime, questionEndTime);
         java.time.Duration timeLimit = QUESTION_TIME_LIMIT.multipliedBy(gameService.getQuestionCount());
@@ -485,6 +539,22 @@ public class GameController implements Initializable {
         }
         pane.setVisible(true);
     }
+    /**
+     * Ritorna l'ID del pannello attualmente visibile nello StackPane.
+     * <p>
+     * Scorre i nodi figli dello StackPane e restituisce l'ID del primo nodo visibile.
+     * </p>
+     *
+     * @return ID del pannello visibile, o null se nessun pannello è visibile.
+     */
+    public String getCurrentPaneId() {
+        for (Node node : stackPane.getChildren()) {
+            if (node.isVisible()) {
+                return node.getId();
+            }
+        }
+        return null;
+    }
 
     /**
      * Gestisce la selezione della difficoltà da parte dell'utente.
@@ -508,6 +578,7 @@ public class GameController implements Initializable {
         previousDocumentButton.disableProperty().bind(currentDocumentIndex.isEqualTo(0));
         loadPane(readingPane);
     }
+
 
     /**
      * Ritorna alla schermata principale del menu.

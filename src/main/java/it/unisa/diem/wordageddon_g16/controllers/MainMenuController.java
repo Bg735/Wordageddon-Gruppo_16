@@ -3,10 +3,12 @@ package it.unisa.diem.wordageddon_g16.controllers;
 import it.unisa.diem.wordageddon_g16.db.contracts.DocumentDAO;
 import it.unisa.diem.wordageddon_g16.models.AppContext;
 import it.unisa.diem.wordageddon_g16.models.Document;
+import it.unisa.diem.wordageddon_g16.models.GameSessionState;
 import it.unisa.diem.wordageddon_g16.models.User;
-import it.unisa.diem.wordageddon_g16.services.GameService;
 import it.unisa.diem.wordageddon_g16.utility.Resources;
+import it.unisa.diem.wordageddon_g16.utility.SystemLogger;
 import it.unisa.diem.wordageddon_g16.utility.ViewLoader;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
@@ -57,18 +59,47 @@ public class MainMenuController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         User user = context.getCurrentUser();
         usernameLabel.setText(user.getName());
-        if(new File("session.ser").exists()) {
-            try (var in = new ObjectInputStream(new FileInputStream("session.ser"))) {
-                if (in.available() > 0) {
-                    var gameService = (GameService) in.readObject();
-                    //caricare la partita salvata
+
+        File interruptedSessionFile = new File("interruptedSession.ser");
+        if (interruptedSessionFile.exists()) {
+            try (var in = new ObjectInputStream(new FileInputStream("interruptedSession.ser"))) {
+                System.out.println("File di sessione interrotta trovato: " + interruptedSessionFile.getName());
+                var gameSessionState = (GameSessionState) in.readObject();
+                User foundUser = gameSessionState.getUser();
+                if (foundUser.equals(user)) {
+                    System.out.println("Rilevata sessione interrotta per l'utente: " + foundUser.getName());
+
+                    // Mostra Alert di conferma nella JavaFX Application Thread
+                    Platform.runLater(() -> {
+                        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                        alert.setTitle("Riprendi partita interrotta");
+                        alert.setHeaderText("Partita interrotta rilevata");
+                        alert.setContentText("Vuoi continuare la partita interrotta?");
+                        ButtonType buttonYes = new ButtonType("Sì", ButtonBar.ButtonData.YES);
+                        ButtonType buttonNo = new ButtonType("No", ButtonBar.ButtonData.NO);
+                        alert.getButtonTypes().setAll(buttonYes, buttonNo);
+                        alert.initOwner(usernameLabel.getScene().getWindow());
+
+                        alert.showAndWait().ifPresent(choice -> {
+                            if (choice == buttonYes) {
+                                context.setInterruptedSession(gameSessionState);
+                                ViewLoader.load(ViewLoader.View.GAME);
+                            } else {
+                                // Se l’utente rifiuta, elimina il file di sessione interrotta
+                                interruptedSessionFile.delete();
+                            }
+                        });
+                    });
+                } else {
+                    // Sessione di un altro utente: elimina il file
+                    interruptedSessionFile.delete();
                 }
-            }
-            catch (IOException | ClassNotFoundException e) {
-                // Nessuna sessione precedente trovata, si continua con una nuova
+            } catch (IOException | ClassNotFoundException e) {
+                SystemLogger.log("Errore durante la deserializzazione del file " + interruptedSessionFile.getName(), e);
             }
         }
     }
+
 
     /**
      * Gestisce la richiesta di visualizzazione della classifica da parte dell'utente.

@@ -10,6 +10,7 @@ import it.unisa.diem.wordageddon_g16.utility.Resources;
 import it.unisa.diem.wordageddon_g16.utility.SystemLogger;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -700,7 +701,7 @@ public class GameService {
             String text,
             List<String> answers,
             int correctAnswerIndex
-    ) {
+    ) implements Serializable {
         /**
          * Enum interno che definisce le diverse tipologie di domande generabili.
          * <p>
@@ -984,4 +985,5 @@ public class GameService {
         System.out.println("Salvataggio Report");
         gameReportDAO.insert(report);
     }
+
 }
