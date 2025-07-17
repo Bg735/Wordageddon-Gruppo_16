@@ -373,6 +373,9 @@ public class GameController implements Initializable {
 
     }
 
+    /**
+     * Salva (serializza) lo stato della sessione di gioco corrente su disco.
+     */
     public void saveSession() {
         GameSessionState state = new GameSessionState(
                 appContext.getCurrentUser(),
@@ -392,6 +395,16 @@ public class GameController implements Initializable {
         }
     }
 
+    /**
+     * Ripristina lo stato della sessione di gioco da un'istanza di GameSessionState.
+     * <p>
+     * Viene chiamato quando l'utente decide di riprendere una sessione interrotta.
+     * Inizializza il GameService con la difficoltà e i documenti salvati,
+     * ripristina le domande e le risposte date, e carica il pannello delle domande.
+     * </p>
+     *
+     * @param state Stato della sessione da ripristinare.
+     */
     public void ripristinaDaSessione(GameSessionState state) {
         System.out.println("Ripristino da sessione interrotta...");
         gameService.init(state.getDifficulty());
