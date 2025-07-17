@@ -5,6 +5,7 @@ import it.unisa.diem.wordageddon_g16.models.AppContext;
 import it.unisa.diem.wordageddon_g16.models.Document;
 import it.unisa.diem.wordageddon_g16.models.GameSessionState;
 import it.unisa.diem.wordageddon_g16.models.User;
+import it.unisa.diem.wordageddon_g16.utility.Config;
 import it.unisa.diem.wordageddon_g16.utility.Resources;
 import it.unisa.diem.wordageddon_g16.utility.SystemLogger;
 import it.unisa.diem.wordageddon_g16.utility.ViewLoader;
@@ -60,9 +61,9 @@ public class MainMenuController implements Initializable {
         User user = context.getCurrentUser();
         usernameLabel.setText(user.getName());
 
-        File interruptedSessionFile = new File("interruptedSession.ser");
+        File interruptedSessionFile = new File(Config.get(Config.Props.INTERRUPTED_SESSION_FILE));
         if (interruptedSessionFile.exists()) {
-            try (var in = new ObjectInputStream(new FileInputStream("interruptedSession.ser"))) {
+            try (var in = new ObjectInputStream(new FileInputStream(Config.get(Config.Props.INTERRUPTED_SESSION_FILE)))) {
                 System.out.println("File di sessione interrotta trovato: " + interruptedSessionFile.getName());
                 var gameSessionState = (GameSessionState) in.readObject();
                 User foundUser = gameSessionState.user();

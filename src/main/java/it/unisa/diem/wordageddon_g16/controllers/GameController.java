@@ -3,6 +3,7 @@ package it.unisa.diem.wordageddon_g16.controllers;
 import it.unisa.diem.wordageddon_g16.models.*;
 import it.unisa.diem.wordageddon_g16.services.GameService;
 import it.unisa.diem.wordageddon_g16.models.Question;
+import it.unisa.diem.wordageddon_g16.utility.Config;
 import it.unisa.diem.wordageddon_g16.utility.SystemLogger;
 import it.unisa.diem.wordageddon_g16.utility.ViewLoader;
 import javafx.animation.*;
@@ -250,9 +251,6 @@ public class GameController implements Initializable {
     @FXML
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        System.out.println("GameController: initialize chiamato");
-        System.out.println("currentQuestionIndex = " + currentQuestionIndex.get());
-
         GameSessionState sessionState = appContext.getInterruptedSession();
         if (sessionState != null) {
             // Recupera stato da sessione
@@ -477,7 +475,7 @@ public class GameController implements Initializable {
                 scorePerQuestion,
                 gameService.getParams()
                 );
-        try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("interruptedSession.ser"))) {
+        try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(Config.get(Config.Props.INTERRUPTED_SESSION_FILE)))) {
             out.writeObject(state);
         } catch (IOException e) {
             SystemLogger.log("Errore durante il salvataggio della sessione: ", e);
@@ -545,7 +543,7 @@ public class GameController implements Initializable {
      */
     private void generateReport() {
         // Se il report viene generato, la session é conclusa quindi cancello il file
-        File file = new File("interruptedSession.ser");
+        File file = new File(Config.get(Config.Props.INTERRUPTED_SESSION_FILE));
         if (file.exists()) {
             boolean deleted = file.delete();
             if (!deleted) {

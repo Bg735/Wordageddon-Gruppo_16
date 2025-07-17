@@ -26,6 +26,7 @@ public class Config {
      *   <li>{@code PW_CHAR_MIN_LENGTH} → lunghezza minima della password</li>
      *   <li>{@code USR_CHAR_MAX_LENGTH} → lunghezza massima del nome utente</li>
      *   <li>{@code SESSION_FILE} → percorso file sessione</li>
+     *   <li>{@code INTERRUPTED_SESSION_FILE} → percorso file sessione interrotta</li>
      *   <li>{@code DOCUMENTS_DIR} → directory contenente i documenti del gioco</li>
      * </ul>
      */
@@ -34,6 +35,7 @@ public class Config {
         PW_CHAR_MIN_LENGTH("auth.char_min_length"),
         USR_CHAR_MAX_LENGTH("auth.char_max_length"),
         SESSION_FILE("session.url"),
+        INTERRUPTED_SESSION_FILE("interruptedSession.url"),
         DOCUMENTS_DIR("docs.dir");
 
         private final String key;
