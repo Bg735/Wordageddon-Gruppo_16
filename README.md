@@ -40,3 +40,12 @@ L'applicazione sfida l'utente nella memorizzazione e riconoscimento delle parole
 - Username: *demo*
 - Password: *demo*
 
+## Esecuzione tramite `.jar`
+Per una rapida esecuzione dell’applicazione è stato fornito il file `Wordageddon.jar`, il quale deve essere eseguito con la JDK 24 o superiore. L'eseguibile non contiene le dipendenze `JavaFX` per cui é necessario  scaricare l’sdk dal sito ufficiale e specificare a runtime i
+moduli necessari: 
+
+```
+java --module-path $PATH_TO_FX --add-modules javafx.controls,javafx.fxml -jar Wordageddon.jar
+```
+Dove `$PATH_TO_FX` rappresenta il percorso alla sdk precedentemente scaricata. Si tiene presente che
+il file .jar deve essere eseguito dalla stessa cartella (root) in cui é presente il database (db.sqlite)
