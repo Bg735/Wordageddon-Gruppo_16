@@ -501,6 +501,7 @@ public class GameController implements Initializable {
         gameService.restoreParams(params);
         this.questionCount = params.getQuestionCount();
         this.questions = state.questions();
+        this.domandaRisposte.clear();
         this.domandaRisposte.putAll(state.domandaRisposte());
         this.currentQuestionIndex.set(state.currentQuestionIndex());
         this.questionStartTime = state.questionStartTime();
