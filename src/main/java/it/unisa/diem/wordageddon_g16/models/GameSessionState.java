@@ -53,11 +53,13 @@ public class GameSessionState implements Serializable {
     /**
      * Momento di avvio della fase domande, o tempo usato finora per la partita.
      */
-    private LocalDateTime usedTime;
+    private LocalDateTime questionStartTime;
 
     /**
      * Costruttore vuoto richiesto per la deserializzazione.
      */
+
+    private int score;
     public GameSessionState() {}
 
     /**
@@ -77,7 +79,8 @@ public class GameSessionState implements Serializable {
                             List<GameService.Question> questions,
                             Map<GameService.Question, Integer> domandaRisposte,
                             int currentQuestionIndex,
-                            LocalDateTime questionStartTime
+                            LocalDateTime questionStartTime,
+                            int score
     ) {
         this.user = user;
         this.difficulty = difficulty;
@@ -85,7 +88,25 @@ public class GameSessionState implements Serializable {
         this.questions = questions;
         this.domandaRisposte = domandaRisposte;
         this.currentQuestionIndex = currentQuestionIndex;
-        this.usedTime = questionStartTime;
+        this.questionStartTime = questionStartTime;
+        this.score = score;
+    }
+
+
+    /**
+     * Restituisce il punteggio ottenuto alla fine della sessione.
+     * @return punteggio della sessione
+     */
+    public int getScore() {
+        return score;
+    }
+
+    /**
+     * Imposta il punteggio della sessione.
+     * @param score nuovo punteggio da impostare
+     */
+    public void setScore(int score) {
+        this.score = score;
     }
 
     /**
@@ -93,15 +114,15 @@ public class GameSessionState implements Serializable {
      * @return data e ora di inizio domande
      */
     public LocalDateTime getQuestionStartTime() {
-        return usedTime;
+        return questionStartTime;
     }
 
     /**
      * Imposta il tempo usato nella sessione o l'istante di avvio.
-     * @param usedTime nuovo valore per il tempo usato
+     * @param questionStartTime nuovo valore per il tempo usato
      */
-    public void setUsedTime(LocalDateTime usedTime) {
-        this.usedTime = usedTime;
+    public void setQuestionStartTime(LocalDateTime questionStartTime) {
+        this.questionStartTime = questionStartTime;
     }
 
     /**

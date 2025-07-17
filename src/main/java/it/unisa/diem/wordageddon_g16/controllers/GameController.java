@@ -384,7 +384,8 @@ public class GameController implements Initializable {
                 questions,
                 domandaRisposte,
                 currentQuestionIndex.get(),
-                questionStartTime
+                questionStartTime,
+                score
         );
 
         try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("interruptedSession.ser"))) {
@@ -413,6 +414,7 @@ public class GameController implements Initializable {
         this.domandaRisposte.putAll(state.getDomandaRisposte());
         this.currentQuestionIndex.set(state.getCurrentQuestionIndex());
         this.questionStartTime = state.getQuestionStartTime();
+        this.score = state.getScore();
         loadPane(questionPane);
     }
 

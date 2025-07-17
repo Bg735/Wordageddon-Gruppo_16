@@ -1,0 +1,15 @@
+[SEVERE] it.unisa.diem.wordageddon_g16.utility.SystemLogger: Could not establish a connection to the database: 
+java.sql.SQLException: No suitable driver found for jdbc:sqlite:db.sqlite
+	at java.sql/java.sql.DriverManager.getConnection(DriverManager.java:638)
+	at java.sql/java.sql.DriverManager.getConnection(DriverManager.java:222)
+	at it.unisa.diem.wordageddon_g16.db.JdbcRepository.<init>(JdbcRepository.java:42)
+	at it.unisa.diem.wordageddon_g16.WordageddonApp.start(WordageddonApp.java:39)
+	at javafx.graphics@23.0.1/com.sun.javafx.application.LauncherImpl.lambda$launchApplication1$9(LauncherImpl.java:839)
+	at javafx.graphics@23.0.1/com.sun.javafx.application.PlatformImpl.lambda$runAndWait$12(PlatformImpl.java:483)
+	at javafx.graphics@23.0.1/com.sun.javafx.application.PlatformImpl.lambda$runLater$10(PlatformImpl.java:456)
+	at java.base/java.security.AccessController.doPrivileged(AccessController.java:138)
+	at javafx.graphics@23.0.1/com.sun.javafx.application.PlatformImpl.lambda$runLater$11(PlatformImpl.java:455)
+	at javafx.graphics@23.0.1/com.sun.glass.ui.InvokeLaterDispatcher$Future.run(InvokeLaterDispatcher.java:95)
+	at javafx.graphics@23.0.1/com.sun.glass.ui.gtk.GtkApplication._runLoop(Native Method)
+	at javafx.graphics@23.0.1/com.sun.glass.ui.gtk.GtkApplication.lambda$runLoop$10(GtkApplication.java:264)
+	at java.base/java.lang.Thread.run(Thread.java:1447)
