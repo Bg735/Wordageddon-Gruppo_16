@@ -85,6 +85,9 @@ public class UserPanelController implements Initializable {
      * Riferimento all’utente attualmente autenticato nell'applicazione.
      */
     private final User currentUser;
+    /**
+     * Riferimento al contesto applicativo che fornisce accesso ai servizi e alle risorse condivise.
+     */
     private final AppContext appContext;
 
     /**

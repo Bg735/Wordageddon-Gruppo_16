@@ -463,7 +463,17 @@ public class GameController implements Initializable {
     }
 
     /**
-     * Salva (serializza) lo stato della sessione di gioco corrente su disco.
+     * Salva lo stato corrente della sessione di gioco su disco per consentire all'utente di riprendere la partita successivamente.
+     * <p>
+     * La sessione viene serializzata in un file (il cui percorso è ottenuto da {@link Config.Props#INTERRUPTED_SESSION_FILE})
+     * tramite {@link ObjectOutputStream}. Lo stato scritto consiste in un'istanza di {@link GameSessionState}.
+     * <b>Uso tipico:</b> questo metodo viene chiamato quando l'utente interrompe una partita (ad esempio chiudendo l'applicazione mentre é in fase 'quiz')
+     * per garantire che tutti i progressi siano salvati e possano essere ripristinati in un secondo momento tramite la funzionalità di "riprendi partita".
+     * <p>
+     * In caso di errore nella scrittura del file, il metodo logga l'eccezione sia tramite {@link SystemLogger#log} che su standard output.
+     *
+     * @see GameSessionState
+     * @see #restoreSession(GameSessionState)
      */
     public void saveSession() {
         GameSessionState state = new GameSessionState(
@@ -849,9 +859,5 @@ public class GameController implements Initializable {
             }
         });
 
-    }
-
-    public GameService getGameService() {
-        return gameService;
     }
 }

@@ -34,6 +34,9 @@ public class LeaderboardController implements Initializable {
     @FXML
     private TableView<LeaderboardService.LeaderboardEntry> hardTW;
 
+    /**
+     * Servizio di classifica utilizzato per ottenere i dati delle classifiche.
+     */
     private final LeaderboardService leaderboardService;
 
     /**

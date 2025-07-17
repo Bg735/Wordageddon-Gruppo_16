@@ -28,9 +28,6 @@ import java.util.ResourceBundle;
  */
 public class MainMenuController implements Initializable {
 
-    /**
-     * Label per visualizzare il nome dell'utente attualmente loggato.
-     */
     @FXML
     private Label usernameLabel;
 

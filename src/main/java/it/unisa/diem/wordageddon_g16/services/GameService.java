@@ -14,8 +14,6 @@ import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static it.unisa.diem.wordageddon_g16.models.Difficulty.HARD;
-
 /**
  * Classe di "servizio" per la gestione della logica di gioco in Wordageddon.
  * Fornisce tutte le funzionalità utili al GameController come per inizializzare una partita, generare domande,
@@ -758,7 +756,7 @@ public class GameService {
         final int maxWords;
         final int minWords;
         final int maxDocsNumber;
-        final int wordCountTolerance = 100;
+        final int wordCountTolerance = 50;
 
         // Classificazione dei documenti in base al numero delle parole
         // In base alla difficoltá scelta, si prelevano i documenti con un numero di parole compreso tra min e max

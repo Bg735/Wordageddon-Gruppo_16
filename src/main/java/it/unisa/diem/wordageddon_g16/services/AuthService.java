@@ -15,7 +15,6 @@ import java.io.*;
  * Utilizza {@link JDBCUserDAO} per la persistenza e {@link AppContext} per il tracciamento dell'utente corrente.
  */
 public class AuthService implements Serializable {
-
     private final AppContext context;
     private final JDBCUserDAO userDAO;
 
