@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * Classe interna che incapsula i parametri di una partita.
+ * Classe che incapsula i parametri di una partita.
  * <p>
  * Rappresenta i parametri generati automaticamente per una partita in corso in base alla difficoltà scelta.
  * Contiene difficoltà, timer, documenti selezionati e numero di domande.
