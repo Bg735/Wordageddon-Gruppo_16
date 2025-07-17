@@ -428,7 +428,28 @@ public class UserPanelController implements Initializable {
             if (isSWChanged.get()) {
                 if (isRecalculatingWDMs.compareAndSet(false, true)) {
                     // Nessun ricalcolo in corso: parte subito il ricalcolo
-                    reCalculateWDMs();
+                    Task<Void> task = new Task<>() {
+                        @Override
+                        protected Void call() {
+                            reCalculateWDMs();
+                            return null;
+                        }
+                        @Override
+                        protected void failed() {
+                            Throwable ex = getException();
+                            SystemLogger.log("[" + getClass().getName() + "]Task Execution Error:", ex);
+                            Platform.runLater(() -> {
+                                Popup errorPopup = new Popup("Errore", 300, 200);
+                                errorPopup.addAll(new Label("Errore durante il ricalcolo delle WDM: " + ex.getMessage()));
+                                errorPopup.show();
+                            });
+                        }
+                        @Override
+                        protected void succeeded() {
+                            Platform.runLater(() -> completeRecalculation());
+                        }
+                    };
+                    new Thread(task).start();
                 } else {
                     // Ricalcolo in corso
                     needsRecalculation.set(true);
@@ -468,16 +489,11 @@ public class UserPanelController implements Initializable {
                 return null;
             });
         }
-
-        threadPool.submit(() -> {
-            try {
-                threadPool.invokeAll(taskList);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            } finally {
-                Platform.runLater(this::completeRecalculation);
-            }
-        });
+        try {
+            threadPool.invokeAll(taskList);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     /**
@@ -547,24 +563,5 @@ public class UserPanelController implements Initializable {
         totalGameLabel.setText(String.valueOf(stats.get("totalGames")));
         avgScoreLabel.setText(String.format("%.1f", stats.get("averageScore")));
         maxScoreLabel.setText(String.valueOf(stats.get("maxScore")));
-    }
-
-    /**
-     * Metodo di chiusura del controller.
-     * <p>
-     * Arresta il {@code threadPool} usato per eseguire in background i task
-     * di ricalcolo delle WDM. Il metodo attende la terminazione dei thread
-     * attivi per un massimo di 5 secondi.
-     * Se l’attesa viene interrotta, forza la chiusura con shutdownNow().
-     */
-    @FXML
-    public void close() {
-        System.out.println("Chiusura del controller UserPanelController...");
-        threadPool.shutdown();
-        try {
-            threadPool.awaitTermination(30, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            threadPool.shutdownNow();
-        }
     }
 }
