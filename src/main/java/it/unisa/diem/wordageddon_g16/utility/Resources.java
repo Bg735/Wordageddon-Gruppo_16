@@ -18,9 +18,12 @@ import java.util.Objects;
  */
 public class Resources {
     private static final List<String> VOCABULARY = Arrays.asList(
-            "casa", "albero", "libro", "mare", "sole", "strada", "fiore", "cielo",
-            "amico", "scuola", "montagna", "acqua", "città", "notte", "vento"
+            "paradosso", "sinestesia", "algoritmo", "resilienza", "simposio",
+            "entropia", "frattale", "prerogativa", "aforisma", "labirinto",
+            "emendamento", "ipotesi", "prospettiva", "vulnerabilità", "catarsi",
+            "introspezione", "palinsesto", "querimonia", "sineddoche", "aplomb"
     );
+
 
     /**
      * Costruttore privato per impedire l'istanziazione della classe di utilità.
