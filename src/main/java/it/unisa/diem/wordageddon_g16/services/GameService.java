@@ -744,9 +744,6 @@ public class GameService {
 
     /**
      * Genera una lista di documenti in base all'influenza della difficoltà.
-     * <p>
-     * Questo metodo viene invocato nel costruttore {@link GameParams(Difficulty)}.
-     * </p>
      *
      * @param influence valore di influenza della difficoltà
      * @return lista di documenti
@@ -810,9 +807,6 @@ public class GameService {
 
     /**
      * Genera la durata della sessione in base all'influenza della difficoltà.
-     * <p>
-     * Metodo richiamato da {@link GameParams(Difficulty)}.
-     * </p>
      *
      * @param influence fattore che determina la durata del timer
      * @return {@code Duration} impostata
@@ -826,9 +820,6 @@ public class GameService {
 
     /**
      * Genera il numero di domande per la partita in base all'influenza della difficoltà.
-     * <p>
-     * Questo metodo viene invocato nel costruttore {@link GameParams(Difficulty)}.
-     * </p>
      *
      * @param influence valore di influenza della difficoltà
      * @return numero di domande
