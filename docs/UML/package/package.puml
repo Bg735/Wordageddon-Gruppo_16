@@ -6,5 +6,10 @@ package it.unisa.diem.wordageddon_g16 {
     package models{}
     package services{}
     package utility{}
+    class WordageddonApp {
+      + WordageddonApp():
+      + start(Stage): void
+      + main(String[]): void
+    }
 }
 @enduml

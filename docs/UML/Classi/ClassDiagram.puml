@@ -181,23 +181,22 @@ package db {
 
 package models {
     class GameSessionState {
-    - user : User
-    - difficulty : Difficulty
-    - documents : List<Document>
+    - getScorePerQuestion : int
     - questions : List<Question>
-    - domandaRisposte : Map<Question, Integer>
-    - currentQuestionIndex: int
     - questionStartTime : LocalDateTime
-    + GameSessionState(User, Difficulty, List<Document>, List<Question>, Map<Question, Integer>, int, LocalDateTime)
-    + getScore(): int
-    + setScore(): void
-    + getUser(): User
-    + getDifficulty(): Difficulty
-    + getDocuments(): List<Document>
-    + getQuestions(): List<Question>
-    + getDomandaRisposte(): Map<Question, Integer>
-    + getCurrentQuestionIndex(): int
-    + getQuestionStartTime(): LocalDateTime
+    - currentQuestionIndex : int
+    - domandaRisposte : Map<Question, Integer>
+    - serialVersionUID : long
+    - user : User
+    - gameParams : GameParams
+    + GameSessionState(User, List<Question>, Map<Question,Integer>, int, LocalDateTime, int, GameParams)
+    + currentQuestionIndex(): int
+    + questions() : List<Question>
+    + scorePerQuestion() : int
+    + gameParams(): GameParams
+    + user(): User
+    + questionStartTime(): LocalDateTime
+    + domandaRisposte(): Map<Question, Integer>
     }
     enum Difficulty << enumeration >> {
     - Difficulty(String):
@@ -212,19 +211,21 @@ package models {
     }
     class AppContext {
     + AppContext(Repository):
-    - currentGameReport: GameReport
-    - gameService: GameService
-    - repo: Repository
     - authService: AuthService
     + userPanelService: UserPanelService
+    - interruptedSession: GameSessionState
     - currentUser: User
-    - leaderboardService: LeaderboardService
+    - leaderboardService : LeaderboardService
+    - gameService : GameService
+    - repo: Repository
     + getGameService(): GameService
     + getUserPanelService(): UserPanelService
-    + getLeaderboardService(): LeaderboardService
     + setCurrentUser(User): void
+    + setInterruptedSession(GameSessionState): void
+    + getInterruptedSession(): GameSessionState
     + getCurrentUser(): User
-    + getRepo(): Repository
+    + getRepo: Repository
+    + getLeaderboardService(): LeaderboardService
     + getAuthService(): AuthService
     }
     entity Document << record >> {
@@ -259,7 +260,7 @@ package models {
     + user(): User
     }
     class WDM {
-    + WDM(String, String, Set<String>):
+    + WDM(String, Set<String>):
     + WDM(Document, Map<String, Integer>):
     - words: Map<String, Integer>
     - document: Document
@@ -309,59 +310,65 @@ package services {
     + register(String, String, boolean): boolean
     - saveSession(User): void
     }
-    class UserPanelService {
-    + UserPanelService(GameReportDAO, JDBCUserDAO, DocumentDAO, JDBCStopWordDAO, JDBCWdmDAO, AppContext):
-    - userDAO: JDBCUserDAO
-    - documentDAO: DocumentDAO
-    - appContext: AppContext
-    - gameReportDAO: GameReportDAO
-    - wdmDAO: JDBCWdmDAO
-    - stopWordDAO: JDBCStopWordDAO
-    + promoteUser(String): void
-    + getUserStatsForCurrentUser(): Map<String, Object>
-    - stopWordsParser(String): Set<String>
-    + deleteStopword(String): void
-    + loadWDM(WDM): void
-    + getCurrentUserReports(): List<GameReport>
-    + addStopWords(String): void
-    + getStopwords(): Set<String>
-    + addStopwordsFromFile(File): void
-    + addDocument(File): void
-    + demoteUser(String): void
-    + getAllUsersExceptCurrent(): List<User>
-    + deleteDocument(Document): void
-    + symbolicNameOf(String): String
-    + getAllDocuments(): Collection<Document>
-    }
-    class GameService {
-    + GameService(AppContext, GameReportDAO, JDBCWdmDAO, DocumentDAO, StopWordDAO):
-    - context: AppContext
-    - documentDAO: DocumentDAO
-    - wdmDAO: JDBCWdmDAO
-    - params: GameParams
-    - wdmMap: Map<Document, WDM>
-    - stopwordDAO: StopWordDAO
-    - gameReportDAO: GameReportDAO
-    - absoluteFrequencyQuestionSingle(): Question
-    + getQuestionCount(): int
-    + getDocuments(): List<Document>
-    - loadWdmMap(): void
-    - whichLessQuestion(): Question
-    + getDifficulty(): Difficulty
-    - whichMoreQuestion(): Question
-    + getScorePerQuestion(): int
-    - whichLessQuestionSingle(): Question
-    + setupReadingPhase(): Map<Document, String>
-    - whichAbsentQuestion(): Question
-    - absoluteFrequencyQuestion(): Question
-    + saveGameReport(GameReport): void
-    - whichMoreQuestionSingle(): Question
-    - generateAbsentWord(Set<String>): String
-    - whichDocumentQuestion(): Question
-    + init(Difficulty): void
-    + getTimeLimit(): Duration
-    + getQuestions(): List<Question>
-    }
+class UserPanelService {
+  + UserPanelService(GameReportDAO, JDBCUserDAO, DocumentDAO, JDBCStopWordDAO, JDBCWdmDAO, AppContext):
+  - stopWordDAO: JDBCStopWordDAO
+  - wdmDAO: JDBCWdmDAO
+  - gameReportDAO: GameReportDAO
+  - userDAO: JDBCUserDAO
+  - documentDAO: DocumentDAO
+  - appContext: AppContext
+  - stopWordsParser(String): Set<String>
+  + getCurrentUserReports(): List<GameReport>
+  + deleteStopword(String): void
+  + demoteUser(String): void
+  + getAllDocuments(): Collection<Document>
+  + deleteDocument(Document): void
+  + getAllUsersExceptCurrent(): List<User>
+  + symbolicNameOf(String): String
+  + getStopwords(): Set<String>
+  + addStopWords(String): void
+  + addStopwordsFromFile(File): void
+  + getUserStatsForCurrentUser(): Map<String, Object>
+  + moveDocument(File): void
+  + promoteUser(String): void
+  + updateWDM(WDM): void
+}
+class GameService {
+  + GameService(AppContext, GameReportDAO, JDBCWdmDAO, DocumentDAO, StopWordDAO):
+  - wdmMap: Map<Document, WDM>
+  - random: Random
+  - wdmDAO: JDBCWdmDAO
+  - documentDAO: DocumentDAO
+  - stopWordDAO: StopWordDAO
+  - gameReportDAO: GameReportDAO
+  - params: GameParams
+  - context: AppContext
+  - whichAbsentQuestion(): Question
+  + init(Difficulty): void
+  - generateQuestionCount(float, Difficulty): int
+  - generateTimer(float): Duration
+  - absoluteFrequencyQuestion(): Question
+  + getQuestionCount(): int
+  + getDifficulty(): Difficulty
+  - generateAbsentWord(Set<String>): String
+  + restoreParams(GameParams): void
+  - whichDocumentQuestion(): Question
+  + getTimeLimit(): Duration
+  - loadWdmMap(): void
+  - whichLessQuestionSingle(): Question
+  - absoluteFrequencyQuestionSingle(): Question
+  + getParams(): GameParams
+  + getDocuments(): List<Document>
+  - whichLessQuestion(): Question
+  - whichMoreQuestion(): Question
+  + setupReadingPhase(): Map<Document, String>
+  + saveGameReport(GameReport): void
+  - whichMoreQuestionSingle(): Question
+  + getQuestions(): List<Question>
+  + getScorePerQuestion(): int
+  - generateDocuments(float, Difficulty): List<Document>
+}
     class LeaderboardService {
     + LeaderboardService(AppContext, JDBCGameReportDAO, UserDAO):
     - gameReportDAO: JDBCGameReportDAO
@@ -510,10 +517,8 @@ class WordageddonApp {
     rosso: #8c201c - inner class
 '/
 DifficultyIndex        +-[#8c201c,plain]-  GameParams  : inner class
-GameParams             +-[#8c201c,plain]-  GameService  : inner class
 LeaderboardEntry       +-[#8c201c,plain]-  LeaderboardService : inner class
 Props                  +-[#8c201c,plain]-  Config : inner class
-Question               +-[#8c201c,plain]-  GameService : inner class
 QuestionType           +-[#8c201c,plain]-  Question : inner class
 View                   +-[#8c201c,plain]-  ViewLoader : inner class
 WdmDAO                 -[#4287f5,plain]-^  DAO : extends

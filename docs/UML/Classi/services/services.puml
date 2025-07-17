@@ -1,0 +1,138 @@
+@startuml
+package services {
+    class AuthService {
+    + AuthService(AppContext, JDBCUserDAO):
+    - userDAO: JDBCUserDAO
+    - context: AppContext
+    + login(String, String): boolean
+    + noUsers(): boolean
+    + logout(): void
+    + loadSession(): boolean
+    + register(String, String, boolean): boolean
+    - saveSession(User): void
+    }
+class UserPanelService {
+  + UserPanelService(GameReportDAO, JDBCUserDAO, DocumentDAO, JDBCStopWordDAO, JDBCWdmDAO, AppContext):
+  - stopWordDAO: JDBCStopWordDAO
+  - wdmDAO: JDBCWdmDAO
+  - gameReportDAO: GameReportDAO
+  - userDAO: JDBCUserDAO
+  - documentDAO: DocumentDAO
+  - appContext: AppContext
+  - stopWordsParser(String): Set<String>
+  + getCurrentUserReports(): List<GameReport>
+  + deleteStopword(String): void
+  + demoteUser(String): void
+  + getAllDocuments(): Collection<Document>
+  + deleteDocument(Document): void
+  + getAllUsersExceptCurrent(): List<User>
+  + symbolicNameOf(String): String
+  + getStopwords(): Set<String>
+  + addStopWords(String): void
+  + addStopwordsFromFile(File): void
+  + getUserStatsForCurrentUser(): Map<String, Object>
+  + moveDocument(File): void
+  + promoteUser(String): void
+  + updateWDM(WDM): void
+}
+class GameService {
+  + GameService(AppContext, GameReportDAO, JDBCWdmDAO, DocumentDAO, StopWordDAO):
+  - wdmMap: Map<Document, WDM>
+  - random: Random
+  - wdmDAO: JDBCWdmDAO
+  - documentDAO: DocumentDAO
+  - stopWordDAO: StopWordDAO
+  - gameReportDAO: GameReportDAO
+  - params: GameParams
+  - context: AppContext
+  - whichAbsentQuestion(): Question
+  + init(Difficulty): void
+  - generateQuestionCount(float, Difficulty): int
+  - generateTimer(float): Duration
+  - absoluteFrequencyQuestion(): Question
+  + getQuestionCount(): int
+  + getDifficulty(): Difficulty
+  - generateAbsentWord(Set<String>): String
+  + restoreParams(GameParams): void
+  - whichDocumentQuestion(): Question
+  + getTimeLimit(): Duration
+  - loadWdmMap(): void
+  - whichLessQuestionSingle(): Question
+  - absoluteFrequencyQuestionSingle(): Question
+  + getParams(): GameParams
+  + getDocuments(): List<Document>
+  - whichLessQuestion(): Question
+  - whichMoreQuestion(): Question
+  + setupReadingPhase(): Map<Document, String>
+  + saveGameReport(GameReport): void
+  - whichMoreQuestionSingle(): Question
+  + getQuestions(): List<Question>
+  + getScorePerQuestion(): int
+  - generateDocuments(float, Difficulty): List<Document>
+}
+    class LeaderboardService {
+    + LeaderboardService(AppContext, JDBCGameReportDAO, UserDAO):
+    - gameReportDAO: JDBCGameReportDAO
+    - currentUser: User
+    - users: Collection<User>
+    + getGloablLeaderboard(): List<LeaderboardEntry>
+    + getLeaderboardByDifficulty(Difficulty): List<LeaderboardEntry>
+    - getLeaderboardBase(Difficulty): List<LeaderboardEntry>
+    }
+    class GameParams {
+    - GameParams(Difficulty):
+    - random: Random
+    - documents: List<Document>
+    - difficulty: Difficulty
+    - timer: Duration
+    - questionCount: int
+    - generateTimer(float): Duration
+    - generateDocuments(float): List<Document>
+    - generateQuestionCount(float): int
+    }
+    class DifficultyIndex {
+    + DifficultyIndex(float):
+    - cap: float
+    - value: float
+    + getCap(): float
+    + getNext(): float
+    + getRemaining(): float
+    + getNextRelative(): float
+    }
+    entity Question << record >> {
+    + Question(String, List<String>, int):
+    - text: String
+    - answers: List<String>
+    - correctAnswerIndex: int
+    + correctAnswerIndex(): int
+    + text(): String
+    + create(String, List<String>, int): Question
+    + answers(): List<String>
+    }
+    enum QuestionType << enumeration >> {
+    - QuestionType(float):
+    + WHICH_MORE:
+    - weight: float
+    + WHICH_LESS:
+    + WHICH_DOCUMENT:
+    + WHICH_ABSENT:
+    + ABSOLUTE_FREQUENCY:
+    + valueOf(String): QuestionType
+    + values(): QuestionType[]
+    + getRandomType(): QuestionType
+    }
+    entity LeaderboardEntry << record >> {
+    + LeaderboardEntry(String, Difficulty, int, int, int):
+    - totalScore: int
+    - username: String
+    - averageScore: int
+    - gamesPlayed: int
+    - favouriteDifficulty: Difficulty
+    + favouriteDifficulty(): Difficulty
+    + averageScore(): int
+    + totalScore(): int
+    + username(): String
+    + gamesPlayed(): int
+    }
+}
+@enduml

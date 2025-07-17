@@ -1,0 +1,80 @@
+@startuml
+package controllers {
+    class AuthController {
+    + AuthController(AppContext):
+    - authService: AuthService
+    - passwordPF: PasswordField
+    - initialize(): void
+    + handleLoginBtn(ActionEvent): void
+    + showDialog(AlertType, String, String): void
+    + handleRegisterBtn(ActionEvent): void
+    }
+    class GameController {
+    + GameController(AppContext):
+    - minTimeElapsed: BooleanProperty
+    - appContext: AppContext
+    - domandaRisposte: Map<Question, Integer>
+    - elapsedSeconds: SimpleIntegerProperty
+    - QUESTION_TIME_LIMIT: Duration
+    - questionTimer: Timeline
+    - documentToTextMap: Map<Document, String>
+    - readingTimer: Timeline
+    - currentQuestionIndex: SimpleIntegerProperty
+    - numeroRisposteSaltate: int
+    - questionsReady: BooleanProperty
+    - questionSetupService: Service<List<Question>>
+    - gameService: GameService
+    - readingSetupService: Service<Map<Document, String>>
+    - questionStartTime: LocalDateTime
+    - questions: List<Question>
+    - currentDocumentIndex: SimpleIntegerProperty
+    - numeroRisposteCorrette: int
+    - MIN_TIME_FOR_SKIP: int
+    - score: int
+    + skipReading(): void
+    - showReport(): void
+    - loadPane(Node): void
+    - onBackPressed(): void
+    - populateAnswerTable(): void
+    + initialize(): void
+    - showQuestion(int): void
+    + toggleShowAnswers(Event): void
+    - switchToQuestions(): void
+    + handlePlayAgain(Event): void
+    - setDocument(int): void
+    - startTimer(Duration, Label, ProgressBar, Runnable): Timeline?
+    + onDifficultySelected(ActionEvent): void
+    - onChangeDocument(ActionEvent): void
+    + handleShowLeaderboard(Event): void
+    + handleGoMenu(Event): void
+    + saveSession() : void
+    + restoreSession(GameSessionState): void
+    }
+    class UserPanelController {
+    + UserPanelController(AppContext):
+    - currentUser: User
+    - appContext: AppContext
+    - service: UserPanelService
+    - handleStopWords(ActionEvent): void
+    - handleAdmin(ActionEvent): void
+    - handleGoBack(ActionEvent): void
+    - handleDocumenti(ActionEvent): void
+    - handleLogOut(ActionEvent): void
+    + initialize(): void
+    }
+    class LeaderboardController {
+    + LeaderboardController(AppContext):
+    - leaderboardService: LeaderboardService
+    - back(ActionEvent): void
+    + initialize(URL, ResourceBundle): void
+    }
+    class MainMenuController {
+    + MainMenuController(AppContext):
+    - context: AppContext
+    - onUserPanelRequested(MouseEvent): void
+    - playGame(ActionEvent): void
+    - onLeaderboardRequested(ActionEvent): void
+    + initialize(URL, ResourceBundle): void
+    }
+}
+@enduml

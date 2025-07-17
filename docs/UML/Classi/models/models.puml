@@ -1,0 +1,120 @@
+@startuml
+package models {
+    class GameSessionState {
+    - getScorePerQuestion : int
+    - questions : List<Question>
+    - questionStartTime : LocalDateTime
+    - currentQuestionIndex : int
+    - domandaRisposte : Map<Question, Integer>
+    - serialVersionUID : long
+    - user : User
+    - gameParams : GameParams
+    + GameSessionState(User, List<Question>, Map<Question,Integer>, int, LocalDateTime, int, GameParams)
+    + currentQuestionIndex(): int
+    + questions() : List<Question>
+    + scorePerQuestion() : int
+    + gameParams(): GameParams
+    + user(): User
+    + questionStartTime(): LocalDateTime
+    + domandaRisposte(): Map<Question, Integer>
+    }
+    enum Difficulty << enumeration >> {
+    - Difficulty(String):
+    + HARD:
+    + MEDIUM:
+    + EASY:
+    - label: String
+    + values(): Difficulty[]
+    + toString(): String
+    + getMaxScoreDifficulty(Difficulty): int
+    + valueOf(String): Difficulty
+    }
+    class AppContext {
+    + AppContext(Repository):
+    - authService: AuthService
+    + userPanelService: UserPanelService
+    - interruptedSession: GameSessionState
+    - currentUser: User
+    - leaderboardService : LeaderboardService
+    - gameService : GameService
+    - repo: Repository
+    + getGameService(): GameService
+    + getUserPanelService(): UserPanelService
+    + setCurrentUser(User): void
+    + setInterruptedSession(GameSessionState): void
+    + getInterruptedSession(): GameSessionState
+    + getCurrentUser(): User
+    + getRepo: Repository
+    + getLeaderboardService(): LeaderboardService
+    + getAuthService(): AuthService
+    }
+    entity Document << record >> {
+    + Document(String, String, Integer):
+    - wordCount: Integer
+    - filename: String
+    - title: String
+    + hashCode(): int
+    + title(): String
+    + filename(): String
+    + equals(Object): boolean
+    + wordCount(): Integer
+    }
+
+    entity GameReport << record >> {
+    + GameReport(User, List<Document>, LocalDateTime, Difficulty, Duration, Duration, int, int):
+    - usedTime: Duration
+    - timestamp: LocalDateTime
+    - questionCount: int
+    - maxTime: Duration
+    - score: int
+    - user: User
+    - documents: List<Document>
+    - difficulty: Difficulty
+    + difficulty(): Difficulty
+    + score(): int
+    + questionCount(): int
+    + timestamp(): LocalDateTime
+    + usedTime(): Duration
+    + documents(): List<Document>
+    + maxTime(): Duration
+    + user(): User
+    }
+    class WDM {
+    + WDM(String, Set<String>):
+    + WDM(Document, Map<String, Integer>):
+    - words: Map<String, Integer>
+    - document: Document
+    + getWords(): Map<String, Integer>
+    + getDocument(): Document
+    }
+
+    class JdbcRepository {
+    + JdbcRepository():
+    - daos: Map<String, JdbcDAO<?>>
+    - conn: Connection
+    + getDAO(String): TDAO
+    + close(): void
+    }
+    class User {
+    + User(String, String, boolean):
+    - isAdmin: boolean
+    - password: String
+    - name: String
+    + getName(): String
+    + setAdmin(boolean): void
+    + setName(String): void
+    + isAdmin(): boolean
+    + equals(Object): boolean
+    + hashCode(): int
+    + getPassword(): String
+    + setPassword(String): void
+    }
+
+    package interfaces {
+        interface Repository << interface >> {
+        + getDAO(String): TDAO
+        + close(): void
+        }
+    }
+}
+@enduml

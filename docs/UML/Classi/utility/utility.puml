@@ -1,0 +1,69 @@
+@startuml
+package utility{
+    class Config {
+    + Config():
+    - PROPS: Properties
+    + get(Props): String
+    }
+    class Resources {
+    - Resources():
+    - VOCABULARY: List<String>
+    ~ RES_PATH: String
+    + getStyle(String): String
+    + getDocumentContent(String): String
+    + getVocabulary(): List<String>
+    + getDocPath(Document): Path
+    + getAsset(String): InputStream
+    + getDocsDirPath(): Path
+    }
+    class SystemLogger {
+    + SystemLogger():
+    - logger: Logger
+    + log(Throwable): void
+    + log(String, Throwable): void
+    }
+    class ViewLoader {
+    + ViewLoader():
+    - controllerFactory: Callback<Class<?>, Object>
+    - stage: Stage
+    + load(View): void
+    + setStage(Stage): void
+    + setControllerFactory(Callback<Class<?>, Object>): void
+    }
+    enum Props << enumeration >> {
+    - Props(String):
+    + SESSION_FILE:
+    + PW_CHAR_MIN_LENGTH:
+    + DOCUMENTS_DIR:
+    + DB_URL:
+    - key: String
+    + USR_CHAR_MAX_LENGTH:
+    + values(): Props[]
+    + get(): String
+    + valueOf(String): Props
+    }
+    enum View << enumeration >> {
+    - View(String):
+    + AUTH:
+    + LEADERBOARD:
+    + GAME:
+    + USER_PANEL:
+    + REPORT:
+    + MENU:
+    - viewName: String
+    + values(): View[]
+    + get(): String
+    + valueOf(String): View
+    }
+    class Popup {
+    + Popup(String):
+    + Popup(String, int, int):
+    - stage: Stage
+    - root: VBox
+    + addAll(Node): Popup
+    + show(): void
+    + getStage(): Stage
+    + addAll(Node[]): Popup
+    }
+}
+@enduml

@@ -1,0 +1,99 @@
+@startuml
+package db {
+    package contracts {
+    interface DAO<T> << interface >> {
+    + insert(T): void
+    + delete(T): void
+    + selectAll(): Collection<T>
+    + update(T): void
+    }
+    interface DocumentDAO << interface >> {
+    + isEmpty(): boolean
+    + selectBy(String): Optional<Document>
+    }
+    interface GameReportDAO << interface >> {
+    + selectBy(User, Timestamp): Optional<GameReport>
+    }
+    interface StopWordDAO << interface >> {
+    + selectAll(): Set<String>
+    + isEmpty(): boolean
+    }
+
+    interface WdmDAO << interface >> {
+    + selectBy(Document): Optional<WDM>
+    }
+
+    interface UserDAO << interface >> {
+    + selectBy(String): Optional<User>
+    }
+    }
+
+    class JDBCDocumentDAO {
+    + JDBCDocumentDAO(Connection):
+    + delete(Document): void
+    + isEmpty(): boolean
+    + update(Document): void
+    + selectAll(): List<Document>
+    + insert(Document): void
+    + selectBy(String): Optional<Document>
+    }
+    class JDBCGameReportDAO {
+    + JDBCGameReportDAO(Connection, DAO<Document>, DAO<User>):
+    - documentDAO: DocumentDAO
+    - userDAO: UserDAO
+    + selectBy(User, Timestamp): Optional<GameReport>
+    - preFormatTime(long): String
+    + delete(GameReport): void
+    + selectWhere(String, Object[]): List<GameReport>
+    + update(GameReport): void
+    + selectAll(): List<GameReport>
+    - selectBase(String, Object[]): List<GameReport>
+    + insert(GameReport): void
+    }
+    class JDBCStopWordDAO {
+    + JDBCStopWordDAO(Connection):
+    + isEmpty(): boolean
+    + update(String): void
+    + selectAll(): Set<String>
+    + insert(String): void
+    + delete(String): void
+    }
+    class JDBCUserDAO {
+    + JDBCUserDAO(Connection):
+    + insert(User): void
+    + delete(User): void
+    + update(User): void
+    + selectAll(): List<User>
+    + selectBy(String): Optional<User>
+    + isEmpty(): boolean
+    }
+    class JDBCWdmDAO {
+    + JDBCWdmDAO(Connection, DocumentDAO):
+    - documentDAO: DocumentDAO
+    - selectBase(String, Object[]): List<WDM>
+    + selectBy(Document): Optional<WDM>
+    + insert(WDM): void
+    + selectWhere(String, Object[]): List<WDM>
+    + delete(WDM): void
+    + update(WDM): void
+    + selectAll(): List<WDM>
+    }
+    abstract class JdbcDAO<T> {
+    # JdbcDAO(Connection):
+    # connection: Connection
+    # executeUpdate(String, Object[]): long
+    # executeQuery(String, Callback<ResultSet, R>, Object[]): R
+    # executeQuery(String, Callback<ResultSet, R>): R
+    # isEmpty(String): boolean
+    }
+
+    package exceptions{
+        exception QueryFailedException {
+        + QueryFailedException(String):
+        }
+        exception UpdateFailedException {
+        + UpdateFailedException(String):
+        }
+    }
+}
+@enduml
