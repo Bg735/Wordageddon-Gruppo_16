@@ -103,6 +103,7 @@ public class GameController implements Initializable {
     private LocalDateTime questionStartTime; // Rappresenta il momento in cui viene visualizzata la prima domanda
     private final BooleanProperty questionsReady; // Indica se il thread di setup delle domande ha finito
     private final BooleanProperty minTimeElapsed; // Secondi minimi prima di poter saltare la lettura
+    private int questionCount; // Numero totale di domande da mostrare
 
     /** Tempo minimo per skippare la lettura dei documenti.
      * <p>
@@ -140,7 +141,7 @@ public class GameController implements Initializable {
         score = 0;
         numeroRisposteCorrette = 0;
         numeroRisposteSaltate = 0;
-
+        questionCount = 0;
     }
 
     /**
@@ -233,6 +234,7 @@ public class GameController implements Initializable {
             };
             questionSetupServiceFX.setOnSucceeded(_ -> {
                 questions = questionSetupServiceFX.getValue();
+                questionCount = gameService.getQuestionCount();
                 questionsReady.set(true);  // Le domande sono pronte
             });
             questionSetupServiceFX.setOnFailed(_ -> {
@@ -385,7 +387,8 @@ public class GameController implements Initializable {
                 domandaRisposte,
                 currentQuestionIndex.get(),
                 questionStartTime,
-                score
+                score,
+                questionCount
         );
 
         try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("interruptedSession.ser"))) {
@@ -415,6 +418,7 @@ public class GameController implements Initializable {
         this.currentQuestionIndex.set(state.currentQuestionIndex());
         this.questionStartTime = state.questionStartTime();
         this.score = state.score();
+        this.questionCount = state.questionCount();
         loadPane(questionPane);
     }
 
@@ -439,7 +443,7 @@ public class GameController implements Initializable {
         }
         LocalDateTime questionEndTime = LocalDateTime.now();
         java.time.Duration usedTime = java.time.Duration.between(questionStartTime, questionEndTime);
-        java.time.Duration timeLimit = QUESTION_TIME_LIMIT.multipliedBy(gameService.getQuestionCount());
+        java.time.Duration timeLimit = QUESTION_TIME_LIMIT.multipliedBy(questionCount);
 
         GameReport report = new GameReport(
                 appContext.getCurrentUser(),
@@ -448,18 +452,17 @@ public class GameController implements Initializable {
                 gameService.getDifficulty(),
                 timeLimit,
                 usedTime,
-                gameService.getQuestionCount(),
+                questionCount,
                 score
         );
         gameService.saveGameReport(report);
         scoreValue.setText(String.valueOf(score));
         rightValue.setText(String.valueOf(numeroRisposteCorrette));
-        wrongValue.setText(String.valueOf(gameService.getQuestionCount() - numeroRisposteCorrette));
-        questionNumber.setText(String.valueOf(gameService.getQuestionCount()));
+        wrongValue.setText(String.valueOf(questionCount - numeroRisposteCorrette));
+        questionNumber.setText(String.valueOf(questionCount));
 
-        int numeroDomandeTotali = gameService.getQuestionCount();
-        int numeroRisposteDate = numeroDomandeTotali - numeroRisposteSaltate;
-        double percentualeCompletamento = (double) numeroRisposteDate / numeroDomandeTotali  * 100;
+        int numeroRisposteDate = questionCount - numeroRisposteSaltate;
+        double percentualeCompletamento = (double) numeroRisposteDate / questionCount  * 100;
 
         completionValue.setText(String.format("%.2f%%", percentualeCompletamento));
         populateAnswerTable();

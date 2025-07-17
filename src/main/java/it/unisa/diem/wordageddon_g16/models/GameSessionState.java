@@ -30,7 +30,9 @@ public record GameSessionState(
         Map<Question, Integer> domandaRisposte,
         int currentQuestionIndex,
         LocalDateTime questionStartTime,
-        int score
+        int score,
+        int questionCount
+
 ) implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
@@ -73,5 +75,10 @@ public record GameSessionState(
     @Override
     public int score() {
         return score;
+    }
+
+    @Override
+    public int questionCount() {
+        return questionCount;
     }
 }
