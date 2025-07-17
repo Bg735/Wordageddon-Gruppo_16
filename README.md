@@ -27,7 +27,7 @@ L'applicazione sfida l'utente nella memorizzazione e riconoscimento delle parole
 [![CSS3](https://img.shields.io/badge/CSS-blue?logo=css3&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/CSS)
 
 ## 🚀 Documentazione & Risorse
-- 📄 [Documentazione Progettuale](docs/Documentazione_Wordageddon_G16.pdf) oppure [](https://www.overleaf.com/read/rwwgkkkbzkdj#33f35f)
+- 📄 [Documentazione Progettuale](docs/Documentazione_Wordageddon_G16.pdf), presente anche su [Overleaf](https://www.overleaf.com/read/rwwgkkkbzkdj#33f35f)
 - 📚 [Documentazione Tecnica - Javadoc](https://bg735.github.io/Wordageddon-Gruppo\_16)
 - 🎨 [Mockup Figma](https://www.figma.com/design/bqGUZqN27MYtyQel39LUrE/Wordageddon?node-id=0-1&p=f&t=tQsawDH1bQAf32sZ-0)
 
