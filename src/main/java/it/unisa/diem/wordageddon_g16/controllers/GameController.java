@@ -85,25 +85,112 @@ public class GameController implements Initializable {
     @FXML private TableColumn<Map.Entry<Question, Integer>, String> rispostaDataCln;
 
 
+    /**
+     * Mappa che associa ciascun documento al rispettivo testo caricato da mostrare all'utente nella fase di lettura.
+     */
     private Map<Document, String> documentToTextMap;
+
+    /**
+     * Indice della domanda attualmente visualizzata dal quiz.
+     * Aggiornato a ogni avanzamento tra le domande.
+     */
     private SimpleIntegerProperty currentQuestionIndex;
+
+    /**
+     * Indice del documento attualmente visualizzato nella fase di lettura.
+     * Utilizzato dai pulsanti "Successivo" e "Precedente" per navigare tra i documenti.
+     */
     private final SimpleIntegerProperty currentDocumentIndex;
+
+    /**
+     * Servizio centrale che gestisce la logica di gioco (selezione difficoltà, generazione quiz, calcolo punteggi ecc).
+     */
     private final GameService gameService;
+
+    /**
+     * Lista delle domande generate per la sessione corrente.
+     */
     private List<Question> questions;
+
+    /**
+     * Servizio JavaFX asincrono per la fase di caricamento e visualizzazione dei documenti da leggere.
+     */
     private Service<Map<Document, String>> readingSetupServiceFX;
+
+    /**
+     * Servizio JavaFX asincrono che genera in background le domande del quiz, mantenendo la UI reattiva.
+     */
     private Service<List<Question>> questionSetupServiceFX;
+
+    /**
+     * Timeline per la gestione del conto alla rovescia del timer di risposta alle domande.
+     */
     private Timeline questionTimer;
+
+    /**
+     * Conta il tempo trascorso dall'inizio della sessione, in secondi.
+     * Utilizzato per statistiche o per il timer delle domande e della lettura.
+     */
     private final SimpleIntegerProperty elapsedSeconds;
+
+    /**
+     * Timeline per il timer di lettura dei documenti da parte dell'utente.
+     */
     private Timeline readingTimer;
+
+    /**
+     * Punteggio totale ottenuto dal giocatore nella sessione corrente.
+     */
     private int score;
+
+    /**
+     * Numero di risposte corrette fornite dal giocatore.
+     */
     private int numeroRisposteCorrette;
+
+    /**
+     * Numero di domande a cui l'utente non ha risposto (scaduto il tempo), ovvero saltate.
+     */
     private int numeroRisposteSaltate;
-    private final Map<Question, Integer> domandaRisposte; // Map con chiave la domanda e value l'indice della risposta data
+
+    /**
+     * Mappa che tiene traccia, per ogni domanda, dell'indice della risposta fornita dall'utente.
+     * Se l'utente ha saltato la domanda, il valore è -1.
+     */
+    private final Map<Question, Integer> domandaRisposte;
+
+    /**
+     * Contesto applicativo corrente, che collega controller, utente, e servizi condivisi tra le varie schermate.
+     */
     private final AppContext appContext;
-    private LocalDateTime questionStartTime; // Rappresenta il momento in cui viene visualizzata la prima domanda
-    private final BooleanProperty questionsReady; // Indica se il thread di setup delle domande ha finito
-    private final BooleanProperty minTimeElapsed; // Secondi minimi prima di poter saltare la lettura
-    private int questionCount; // Numero totale di domande da mostrare
+
+    /**
+     * Momento in cui è stata visualizzata la prima domanda del quiz.
+     * Serve per misurare il tempo impiegato dall'utente nel rispondere a tutte le domande.
+     */
+    private LocalDateTime questionStartTime;
+
+    /**
+     * Indica se la generazione asincrona delle domande è stata completata ed è possibile procedere con il quiz.
+     */
+    private final BooleanProperty questionsReady;
+
+    /**
+     * Indica se è trascorso il tempo minimo richiesto per poter saltare la lettura dei documenti.
+     */
+    private final BooleanProperty minTimeElapsed;
+
+    /**
+     * Numero totale di domande da porre nella sessione di gioco.
+     * Impostato in base alla difficoltà o alle impostazioni correnti.
+     */
+    private int questionCount;
+
+    /**
+     * Punteggio assegnato per ogni risposta corretta fornita dal giocatore.
+     * Il valore può dipendere dalla difficoltà selezionata.
+     */
+    private int scorePerQuestion;
 
     /** Tempo minimo per skippare la lettura dei documenti.
      * <p>
@@ -142,6 +229,7 @@ public class GameController implements Initializable {
         numeroRisposteCorrette = 0;
         numeroRisposteSaltate = 0;
         questionCount = 0;
+        scorePerQuestion = 0;
     }
 
     /**
@@ -234,8 +322,9 @@ public class GameController implements Initializable {
             };
             questionSetupServiceFX.setOnSucceeded(_ -> {
                 questions = questionSetupServiceFX.getValue();
-                questionCount = gameService.getQuestionCount();
                 questionsReady.set(true);  // Le domande sono pronte
+                questionCount = gameService.getQuestionCount();
+                scorePerQuestion = gameService.getScorePerQuestion();
             });
             questionSetupServiceFX.setOnFailed(_ -> {
                 throw new RuntimeException("Error during reading setup task: " + questionSetupServiceFX.getException());
@@ -352,7 +441,7 @@ public class GameController implements Initializable {
                 boolean isCorrect = answerIndex == q.correctAnswerIndex();
                 if (isCorrect) {
                     btn.setStyle("-fx-background-color: #4CAF50;");
-                    score += gameService.getScorePerQuestion();
+                    score += scorePerQuestion;
                     numeroRisposteCorrette++;
                     System.out.println("\nScore: " + score);
                 } else {
@@ -381,16 +470,13 @@ public class GameController implements Initializable {
     public void saveSession() {
         GameSessionState state = new GameSessionState(
                 appContext.getCurrentUser(),
-                gameService.getDifficulty(),
-                gameService.getDocuments(),
                 questions,
                 domandaRisposte,
                 currentQuestionIndex.get(),
                 questionStartTime,
-                score,
-                questionCount
-        );
-
+                scorePerQuestion,
+                gameService.getParams()
+                );
         try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("interruptedSession.ser"))) {
             out.writeObject(state);
         } catch (IOException e) {
@@ -411,15 +497,39 @@ public class GameController implements Initializable {
      */
     public void restoreSession(GameSessionState state) {
         System.out.println("Ripristino da sessione interrotta...");
-        gameService.init(state.difficulty());
+        GameParams params = state.gameParams();
+        gameService.restoreParams(params);
+        this.questionCount = params.getQuestionCount();
         this.questions = state.questions();
-        this.domandaRisposte.clear();
         this.domandaRisposte.putAll(state.domandaRisposte());
         this.currentQuestionIndex.set(state.currentQuestionIndex());
         this.questionStartTime = state.questionStartTime();
-        this.score = state.score();
-        this.questionCount = state.questionCount();
+        this.scorePerQuestion = state.scorePerQuestion();
+        this.score = recalculateScore();
         loadPane(questionPane);
+    }
+
+    /**
+     * Ricalcola il punteggio totale basato sulle risposte date dall'utente.
+     * @return punteggio ricalcolato
+     */
+    private int recalculateScore() {
+        int newScore = 0;
+        numeroRisposteCorrette = 0;
+        numeroRisposteSaltate = 0;
+        for (Map.Entry<Question, Integer> entry : domandaRisposte.entrySet()) {
+            int answerIndex = entry.getValue();
+            Question q = entry.getKey();
+            if (answerIndex == -1) {
+                numeroRisposteSaltate++;
+            } else if (answerIndex == q.correctAnswerIndex()) {
+                System.out.println("Risposta corretta per la domanda: " + q.text());
+                newScore += scorePerQuestion; // Usa il valore ripristinato!
+                numeroRisposteCorrette++;
+            }
+        }
+        System.out.println("NewScore: " + newScore);
+        return newScore;
     }
 
 

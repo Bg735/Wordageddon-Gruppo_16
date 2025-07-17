@@ -14,6 +14,8 @@ import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static it.unisa.diem.wordageddon_g16.models.Difficulty.HARD;
+
 /**
  * Classe di "servizio" per la gestione della logica di gioco in Wordageddon.
  * Fornisce tutte le funzionalità utili al GameController come per inizializzare una partita, generare domande,
@@ -28,6 +30,7 @@ public class GameService {
     private final AppContext context;
     private GameParams params;
     private Map<Document, WDM> wdmMap;
+    private static final Random random = new Random();
 
     /**
      * Costruisce un nuovo GameService.
@@ -53,8 +56,13 @@ public class GameService {
      * @param difficulty la difficoltà scelta per la partita
      */
     public void init(Difficulty difficulty) {
-        params = new GameParams(difficulty);
+        GameParams.DifficultyIndex di = new GameParams.DifficultyIndex();
+        params = new GameParams(difficulty, generateDocuments(di.getNext(), difficulty), generateTimer(di.getNext()), generateQuestionCount(di.getNext(), difficulty));
         wdmMap = new HashMap<>();
+    }
+
+    public void restoreParams(GameParams params) {
+        this.params = params;
     }
 
     /**
@@ -67,7 +75,7 @@ public class GameService {
         if (params == null) {
             throw new IllegalStateException("Game not initialized");
         }
-        return params.difficulty;
+        return params.getDifficulty();
     }
 
     /**
@@ -80,7 +88,7 @@ public class GameService {
         if (params == null) {
             throw new IllegalStateException("Game not initialized");
         }
-        return params.timer;
+        return params.getTimer();
     }
 
     /**
@@ -93,7 +101,7 @@ public class GameService {
         if (params == null) {
             throw new IllegalStateException("Game not initialized");
         }
-        return params.documents;
+        return params.getDocuments();
     }
 
     /**
@@ -106,7 +114,7 @@ public class GameService {
         if (params == null) {
             throw new IllegalStateException("Game not initialized");
         }
-        return params.questionCount;
+        return params.getQuestionCount();
     }
 
     /**
@@ -136,7 +144,7 @@ public class GameService {
         if (params == null) throw new IllegalStateException("Game not initialized");
         loadWdmMap();
         List<Question> questions = new ArrayList<>();
-        int numDocs = params.documents.size();
+        int numDocs = params.getDocuments().size();
 
         // Definisci i tipi di domanda consentiti in base al numero di documenti
         List<Question.QuestionType> allowedTypes = new ArrayList<>();
@@ -152,7 +160,7 @@ public class GameService {
             System.out.println("Il sistema ha selezionato meno di 4 documenti, le domande generate saranno di tipo SINGLE (riguardano un singolo documento)");
         }
 
-        for (int i = 0; i < params.questionCount; i++) {
+        for (int i = 0; i < params.getQuestionCount(); i++) {
             var type = allowedTypes.get(rand.nextInt(allowedTypes.size()));
             Question q;
 
@@ -197,13 +205,13 @@ public class GameService {
     private Question absoluteFrequencyQuestionSingle() {
         // Seleziona un documento casuale
         List<Document> docs = getDocuments();
-        Document document = docs.get(GameParams.random.nextInt(docs.size()));
+        Document document = docs.get(random.nextInt(docs.size()));
         WDM wdm = wdmMap.get(document);
 
         List<String> words = new ArrayList<>(wdm.getWords().keySet());
 
         // Seleziona una parola casuale tra quelle presenti nel documento a partire dalla sua matrice WDM
-        String chosenWord = words.get(GameParams.random.nextInt(words.size()));
+        String chosenWord = words.get(random.nextInt(words.size()));
         // frequenza della parola nella WDM
         int correctFrequency = wdm.getWords().get(chosenWord);
 
@@ -267,7 +275,7 @@ public class GameService {
 
         // Seleziona una parola casuale tra quelle presenti
         List<String> words = new ArrayList<>(cumulativeFrequency.keySet());
-        String chosenWord = words.get(GameParams.random.nextInt(words.size()));
+        String chosenWord = words.get(random.nextInt(words.size()));
         int correctFrequency = cumulativeFrequency.get(chosenWord);
 
         // Genera risposte plausibili (inclusa quella corretta)
@@ -366,7 +374,7 @@ public class GameService {
      */
     private Question whichMoreQuestionSingle() {
         List<Document> docs = getDocuments();
-        Document document = docs.get(GameParams.random.nextInt(docs.size()));
+        Document document = docs.get(random.nextInt(docs.size()));
         WDM wdm = wdmMap.get(document);
 
         List<Map.Entry<String, Integer>> wordFrequency = new ArrayList<>(wdm.getWords().entrySet());
@@ -401,7 +409,7 @@ public class GameService {
      */
     private Question whichLessQuestionSingle() {
         List<Document> docs = getDocuments();
-        Document document = docs.get(GameParams.random.nextInt(docs.size()));
+        Document document = docs.get(random.nextInt(docs.size()));
         WDM wdm = wdmMap.get(document);
 
         List<Map.Entry<String, Integer>> wordFrequency = new ArrayList<>(wdm.getWords().entrySet());
@@ -492,13 +500,13 @@ public class GameService {
      */
     private Question whichDocumentQuestion() {
         List<Document> docs = getDocuments();
-        Document document = docs.get(GameParams.random.nextInt(docs.size()));
+        Document document = docs.get(random.nextInt(docs.size()));
         WDM wdm = wdmMap.get(document);
 
         List<String> words = new ArrayList<>(wdm.getWords().keySet());
         if (words.isEmpty()) throw new IllegalStateException("No words available");
 
-        String word = words.get(GameParams.random.nextInt(words.size()));
+        String word = words.get(random.nextInt(words.size()));
 
         // Crea una lista di documenti senza duplicati
         List<Document> docPool = new ArrayList<>(docs);
@@ -669,7 +677,7 @@ public class GameService {
      * </ul>
      */
     private void loadWdmMap() {
-        for (Document doc : params.documents) {
+        for (Document doc : params.getDocuments()) {
             WDM wdm;
             var optionalWdm = wdmDAO.selectBy(doc);
             // Se la matrice non esiste nel database, la creo e la salvo al volo
@@ -694,187 +702,10 @@ public class GameService {
         return totalScore / getQuestionCount();
     }
 
-
-    /**
-     * Classe interna che incapsula i parametri di una partita.
-     * <p>
-     * Rappresenta i parametri generati automaticamente per una partita in corso in base alla difficoltà scelta.
-     * Contiene difficoltà, timer, documenti selezionati e numero di domande.
-     * </p>
-     */
-    private class GameParams {
-        private static final Random random = new Random();
-        private final Duration timer;
-        private final List<Document> documents;
-        private final int questionCount;
-        private final Difficulty difficulty;
-
-        /**
-         * Classe di supporto per la gestione della difficoltà.
-         * <p>
-         *     Calcola in modo progressivo l'influenza della difficoltà su vari parametri
-         * </p>
-         */
-        private static class DifficultyIndex {
-            private float value;
-
-            /**
-             * Costruisce un nuovo DifficultyIndex.
-             */
-            public DifficultyIndex() {
-                this.value = 1;
-            }
-
-            /**
-             * Restituisce un valore casuale in base alla difficoltà corrente,
-             * e lo sottrae dal valore disponibile.
-             *
-             * @return valore parziale generato casualmente
-             */
-            public float getNext() {
-                var result = random.nextFloat(value);
-                value -= result;
-                return result;
-            }
-
-            /**
-             * Fornisce la quantità di difficoltà ancora disponibile.
-             *
-             * @return valore rimanente
-             */
-            public float getRemaining() {
-                return value;
-            }
-        }
-
-        /**
-         * Costruisce i parametri di gioco basati sul livello di difficoltà.
-         * Usa {@link DifficultyIndex} per calcolare le componenti e chiama:
-         * {@link #generateDocuments(float)},
-         * {@link #generateTimer(float)},
-         * {@link #generateQuestionCount(float)}
-         *
-         * @param difficulty livello di difficoltà selezionato
-         */
-        private GameParams(Difficulty difficulty) {
-            this.difficulty = difficulty;
-            var di = new DifficultyIndex();
-            documents = Collections.unmodifiableList(generateDocuments(di.getNext()));
-            timer = generateTimer(di.getNext());
-            questionCount = generateQuestionCount(di.getRemaining());
-        }
-
-        /**
-         * Genera una lista di documenti in base all'influenza della difficoltà.
-         *<p>
-         * Questo metodo viene invocato nel costruttore {@link GameParams#GameParams(Difficulty)}.
-         *</p>
-         * @param influence valore di influenza della difficoltà
-         * @return lista di documenti
-         * @throws IllegalArgumentException se non sono disponibili documenti
-         */
-        private List<Document> generateDocuments(float influence) throws IllegalArgumentException {
-            final int maxWords;
-            final int minWords;
-            final int maxDocsNumber;
-            final int wordCountTolerance = 100;
-
-            // Classificazione dei documenti in base al numero delle parole
-            // In base alla difficoltá scelta, si prelevano i documenti con un numero di parole compreso tra min e max
-            switch (difficulty) {
-                case EASY -> {
-                    maxWords = 250;
-                    minWords = 50;
-                    maxDocsNumber = 3;
-                }
-                case MEDIUM -> {
-                    maxWords = 350;
-                    minWords = 200;
-                    maxDocsNumber = 5;
-                }
-                case HARD -> {
-                    maxWords = 600;
-                    minWords = 300;
-                    maxDocsNumber = 7;
-                }
-                default -> throw new IllegalArgumentException("Invalid difficulty level");
-            }
-
-            var result = new ArrayList<Document>();
-
-            var docList = new ArrayList<>(documentDAO.selectAll());
-            if (docList.isEmpty()) {
-                throw new IllegalStateException("No documents available for the game");
-            }
-
-            int wordsNeeded = Math.round(minWords + (maxWords - minWords) * influence);
-            var documentsLeft = docList.size();
-            do {
-                Document currentDoc = docList.get(random.nextInt(documentsLeft--));
-                docList.remove(currentDoc);
-
-                int remainder = wordsNeeded - currentDoc.wordCount();
-                if (remainder > wordCountTolerance) {
-                    wordsNeeded = remainder;
-                    result.add(currentDoc);
-                } else if (remainder > -wordCountTolerance) {
-                    result.add(currentDoc);
-                    break;
-                } else if (documentsLeft == 0) {
-                    if (-remainder < wordsNeeded)
-                        result.add(currentDoc);
-                    break;
-                }
-            } while (documentsLeft > 0 && result.size() < maxDocsNumber);
-            return result;
-        }
-
-        /**
-         * Genera la durata della sessione in base all'influenza della difficoltà.
-         *<p>
-         * Metodo richiamato da {@link GameParams#GameParams(Difficulty)}.
-         *</p>
-         * @param influence fattore che determina la durata del timer
-         * @return {@code Duration} impostata
-         */
-        private Duration generateTimer(float influence) {
-            int timerMax = 10 * 60; // secondi
-            int timerMin = 2 * 60; // secondi
-
-            return Duration.ofSeconds((long) (timerMax - (timerMax - timerMin) * (influence)));
-        }
-
-        /**
-         * Genera il numero di domande per la partita in base all'influenza della difficoltà.
-         *<p>
-         * Questo metodo viene invocato nel costruttore {@link GameParams#GameParams(Difficulty)}.
-         *</p>
-         * @param influence valore di influenza della difficoltà
-         * @return numero di domande
-         */
-        private int generateQuestionCount(float influence) {
-            final int maxQuestions;
-            final int minQuestions;
-
-            switch (difficulty) {
-                case EASY -> {
-                    maxQuestions = 10;
-                    minQuestions = 5;
-                }
-                case MEDIUM -> {
-                    maxQuestions = 15;
-                    minQuestions = 10;
-                }
-                case HARD -> {
-                    maxQuestions = 20;
-                    minQuestions = 15;
-                }
-                default -> throw new IllegalArgumentException("Invalid difficulty level");
-            }
-
-            return Math.round(minQuestions + (maxQuestions - minQuestions) * influence);
-        }
+    public GameParams getParams() {
+        return params;
     }
+
 
     /**
      * Prepara il contenuto testuale dei documenti per la fase di lettura.
@@ -911,6 +742,120 @@ public class GameService {
     public void saveGameReport(GameReport report) {
         System.out.println("Salvataggio Report");
         gameReportDAO.insert(report);
+    }
+
+    /**
+     * Genera una lista di documenti in base all'influenza della difficoltà.
+     * <p>
+     * Questo metodo viene invocato nel costruttore {@link GameParams(Difficulty)}.
+     * </p>
+     *
+     * @param influence valore di influenza della difficoltà
+     * @return lista di documenti
+     * @throws IllegalArgumentException se non sono disponibili documenti
+     */
+    private List<Document> generateDocuments(float influence, Difficulty difficulty) throws IllegalArgumentException {
+        final int maxWords;
+        final int minWords;
+        final int maxDocsNumber;
+        final int wordCountTolerance = 100;
+
+        // Classificazione dei documenti in base al numero delle parole
+        // In base alla difficoltá scelta, si prelevano i documenti con un numero di parole compreso tra min e max
+        switch (difficulty) {
+            case Difficulty.EASY -> {
+                maxWords = 250;
+                minWords = 50;
+                maxDocsNumber = 3;
+            }
+            case Difficulty.MEDIUM -> {
+                maxWords = 350;
+                minWords = 200;
+                maxDocsNumber = 5;
+            }
+            case Difficulty.HARD -> {
+                maxWords = 600;
+                minWords = 300;
+                maxDocsNumber = 7;
+            }
+            default -> throw new IllegalArgumentException("Invalid difficulty level");
+        }
+
+        var result = new ArrayList<Document>();
+
+        var docList = new ArrayList<>(documentDAO.selectAll());
+        if (docList.isEmpty()) {
+            throw new IllegalStateException("No documents available for the game");
+        }
+
+        int wordsNeeded = Math.round(minWords + (maxWords - minWords) * influence);
+        var documentsLeft = docList.size();
+        do {
+            Document currentDoc = docList.get(random.nextInt(documentsLeft--));
+            docList.remove(currentDoc);
+
+            int remainder = wordsNeeded - currentDoc.wordCount();
+            if (remainder > wordCountTolerance) {
+                wordsNeeded = remainder;
+                result.add(currentDoc);
+            } else if (remainder > -wordCountTolerance) {
+                result.add(currentDoc);
+                break;
+            } else if (documentsLeft == 0) {
+                if (-remainder < wordsNeeded)
+                    result.add(currentDoc);
+                break;
+            }
+        } while (documentsLeft > 0 && result.size() < maxDocsNumber);
+        return result;
+    }
+
+    /**
+     * Genera la durata della sessione in base all'influenza della difficoltà.
+     * <p>
+     * Metodo richiamato da {@link GameParams(Difficulty)}.
+     * </p>
+     *
+     * @param influence fattore che determina la durata del timer
+     * @return {@code Duration} impostata
+     */
+    private Duration generateTimer(float influence) {
+        int timerMax = 10 * 60; // secondi
+        int timerMin = 2 * 60; // secondi
+
+        return Duration.ofSeconds((long) (timerMax - (timerMax - timerMin) * (influence)));
+    }
+
+    /**
+     * Genera il numero di domande per la partita in base all'influenza della difficoltà.
+     * <p>
+     * Questo metodo viene invocato nel costruttore {@link GameParams(Difficulty)}.
+     * </p>
+     *
+     * @param influence valore di influenza della difficoltà
+     * @return numero di domande
+     */
+    private int generateQuestionCount(float influence, Difficulty difficulty) {
+        final int maxQuestions;
+        final int minQuestions;
+
+        switch (difficulty) {
+            case Difficulty.EASY -> {
+                maxQuestions = 10;
+                minQuestions = 5;
+            }
+            case Difficulty.MEDIUM -> {
+                maxQuestions = 15;
+                minQuestions = 10;
+            }
+            case Difficulty.HARD -> {
+                maxQuestions = 20;
+                minQuestions = 15;
+            }
+            default -> throw new IllegalArgumentException("Invalid difficulty level");
+        }
+
+        return Math.round(minQuestions + (maxQuestions - minQuestions) * influence);
     }
 
 }

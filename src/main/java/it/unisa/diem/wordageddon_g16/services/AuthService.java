@@ -14,7 +14,7 @@ import java.io.*;
  * Permette la registrazione, login, logout e gestione della sessione utente.
  * Utilizza {@link JDBCUserDAO} per la persistenza e {@link AppContext} per il tracciamento dell'utente corrente.
  */
-public class AuthService {
+public class AuthService implements Serializable {
 
     private final AppContext context;
     private final JDBCUserDAO userDAO;

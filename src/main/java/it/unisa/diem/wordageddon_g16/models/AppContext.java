@@ -3,13 +3,15 @@ package it.unisa.diem.wordageddon_g16.models;
 import it.unisa.diem.wordageddon_g16.db.contracts.Repository;
 import it.unisa.diem.wordageddon_g16.services.*;
 
+import java.io.Serializable;
+
 /**
  * Classe che rappresenta il contesto dell'applicazione.
  * <p>
  * Fornisce un punto di accesso condiviso a tutti le classi service e DAO, mantenendo anche
  * lo stato globale dell'app, come l'utente corrente e il report di gioco attivo.
  */
-public class AppContext {
+public class AppContext implements Serializable {
     /**
      * Repository contenente tutti i DAO per l'accesso al database.
      */

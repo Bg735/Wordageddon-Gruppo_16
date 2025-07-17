@@ -1,5 +1,7 @@
 package it.unisa.diem.wordageddon_g16.models;
 
+import it.unisa.diem.wordageddon_g16.services.GameService;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -14,24 +16,19 @@ import java.util.Map;
  * </p>
  *
  * @param user                L'utente a cui appartiene la sessione
- * @param difficulty          Livello di difficoltà della partita
- * @param documents           Lista di documenti selezionati per la sessione
  * @param questions           Lista delle domande generate
  * @param domandaRisposte     Mappa domanda --> risposta data (-1 se saltata)
  * @param currentQuestionIndex Indice della domanda attuale
  * @param questionStartTime   Istante d'inizio delle domande (può essere null se non usato)
- * @param score               Punteggio ottenuto alla fine della sessione
  */
 public record GameSessionState(
         User user,
-        Difficulty difficulty,
-        List<Document> documents,
         List<Question> questions,
         Map<Question, Integer> domandaRisposte,
         int currentQuestionIndex,
         LocalDateTime questionStartTime,
-        int score,
-        int questionCount
+        int scorePerQuestion,
+        GameParams gameParams
 
 ) implements Serializable {
     @Serial
@@ -40,16 +37,6 @@ public record GameSessionState(
     @Override
     public User user() {
         return user;
-    }
-
-    @Override
-    public Difficulty difficulty() {
-        return difficulty;
-    }
-
-    @Override
-    public List<Document> documents() {
-        return documents;
     }
 
     @Override
@@ -73,12 +60,12 @@ public record GameSessionState(
     }
 
     @Override
-    public int score() {
-        return score;
+    public int scorePerQuestion() {
+        return scorePerQuestion;
     }
 
     @Override
-    public int questionCount() {
-        return questionCount;
+    public GameParams gameParams() {
+        return gameParams;
     }
 }
