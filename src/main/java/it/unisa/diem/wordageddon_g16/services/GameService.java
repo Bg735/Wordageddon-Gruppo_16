@@ -759,18 +759,18 @@ public class GameService {
         // In base alla difficoltá scelta, si prelevano i documenti con un numero di parole compreso tra min e max
         switch (difficulty) {
             case Difficulty.EASY -> {
-                maxWords = 250;
-                minWords = 50;
+                maxWords = 120;
+                minWords = 30;
                 maxDocsNumber = 3;
             }
             case Difficulty.MEDIUM -> {
-                maxWords = 350;
-                minWords = 200;
+                maxWords = 200;
+                minWords = 100;
                 maxDocsNumber = 5;
             }
             case Difficulty.HARD -> {
                 maxWords = 600;
-                minWords = 300;
+                minWords = 170;
                 maxDocsNumber = 7;
             }
             default -> throw new IllegalArgumentException("Invalid difficulty level");
@@ -801,7 +801,7 @@ public class GameService {
                     result.add(currentDoc);
                 break;
             }
-        } while (documentsLeft > 0 && result.size() < maxDocsNumber);
+        } while (documentsLeft > 0 && result.size() <= maxDocsNumber);
         return result;
     }
 

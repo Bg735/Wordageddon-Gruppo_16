@@ -118,7 +118,7 @@ public class UserPanelController implements Initializable {
         this.appContext = context;
         isRecalculatingWDMs = new AtomicBoolean(false);
         needsRecalculation = new AtomicBoolean(false);
-        threadPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() / 2);
+        threadPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     }
 
     /**

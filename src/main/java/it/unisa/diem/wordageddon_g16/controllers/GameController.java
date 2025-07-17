@@ -199,7 +199,7 @@ public class GameController implements Initializable {
      * Si tiene presente che il pulsante di skipReadingBtn viene abilitato automaticamente solamente quando sono trascorsi i secondi minimi e il thread di analisi ha terminato la generazione delle domande.
      * </p>
      */
-    private static final int MIN_TIME_FOR_SKIP = 1;
+    private static final int MIN_TIME_FOR_SKIP = 30;
 
     /** Tempo limite per rispondere a una domanda del quiz.
      * <p>
@@ -772,7 +772,7 @@ public class GameController implements Initializable {
     @FXML
     public void toggleShowAnswers() {
         heroBox.setVisible(!heroBox.isVisible());
-        viewAnswersBtnText.setText((heroBox.isVisible() ? "Mostra Resoconto" : "Mostra Risposte"));
+        viewAnswersBtnText.setText((heroBox.isVisible() ? "Mostra Risposte" : "Mostra Resoconto" ));
         answersBox.setVisible(!answersBox.isVisible());
 
 
