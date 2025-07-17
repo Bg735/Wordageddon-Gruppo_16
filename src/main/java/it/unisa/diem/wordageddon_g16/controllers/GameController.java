@@ -2,7 +2,7 @@ package it.unisa.diem.wordageddon_g16.controllers;
 
 import it.unisa.diem.wordageddon_g16.models.*;
 import it.unisa.diem.wordageddon_g16.services.GameService;
-import it.unisa.diem.wordageddon_g16.services.GameService.Question;
+import it.unisa.diem.wordageddon_g16.models.Question;
 import it.unisa.diem.wordageddon_g16.utility.SystemLogger;
 import it.unisa.diem.wordageddon_g16.utility.ViewLoader;
 import javafx.animation.*;
@@ -167,7 +167,7 @@ public class GameController implements Initializable {
         GameSessionState sessionState = appContext.getInterruptedSession();
         if (sessionState != null) {
             // Recupera stato da sessione
-            ripristinaDaSessione(sessionState);
+            restoreSession(sessionState);
             appContext.setInterruptedSession(null);
             new File("interruptedSession.ser").delete();
         } else {
@@ -406,15 +406,15 @@ public class GameController implements Initializable {
      *
      * @param state Stato della sessione da ripristinare.
      */
-    public void ripristinaDaSessione(GameSessionState state) {
+    public void restoreSession(GameSessionState state) {
         System.out.println("Ripristino da sessione interrotta...");
-        gameService.init(state.getDifficulty());
-        this.questions = state.getQuestions();
+        gameService.init(state.difficulty());
+        this.questions = state.questions();
         this.domandaRisposte.clear();
-        this.domandaRisposte.putAll(state.getDomandaRisposte());
-        this.currentQuestionIndex.set(state.getCurrentQuestionIndex());
-        this.questionStartTime = state.getQuestionStartTime();
-        this.score = state.getScore();
+        this.domandaRisposte.putAll(state.domandaRisposte());
+        this.currentQuestionIndex.set(state.currentQuestionIndex());
+        this.questionStartTime = state.questionStartTime();
+        this.score = state.score();
         loadPane(questionPane);
     }
 

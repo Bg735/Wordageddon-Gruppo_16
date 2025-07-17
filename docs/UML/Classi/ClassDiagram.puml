@@ -1,5 +1,4 @@
 @startuml
-top to bottom direction
 set namespaceSeparator none
 
 package "it.unisa.diem.wordageddon_g16"{
@@ -13,8 +12,8 @@ package controllers {
     + showDialog(AlertType, String, String): void
     + handleRegisterBtn(ActionEvent): void
     }
-    class GameSessionController {
-    + GameSessionController(AppContext):
+    class GameController {
+    + GameController(AppContext):
     - minTimeElapsed: BooleanProperty
     - appContext: AppContext
     - domandaRisposte: Map<Question, Integer>
@@ -51,6 +50,8 @@ package controllers {
     - onChangeDocument(ActionEvent): void
     + handleShowLeaderboard(Event): void
     + handleGoMenu(Event): void
+    + saveSession() : void
+    + restoreSession(GameSessionState): void
     }
     class UserPanelController {
     + UserPanelController(AppContext):
@@ -179,6 +180,25 @@ package db {
 }
 
 package models {
+    class GameSessionState {
+    - user : User
+    - difficulty : Difficulty
+    - documents : List<Document>
+    - questions : List<Question>
+    - domandaRisposte : Map<Question, Integer>
+    - currentQuestionIndex: int
+    - questionStartTime : LocalDateTime
+    + GameSessionState(User, Difficulty, List<Document>, List<Question>, Map<Question, Integer>, int, LocalDateTime)
+    + getScore(): int
+    + setScore(): void
+    + getUser(): User
+    + getDifficulty(): Difficulty
+    + getDocuments(): List<Document>
+    + getQuestions(): List<Question>
+    + getDomandaRisposte(): Map<Question, Integer>
+    + getCurrentQuestionIndex(): int
+    + getQuestionStartTime(): LocalDateTime
+    }
     enum Difficulty << enumeration >> {
     - Difficulty(String):
     + HARD:

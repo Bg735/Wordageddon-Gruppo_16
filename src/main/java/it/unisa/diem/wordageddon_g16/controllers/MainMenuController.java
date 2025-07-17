@@ -65,7 +65,7 @@ public class MainMenuController implements Initializable {
             try (var in = new ObjectInputStream(new FileInputStream("interruptedSession.ser"))) {
                 System.out.println("File di sessione interrotta trovato: " + interruptedSessionFile.getName());
                 var gameSessionState = (GameSessionState) in.readObject();
-                User foundUser = gameSessionState.getUser();
+                User foundUser = gameSessionState.user();
                 if (foundUser.equals(user)) {
                     System.out.println("Rilevata sessione interrotta per l'utente: " + foundUser.getName());
 
