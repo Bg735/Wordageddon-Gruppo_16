@@ -15,9 +15,10 @@ import java.util.Objects;
  * <p>
  * Fornisce accesso ad asset grafici, fogli di stile, file di documento e vocabolario predefinito.
  * Opera sul classpath e su directory di configurazione definite tramite {@link Config}.
+ * </p>
  */
 public class Resources {
-    private static final List<String> VOCABULARY = Arrays.asList(
+    private static final List<String> VOCABULARY = List.of(
             "paradosso", "sinestesia", "algoritmo", "resilienza", "simposio",
             "entropia", "frattale", "prerogativa", "aforisma", "labirinto",
             "emendamento", "ipotesi", "prospettiva", "vulnerabilità", "catarsi",

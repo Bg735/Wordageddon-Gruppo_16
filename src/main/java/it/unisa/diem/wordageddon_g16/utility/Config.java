@@ -55,6 +55,8 @@ public class Config {
         }
     }
 
+    // Il blocco statico carica le proprietà dal file config.properties al momento della classe viene caricata.
+    // Viene eseguito una sola volta, al primo accesso alla classe Config.
     static {
         try (InputStream input = Config.class.getResourceAsStream("/it/unisa/diem/wordageddon_g16/config.properties")) {
             if (input == null) {
