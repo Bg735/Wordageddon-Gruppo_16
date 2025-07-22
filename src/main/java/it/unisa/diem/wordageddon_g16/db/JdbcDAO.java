@@ -11,12 +11,26 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 /**
- * Classe astratta base per l'accesso ai dati tramite JDBC.
- * <p>
- * Implementa il pattern DAO e fornisce metodi comuni per eseguire query SQL parametrizzate,
- * operazioni di aggiornamento e verifiche strutturali. Ogni DAO specifico estende questa classe.
+ * Classe astratta di supporto per la realizzazione di DAO (Data Access Object) basati su JDBC.
  *
- * @param <T> tipo dell'entità gestita dal DAO
+ * <p>
+ * Fornisce un insieme di metodi protetti e riutilizzabili per semplificare l'accesso al database,
+ * centralizzando la logica comune di esecuzione di query, aggiornamenti e gestione delle risorse.
+ * Ciascun DAO concreto dovrà estendere questa classe e implementare i metodi specifici previsti
+ * dall'interfaccia {@link DAO}.
+ * </p>
+ * <p>
+ * <p>
+ * Caratteristiche principali:
+ * <ul>
+ *   <li>Gestione automatica di {@code PreparedStatement} e {@code ResultSet} tramite try-with-resources.</li>
+ *   <li>Supporto a query parametrizzate e non, tramite metodi generici che sfruttano una {@link Callback}
+ *       per l’elaborazione flessibile dei risultati dalla query SQL (ResultSet).</li>
+ *   <li>Gestione centralizzata delle eccezioni e logging automatico in caso di errore.</li>
+ *   <li>Metodi utility per operazioni semplici e frequenti (es. verifica se una tabella è vuota).</li>
+ * </ul>
+ *
+ * @param <T> tipo dell'entità gestita dal DAO concreto
  */
 public abstract class JdbcDAO<T> implements DAO<T> {
 
@@ -37,14 +51,15 @@ public abstract class JdbcDAO<T> implements DAO<T> {
     /**
      * Esegue una query SQL con parametri e applica una {@link Callback} per elaborare il {@link ResultSet}.
      *
-     * @param sql     query SQL parametrizzata
-     * @param cb      callback che processa il risultato della query
-     * @param params  parametri da sostituire nella query
-     * @param <R>     tipo di dato restituito dalla callback
+     * @param <R>    tipo di dato restituito dalla callback
+     * @param sql    query SQL parametrizzata
+     * @param cb     callback che processa il risultato della query
+     * @param params parametri da sostituire nella query
      * @return risultato ottenuto dalla callback
      * @throws QueryFailedException se la query fallisce durante l'esecuzione
      */
     protected <R> R executeQuery(String sql, Callback<ResultSet, R> cb, Object... params) {
+        // Callback consente di passare un metodo come parametro per elaborare il ResultSet
         try (var stm = connection.prepareStatement(sql)) {
             if (params.length > 0)
                 for (int i = 0; i < params.length; i++)
@@ -59,9 +74,9 @@ public abstract class JdbcDAO<T> implements DAO<T> {
     /**
      * Esegue una query SQL semplice (senza parametri) e ne elabora il risultato tramite {@link Callback}.
      *
+     * @param <R> tipo di risultato prodotto dalla callback
      * @param sql query SQL da eseguire
      * @param cb  callback che processa il {@link ResultSet}
-     * @param <R> tipo di risultato prodotto dalla callback
      * @return risultato ottenuto dalla callback
      * @throws QueryFailedException se la query fallisce
      */
