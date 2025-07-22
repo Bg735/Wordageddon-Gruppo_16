@@ -55,7 +55,7 @@ public class GameService {
      */
     public void init(Difficulty difficulty) {
         GameParams.DifficultyIndex di = new GameParams.DifficultyIndex();
-        params = new GameParams(difficulty, generateDocuments(di.getNext(), difficulty), generateTimer(di.getNext()), generateQuestionCount(di.getNext(), difficulty));
+        params = new GameParams(difficulty, generateDocuments(di.getNext(), difficulty), generateTimer(di.getNext()), generateQuestionCount(di.getRemaining(), difficulty));
         wdmMap = new HashMap<>();
     }
 
