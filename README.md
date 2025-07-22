@@ -29,6 +29,7 @@ L'applicazione sfida l'utente nella memorizzazione e riconoscimento delle parole
 ## 🚀 Documentazione & Risorse
 - 📄 [Documentazione Progettuale](docs/Documentazione_Wordageddon_G16.pdf), presente anche su [Overleaf](https://www.overleaf.com/read/rwwgkkkbzkdj#33f35f)
 - 📚 [Documentazione Tecnica - Javadoc](https://bg735.github.io/Wordageddon-Gruppo\_16)
+- 📺 [Presentazione](docs/Presentazione_Wordageddon_G16.pdf) 
 - 🎨 [Mockup Figma](https://www.figma.com/design/bqGUZqN27MYtyQel39LUrE/Wordageddon?node-id=0-1&p=f&t=tQsawDH1bQAf32sZ-0)
 
 ## 🔒 Credenziali
