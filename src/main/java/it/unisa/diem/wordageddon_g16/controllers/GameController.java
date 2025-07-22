@@ -631,6 +631,7 @@ public class GameController implements Initializable {
             int secondsRemaining = totalSeconds - i;
             double progress = (double) i / totalSeconds;
             timer.getKeyFrames().add(new KeyFrame(javafx.util.Duration.seconds(i), _ -> {
+                // on finished
                 label.setText(String.format("%02d:%02d", secondsRemaining / 60, secondsRemaining % 60));
                 Platform.runLater(() -> {
                     bar.setProgress(progress);

@@ -10,8 +10,6 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 /**
  * Implementazione della interfaccia {@link Repository} che gestisce l'accesso ai dati tramite JDBC.
@@ -69,6 +67,7 @@ public class JdbcRepository implements Repository {
      * @throws IllegalArgumentException se la categoria non è valida
      */
     @SuppressWarnings("unchecked")
+    @Override
     public <T,TDAO extends DAO<T>> TDAO getDAO(String category) {
         if (daos.containsKey(category)) {
             return (TDAO) daos.get(category);

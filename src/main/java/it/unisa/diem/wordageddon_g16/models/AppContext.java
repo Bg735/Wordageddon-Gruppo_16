@@ -38,6 +38,9 @@ public class AppContext implements Serializable {
      */
     private User currentUser;
 
+    /**
+     * Sessione di gioco interrotta, utile per riprendere il gioco in caso di interruzione.
+     */
     private GameSessionState interruptedSession;
 
     /**
@@ -54,10 +57,22 @@ public class AppContext implements Serializable {
         gameService = new GameService(this, repo.getDAO("gameReport"), repo.getDAO("wdm"), repo.getDAO("document"), repo.getDAO("stopWord"));
     }
 
+    /**
+     * Restituisce la sessione di gioco interrotta, se presente.
+     *
+     * @return la sessione di gioco interrotta
+     */
     public GameSessionState getInterruptedSession() {
         return interruptedSession;
     }
 
+    /**
+     * Imposta la sessione di gioco interrotta.
+     * <p>
+     * Questa sessione può essere utilizzata per riprendere il gioco in caso di interruzione.
+     *
+     * @param interruptedSession la sessione di gioco da impostare come interrotta
+     */
     public void setInterruptedSession(GameSessionState interruptedSession) {
         this.interruptedSession = interruptedSession;
     }

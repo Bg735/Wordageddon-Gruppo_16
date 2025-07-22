@@ -82,7 +82,18 @@ package controllers {
 }
 
 package db {
+    class JdbcRepository {
+    + JdbcRepository():
+    - daos: Map<String, JdbcDAO<?>>
+    - conn: Connection
+    + getDAO(String): TDAO
+    + close(): void
+    }
     package contracts {
+            interface Repository << interface >> {
+            + getDAO(String): TDAO
+            + close(): void
+            }
     interface DAO<T> << interface >> {
     + insert(T): void
     + delete(T): void
@@ -177,6 +188,7 @@ package db {
         + UpdateFailedException(String):
         }
     }
+
 }
 
 package models {
@@ -268,13 +280,6 @@ package models {
     + getDocument(): Document
     }
 
-    class JdbcRepository {
-    + JdbcRepository():
-    - daos: Map<String, JdbcDAO<?>>
-    - conn: Connection
-    + getDAO(String): TDAO
-    + close(): void
-    }
     class User {
     + User(String, String, boolean):
     - isAdmin: boolean
@@ -288,13 +293,6 @@ package models {
     + hashCode(): int
     + getPassword(): String
     + setPassword(String): void
-    }
-
-    package interfaces {
-        interface Repository << interface >> {
-        + getDAO(String): TDAO
-        + close(): void
-        }
     }
 }
 
