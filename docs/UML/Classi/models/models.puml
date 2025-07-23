@@ -1,5 +1,48 @@
 @startuml
+
 package models {
+    class GameParams {
+    - GameParams(Difficulty):
+    - random: Random
+    - documents: List<Document>
+    - difficulty: Difficulty
+    - timer: Duration
+    - questionCount: int
+    - generateTimer(float): Duration
+    - generateDocuments(float): List<Document>
+    - generateQuestionCount(float): int
+    }
+    class DifficultyIndex {
+    + DifficultyIndex(float):
+    - cap: float
+    - value: float
+    + getCap(): float
+    + getNext(): float
+    + getRemaining(): float
+    + getNextRelative(): float
+    }
+    entity Question << record >> {
+    + Question(String, List<String>, int):
+    - text: String
+    - answers: List<String>
+    - correctAnswerIndex: int
+    + correctAnswerIndex(): int
+    + text(): String
+    + create(String, List<String>, int): Question
+    + answers(): List<String>
+    }
+    enum QuestionType << enumeration >> {
+    - QuestionType(float):
+    + WHICH_MORE:
+    - weight: float
+    + WHICH_LESS:
+    + WHICH_DOCUMENT:
+    + WHICH_ABSENT:
+    + ABSOLUTE_FREQUENCY:
+    + valueOf(String): QuestionType
+    + values(): QuestionType[]
+    + getRandomType(): QuestionType
+    }
     class GameSessionState {
     - getScorePerQuestion : int
     - questions : List<Question>
@@ -88,13 +131,6 @@ package models {
     + getDocument(): Document
     }
 
-    class JdbcRepository {
-    + JdbcRepository():
-    - daos: Map<String, JdbcDAO<?>>
-    - conn: Connection
-    + getDAO(String): TDAO
-    + close(): void
-    }
     class User {
     + User(String, String, boolean):
     - isAdmin: boolean
@@ -108,13 +144,6 @@ package models {
     + hashCode(): int
     + getPassword(): String
     + setPassword(String): void
-    }
-
-    package interfaces {
-        interface Repository << interface >> {
-        + getDAO(String): TDAO
-        + close(): void
-        }
     }
 }
 @enduml

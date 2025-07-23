@@ -192,6 +192,48 @@ package db {
 }
 
 package models {
+    class GameParams {
+    - GameParams(Difficulty):
+    - random: Random
+    - documents: List<Document>
+    - difficulty: Difficulty
+    - timer: Duration
+    - questionCount: int
+    - generateTimer(float): Duration
+    - generateDocuments(float): List<Document>
+    - generateQuestionCount(float): int
+    }
+    class DifficultyIndex {
+    + DifficultyIndex(float):
+    - cap: float
+    - value: float
+    + getCap(): float
+    + getNext(): float
+    + getRemaining(): float
+    + getNextRelative(): float
+    }
+    entity Question << record >> {
+    + Question(String, List<String>, int):
+    - text: String
+    - answers: List<String>
+    - correctAnswerIndex: int
+    + correctAnswerIndex(): int
+    + text(): String
+    + create(String, List<String>, int): Question
+    + answers(): List<String>
+    }
+    enum QuestionType << enumeration >> {
+    - QuestionType(float):
+    + WHICH_MORE:
+    - weight: float
+    + WHICH_LESS:
+    + WHICH_DOCUMENT:
+    + WHICH_ABSENT:
+    + ABSOLUTE_FREQUENCY:
+    + valueOf(String): QuestionType
+    + values(): QuestionType[]
+    + getRandomType(): QuestionType
+    }
     class GameSessionState {
     - getScorePerQuestion : int
     - questions : List<Question>
@@ -376,48 +418,7 @@ class GameService {
     + getLeaderboardByDifficulty(Difficulty): List<LeaderboardEntry>
     - getLeaderboardBase(Difficulty): List<LeaderboardEntry>
     }
-    class GameParams {
-    - GameParams(Difficulty):
-    - random: Random
-    - documents: List<Document>
-    - difficulty: Difficulty
-    - timer: Duration
-    - questionCount: int
-    - generateTimer(float): Duration
-    - generateDocuments(float): List<Document>
-    - generateQuestionCount(float): int
-    }
-    class DifficultyIndex {
-    + DifficultyIndex(float):
-    - cap: float
-    - value: float
-    + getCap(): float
-    + getNext(): float
-    + getRemaining(): float
-    + getNextRelative(): float
-    }
-    entity Question << record >> {
-    + Question(String, List<String>, int):
-    - text: String
-    - answers: List<String>
-    - correctAnswerIndex: int
-    + correctAnswerIndex(): int
-    + text(): String
-    + create(String, List<String>, int): Question
-    + answers(): List<String>
-    }
-    enum QuestionType << enumeration >> {
-    - QuestionType(float):
-    + WHICH_MORE:
-    - weight: float
-    + WHICH_LESS:
-    + WHICH_DOCUMENT:
-    + WHICH_ABSENT:
-    + ABSOLUTE_FREQUENCY:
-    + valueOf(String): QuestionType
-    + values(): QuestionType[]
-    + getRandomType(): QuestionType
-    }
+
     entity LeaderboardEntry << record >> {
     + LeaderboardEntry(String, Difficulty, int, int, int):
     - totalScore: int
