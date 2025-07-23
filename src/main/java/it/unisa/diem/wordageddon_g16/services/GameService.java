@@ -221,6 +221,9 @@ public class GameService {
         while (options.size() < 4) {
 
             int delta = 1 + rand.nextInt(4); // Delta tra 1 e 4
+
+            // Genera un'opzione casuale vicina al valore corretto
+            // Aggiunge o sottrae casualmente il delta alla frequenza corretta per generare un'opzione falsa
             int fakeOption = correctFrequency + (rand.nextBoolean() ? delta : -delta);
 
             if (fakeOption >= 0 && fakeOption != correctFrequency) {
@@ -228,10 +231,10 @@ public class GameService {
             }
         }
 
-
         // Prepara la lista delle risposte e trova l'indice corretto
         List<Integer> answerOptions = new ArrayList<>(options);
         Collections.shuffle(answerOptions);
+
         int correctIndex = answerOptions.indexOf(correctFrequency);
 
         // Converte le risposte in stringhe
@@ -262,6 +265,8 @@ public class GameService {
         Map<String, Integer> cumulativeFrequency = new HashMap<>();
         for (WDM wdm : wdmMap.values()) {
             for (Map.Entry<String, Integer> entry : wdm.getWords().entrySet()) {
+                // Accumulo le frequenze delle parole tramite la funzione merge:
+                // se la parola esiste già, somma le frequenze, altrimenti inserisce la nuova parola con la frequenza trovata
                 cumulativeFrequency.merge(entry.getKey(), entry.getValue(), Integer::sum);
             }
         }
@@ -339,16 +344,19 @@ public class GameService {
             throw new IllegalStateException("Non ci sono abbastanza parole per generare la domanda (minimo 4 richieste)");
         }
 
-        // Prendo le prime 4 parole casuali
         List<Map.Entry<String, Integer>> currentAnswer = new ArrayList<>();
+
+        // Prendo le prime 4 parole e le inserisco nella lista
         for (int y = 0; y < 4; y++) {
             currentAnswer.add(wordFrequency.get(y));
         }
+        Collections.shuffle(currentAnswer);
 
         // Trova la parola più frequente tra le 4 selezionate
         List<String> answers = new ArrayList<>();
         int correctIndex = 0;
         int maxFreq = -1;
+
         for (int i = 0; i < currentAnswer.size(); i++) {
             Map.Entry<String, Integer> entry = currentAnswer.get(i);
             answers.add(entry.getKey());
@@ -382,6 +390,7 @@ public class GameService {
         for (int y = 0; y < 4; y++) {
             currentAnswer.add(wordFrequency.get(y));
         }
+        Collections.shuffle(currentAnswer);
 
         List<String> answers = new ArrayList<>();
         int correctIndex = 0;
@@ -392,6 +401,7 @@ public class GameService {
             if (entry.getValue() > maxFreq) {
                 maxFreq = entry.getValue();
                 correctIndex = i;
+                System.out.println("Correct index: " + correctIndex + " for word: " + entry.getKey() + " with frequency: " + entry.getValue());
             }
         }
         return Question.create("Quale di queste parole appare più frequentemente nel documento \"" + document.title().toUpperCase() + "\"?", answers, correctIndex);
@@ -417,6 +427,7 @@ public class GameService {
         for (int i = 0; i < 4; i++) {
             selected.add(wordFrequency.get(i));
         }
+        Collections.shuffle(selected);
 
         int correctIndex = 0;
         int minFreq = Integer.MAX_VALUE;
@@ -467,6 +478,7 @@ public class GameService {
         for (int y = 0; y < 4 && y < wordFrequency.size(); y++) {
             currentAnswer.add(wordFrequency.get(y));
         }
+        Collections.shuffle(currentAnswer);
 
         // Trova la parola MENO frequente tra le 4 selezionate
         List<String> answers = new ArrayList<>();
@@ -649,8 +661,6 @@ public class GameService {
 
         if (useVocabulary) {
             // Prelevo una parola dal vocabolario statico
-            // Bisogna creare una nuova lista in quanto quella restituita da Resources.getVocabulary() é immutabile
-            // avendola ottenuta mediante il costruttore Arrays.
             List<String> vocabWords = new ArrayList<>(Resources.getVocabulary());
             vocabWords.removeIf(presentWords::contains);
             if (vocabWords.isEmpty()) {

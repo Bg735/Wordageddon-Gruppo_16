@@ -215,7 +215,7 @@ public class GameController implements Initializable {
      * Gestisce l'interazione dell'utente durante la partita: selezione della difficoltà,
      * lettura dei documenti, quiz a domande multiple e visualizzazione del report finale.
      * Utilizza servizi JavaFX asincroni per mantenere la UI reattiva.
-     *
+     * </p>
      */
     public GameController(AppContext appContext) {
         this.gameService = appContext.getGameService();
