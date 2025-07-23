@@ -387,11 +387,13 @@ public class GameController implements Initializable {
         questionCountLabel.setText((index + 1) + "/" + questions.size());
         List<String> answers = q.answers();
         Button[] buttons = {answer1Btn, answer2Btn, answer3Btn, answer4Btn};
+
         // Avvia il timer tramite metodo startTimer
         if(questionTimer != null) {
             questionTimer.stop();
         }
         questionTimer = startTimer(QUESTION_TIME_LIMIT, timerLabelQuestion, timerBarQuestion, () -> Platform.runLater(() -> {
+            // Se il timer scade, salva la risposta come -1 (saltata)
             domandaRisposte.put(q, -1);
             // Alla fine del timer, se non è stata data risposta, mostra la risposta corretta
             numeroRisposteSaltate++;
@@ -548,7 +550,7 @@ public class GameController implements Initializable {
      * Calcola il tempo impiegato per rispondere alle domande, crea e salva il 'GameReport' registrato, aggiorna le statistiche della nuova vista (score,
      * risposte corrette, risposte sbagliate, percentuale di risposte esatte su quelle date)
      * e popola la tabella che mostra il resoconto della partita tramite il metodo populateAnswerTable() del controller.
-     *
+     * </p>
      * @see GameController#populateAnswerTable()
      */
     private void generateReport() {
@@ -644,6 +646,7 @@ public class GameController implements Initializable {
             }));
         }
 
+        // Il listener si attiva ogni volta che la barra viene inserita o rimossa da una scena
         bar.sceneProperty().addListener((_, _, newScene) -> {
             if (newScene != null) {
                 Platform.runLater(updateBarStyle);

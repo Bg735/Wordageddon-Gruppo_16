@@ -60,6 +60,7 @@ public class MainMenuController implements Initializable {
 
         File interruptedSessionFile = new File(Config.get(Config.Props.INTERRUPTED_SESSION_FILE));
         if (interruptedSessionFile.exists()) {
+            // Se il file esiste allora é presente una sessione interrotta. Tento il recupero
             try (var in = new ObjectInputStream(new FileInputStream(Config.get(Config.Props.INTERRUPTED_SESSION_FILE)))) {
                 System.out.println("File di sessione interrotta trovato: " + interruptedSessionFile.getName());
                 var gameSessionState = (GameSessionState) in.readObject();

@@ -52,6 +52,7 @@ public class AuthController implements Initializable {
      * <p>
      * Mostra il pulsante di registrazione se non ci sono utenti, e nasconde il login.
      * Configura anche il binding tra {@link PasswordField} e {@link TextField} per la visualizzazione della password.
+     * </p>
      */
     @FXML
     @Override
@@ -79,7 +80,7 @@ public class AuthController implements Initializable {
      * <p>
      * Verifica che i campi siano compilati, tenta l'autenticazione e reindirizza al menu se riuscita.
      * Se fallisce, mostra un messaggio di errore tramite {@link #showDialog(Alert.AlertType, String, String)}.
-     *
+     * </p>
      */
     @FXML
     private void handleLogin() {
@@ -102,7 +103,7 @@ public class AuthController implements Initializable {
      * <p>
      * Valida l'input rispetto ai vincoli definiti in {@link Config}, registra l'utente e carica il menu se riuscito.
      * Altrimenti, mostra un messaggio di errore.
-     *
+     * </p>
      */
     @FXML
     private void handleRegistration() {
@@ -137,7 +138,7 @@ public class AuthController implements Initializable {
      * Mostra una finestra di dialogo personalizzata con stile dinamico basato sul tipo di {@link Alert}.
      * <p>
      * Se il tipo è {@code INFORMATION}, mostra un'icona di conferma.
-     *
+     * </p>
      * @param type      tipo di alert da visualizzare
      * @param titolo    titolo della finestra
      * @param messaggio contenuto testuale del messaggio

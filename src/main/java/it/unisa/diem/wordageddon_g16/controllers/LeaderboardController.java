@@ -63,6 +63,7 @@ public class LeaderboardController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        // Effettuo la stessa configurazione per tutte le TableView
         for (TableView<LeaderboardService.LeaderboardEntry> tableView : new TableView[]{globalTW, easyTW, mediumTW, hardTW}) {
             tableView.setPlaceholder(new javafx.scene.control.Label("Nessun dato disponibile"));
 

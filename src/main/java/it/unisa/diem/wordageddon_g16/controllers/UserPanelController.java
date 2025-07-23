@@ -128,13 +128,12 @@ public class UserPanelController implements Initializable {
      * può essere promosso o degradato tramite un {@code ToggleButton}.
      * L’aggiornamento del ruolo viene effettuato tramite chiamate a
      * {@link UserPanelService#promoteUser(String)}  o {@link UserPanelService#demoteUser(String)}.
-     * <p>
+     * </p>
      */
     @FXML
     private void handleAdmin() {
         Popup popup = new Popup("Gestione Ruoli Utenti");
         List<User> otherUsers = service.getAllUsersExceptCurrent();
-
 
         for (User user : otherUsers) {
             VBox userBox = new VBox(5);
@@ -197,6 +196,7 @@ public class UserPanelController implements Initializable {
      * Apre un popup per la gestione dei documenti testuali.
      * <p>
      * Funzionalità offerte:
+     * </p>
      * <ul>
      *   <li>Visualizzazione di tutti i documenti salvati nel database.</li>
      *   <li>Rimozione di documenti esistenti.</li>
@@ -215,10 +215,10 @@ public class UserPanelController implements Initializable {
 
         ListView<Document> listView = new ListView<>(documentList);
         listView.setCellFactory(_ -> new ListCell<>() {
+            // Classe anonima che estende ListCell per visualizzare i documenti
             private final HBox content = new HBox(10);
             private final Label label = new Label();
             private final Button removeBtn = new Button("Rimuovi");
-
             {
                 label.setTextFill(Color.BLACK);
                 HBox.setHgrow(label, Priority.ALWAYS);
@@ -232,7 +232,7 @@ public class UserPanelController implements Initializable {
             protected void updateItem(Document doc, boolean empty) {
                 super.updateItem(doc, empty);
                 if (empty || doc == null) {
-                    setGraphic(null);
+                    setGraphic(null);   // Resetta la cella rimuovendo qualunque contenuto grafico
                 } else {
                     label.setText(doc.title());
                     label.setStyle("-fx-text-fill:black");
@@ -337,6 +337,7 @@ public class UserPanelController implements Initializable {
      * Apre un popup che permette la gestione delle stopwords.
      * <p>
      * Le funzionalità offerte includono:
+     * </p>
      * <ul>
      * <li> Aggiunta manuale tramite un {@code TextField }</li>
      * <li> Caricamento da file di solo tipo '.txt'</li>
@@ -463,11 +464,11 @@ public class UserPanelController implements Initializable {
     /**
      * Avvia il ricalcolo parallelo delle {@link WDM} (Word Document Matrix) per tutti i documenti
      * registrati nel database.
-     * <p>
+     *
      * Viene creato un {@link Task} per ogni documento, eseguito tramite un {@link ExecutorService} .
      * Ogni task aggiorna la matrice WDM associata invocando
      * {@link UserPanelService#updateWDM(WDM)}.
-     * <p>
+     *
      * Il metodo assicura che il ricalcolo non avvenga in parallelo ad altri ricalcoli
      * tramite il flag {@code isRecalculatingWDMs}, mentre eventuali richieste successive
      * vengono accodate tramite {@code needsRecalculation}.
@@ -502,6 +503,7 @@ public class UserPanelController implements Initializable {
      * Ripristina il flag {@code isRecalculatingWDMs} a 'false'. Se durante l’esecuzione
      * erano state richieste ulteriori modifiche (es. nuove stopwords), il metodo
      * ne avvia automaticamente un nuovo ricalcolo.
+     * </p>
      */
     private void completeRecalculation() {
         System.out.println("Ricalcolo WDM completato.");
@@ -516,7 +518,6 @@ public class UserPanelController implements Initializable {
 
     /**
      * Metodo di inizializzazione del controller, invocato automaticamente da JavaFX.
-     * <p>
      * Imposta i contenuti iniziali dell’interfaccia utente, tra cui:
      * <ul>
      *  <li>Nome utente</li>
@@ -524,7 +525,7 @@ public class UserPanelController implements Initializable {
      *  <li> Popolamento della tabella {@code userTableView} con i {@link GameReport} tramite la chiamata al metodo {@link UserPanelService#getCurrentUserReports()}</li>
      *  <li>Calcolo attraverso il metodo {@link UserPanelService#getCurrentUserReports()} e visualizzazione delle statistiche dell’utente corrente come punteggio massimo, media, numero di partite giocate
      * </ul>
-     * <p>
+     *
      */
     @FXML
     @Override
