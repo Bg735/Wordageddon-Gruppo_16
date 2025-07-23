@@ -1,7 +1,5 @@
 package it.unisa.diem.wordageddon_g16.models;
 
-import it.unisa.diem.wordageddon_g16.services.GameService;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;

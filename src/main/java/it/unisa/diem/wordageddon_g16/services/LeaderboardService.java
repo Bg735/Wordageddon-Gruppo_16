@@ -16,11 +16,11 @@ import java.util.stream.Collectors;
  * Recupera i dati dei punteggi dei giocatori tramite {@link JDBCGameReportDAO} e costruisce
  * statistiche aggregate come punteggio medio, totale, e numero di partite giocate.
  * Evidenzia l'utente corrente nella lista e determina la difficoltà preferita se non filtrata.
+ * </p>
  */
 public class LeaderboardService {
     /**
      * Record interno che rappresenta una voce nella classifica.
-     * <p>
      * Contiene il nome utente, la difficoltà preferita (se nota), il punteggio medio,
      * il punteggio totale accumulato e il numero di partite giocate.
      */
@@ -36,7 +36,7 @@ public class LeaderboardService {
     private final User currentUser;
 
     /**
-     * Cosstruttore della classe {@code LeaderboardService}.
+     * Costruttore della classe {@code LeaderboardService}.
      *
      * @param context       il contesto applicativo corrente contenente l'utente attivo
      * @param gameReportDAO DAO per i report di gioco
@@ -56,7 +56,7 @@ public class LeaderboardService {
      *
      * @return lista ordinata di {@link LeaderboardEntry} per tutti gli utenti
      */
-    public List<LeaderboardEntry> getGloablLeaderboard() {
+    public List<LeaderboardEntry> getGlobalLeaderboard() {
         return getLeaderboardBase(null);
     }
 
@@ -75,7 +75,6 @@ public class LeaderboardService {
     }
     /**
      * Metodo interno che costruisce la classifica base, utilizzata sia globalmente che per singola difficoltà.
-     * <p>
      * Per ogni utente:
      * <ul>
      *   <li>Recupera i report di gioco filtrati (se richiesto)</li>
@@ -119,6 +118,7 @@ public class LeaderboardService {
             if(difficulty==null)
                 favouriteDifficulty = reports.stream()
                     .map(GameReport::difficulty)
+                        // Si raggruppano le difficoltá per se stesse tramite d -> d
                     .collect(Collectors.groupingBy(d -> d,Collectors.counting()))
                     .entrySet().stream().max(Map.Entry.comparingByValue()).map(Map.Entry::getKey).orElse(null);
 

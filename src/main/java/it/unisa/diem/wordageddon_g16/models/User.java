@@ -6,7 +6,6 @@ import java.io.Serializable;
 
 /**
  * Classe che rappresenta un utente dell'applicazione Wordageddon.
- * <p>
  * Include nome utente, password e flag di amministratore.
  * <br>
  * La classe implementa {@link Serializable} per supportare il salvataggio e caricamento della sessione.

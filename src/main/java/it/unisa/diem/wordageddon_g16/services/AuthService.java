@@ -13,6 +13,7 @@ import java.io.*;
  * <p>
  * Permette la registrazione, login, logout e gestione della sessione utente.
  * Utilizza {@link JDBCUserDAO} per la persistenza e {@link AppContext} per il tracciamento dell'utente corrente.
+ * </p>
  */
 public class AuthService implements Serializable {
     private final AppContext context;
@@ -31,15 +32,14 @@ public class AuthService implements Serializable {
 
     /**
      * Effettua il login utente verificando le credenziali fornite.
-     * <p>
      * Se le credenziali sono valide:
      * <ul>
      *   <li>Imposta l'utente corrente nel {@link AppContext}</li>
      *   <li>Salva la sessione localmente</li>
      * </ul>
      *
-     * @param username nome utente
-     * @param password password associata
+     * @param username nome utente del textField
+     * @param password password del textField
      * @return {@code true} se il login ha successo, {@code false} altrimenti
      */
     public boolean login(String username, String password) {
@@ -54,7 +54,6 @@ public class AuthService implements Serializable {
 
     /**
      * Registra un nuovo utente con nome e password specificati.
-     * <p>
      * Se è il primo utente, viene creato come amministratore.
      * <br>
      * Salva automaticamente la sessione se la registrazione va a buon fine.
@@ -90,7 +89,6 @@ public class AuthService implements Serializable {
 
     /**
      * Carica la sessione utente precedentemente salvata dal file locale.
-     * <p>
      * Se il file esiste e contiene un utente valido:
      * <ul>
      *   <li>Imposta l'utente corrente nel {@link AppContext}</li>

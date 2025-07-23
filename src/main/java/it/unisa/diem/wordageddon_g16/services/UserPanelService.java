@@ -146,7 +146,6 @@ public class UserPanelService {
      * @throws IOException se si verifica un errore di lettura
      */
     public void addStopwordsFromFile(File file) throws IOException {
-        // prelevo le stopwords dal database
         Set<String> stopWordsSet = new HashSet<>();
         try (BufferedReader bf = new BufferedReader(new FileReader(file))) {
             String line;
@@ -154,6 +153,7 @@ public class UserPanelService {
                 stopWordsSet.addAll(stopWordsParser(line));
             }
         }
+        // Inserisce le nuove stopword nel database (il controllo duplicati è gestito dal DB)
         for (String stopWord : stopWordsSet) {
             stopWordDAO.insert(stopWord);
         }
@@ -271,7 +271,6 @@ public class UserPanelService {
 
     /**
      * Estrae tutte le stopword (parole e simboli di punteggiatura) da una singola riga di testo.
-     * <p>
      * Il metodo effettua il parsing della stringa fornita, estraendo:
      * <ul>
      *   <li>Le parole (sequenze di caratteri alfabetici) separate da spazi o punteggiatura</li>

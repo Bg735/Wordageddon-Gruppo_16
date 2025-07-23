@@ -2,7 +2,6 @@ package it.unisa.diem.wordageddon_g16.models;
 
 /**
  * Enum che rappresenta i livelli di difficoltà disponibili nel gioco Wordageddon.
- * <p>
  * Ogni valore è associato a una stringa descrittiva e a un punteggio massimo
  * ottenibile tramite il metodo {@link #getMaxScoreDifficulty(Difficulty)}.
  *

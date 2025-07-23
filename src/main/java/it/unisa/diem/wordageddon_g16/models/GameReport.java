@@ -11,6 +11,7 @@ import java.util.List;
  * Include informazioni sul giocatore, i documenti utilizzati, la difficoltà selezionata,
  * il tempo impiegato, il numero di domande e il punteggio ottenuto.
  * Viene utilizzato per memorizzare i risultati delle partite completate.
+ * </p>
  *
  * @param user          utente che ha effettuato la sessione
  * @param documents     lista dei documenti selezionati per la partita

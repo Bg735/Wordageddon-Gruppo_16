@@ -47,7 +47,6 @@ public record Document(String filename, String title, Integer wordCount) impleme
         return title;
     }
 
-    /**
      /**
      * Restituisce il nome del file associato al documento.
      *

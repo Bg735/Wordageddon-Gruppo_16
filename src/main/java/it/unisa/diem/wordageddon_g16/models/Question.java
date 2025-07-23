@@ -8,7 +8,6 @@ import java.util.List;
 /**
  * Rappresenta una domanda a risposta multipla generata dal {@link GameService}.
  *
- * <p>
  * Ogni {@code Question} contiene:
  * <ul>
  *   <li>Il testo della domanda ({@code text})</li>
@@ -24,7 +23,6 @@ public record Question(
 ) implements Serializable {
     /**
      * Enum interno che definisce le diverse tipologie di domande generabili.
-     * <p>
      * Ogni tipo ha un {@code weight} che ne indica la rilevanza nella fase di generazione.
      * Tipologie disponibili:
      * <ul>

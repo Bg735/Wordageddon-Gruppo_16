@@ -96,7 +96,7 @@ public class LeaderboardController implements Initializable {
             ((TableColumn<LeaderboardService.LeaderboardEntry, Integer>) tableView.getColumns().get(i)).setCellValueFactory(data -> new javafx.beans.property.SimpleIntegerProperty(data.getValue().gamesPlayed()).asObject());
 
         }
-        globalTW.setItems(FXCollections.observableList(leaderboardService.getGloablLeaderboard()));
+        globalTW.setItems(FXCollections.observableList(leaderboardService.getGlobalLeaderboard()));
         easyTW.setItems(FXCollections.observableList(leaderboardService.getLeaderboardByDifficulty(Difficulty.EASY)));
         mediumTW.setItems(FXCollections.observableList(leaderboardService.getLeaderboardByDifficulty(Difficulty.MEDIUM)));
         hardTW.setItems(FXCollections.observableList(leaderboardService.getLeaderboardByDifficulty(Difficulty.HARD)));
