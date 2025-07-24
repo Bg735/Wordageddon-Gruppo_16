@@ -401,7 +401,6 @@ public class GameService {
             if (entry.getValue() > maxFreq) {
                 maxFreq = entry.getValue();
                 correctIndex = i;
-                System.out.println("Correct index: " + correctIndex + " for word: " + entry.getKey() + " with frequency: " + entry.getValue());
             }
         }
         return Question.create("Quale di queste parole appare più frequentemente nel documento \"" + document.title().toUpperCase() + "\"?", answers, correctIndex);
